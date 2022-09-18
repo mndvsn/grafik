@@ -3,8 +3,19 @@
  * Copyright 2012-2022 Martin Furuberg 
  */
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+static std::string LoadShader(const std::string& filePath)
+{
+    const std::ifstream file(filePath);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+
+    return buffer.str();
+}
 
 static unsigned int CompileShader(unsigned int type, const std::string& source)
 {
@@ -103,20 +114,9 @@ int main(void)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
 
-    const std::string vertexShader =
-        "#version 330 core\n"
-        "layout(location = 0) in vec4 position;\n"
-        "void main()\n"
-        "{\n"
-        "gl_Position = position;\n"
-        "}\n";
-    const std::string fragmentShader =
-        "#version 330 core\n"
-        "layout(location = 0) out vec4 color;\n"
-        "void main()\n"
-        "{\n"
-        "color = vec4(1.0, 0.0, 0.0, 1.0);\n"
-        "}\n";
+    const std::string vertexShader = LoadShader("src/res/shaders/basic.vs");
+    const std::string fragmentShader = LoadShader("src/res/shaders/basic.fs");
+    
     const unsigned int shader = CreateShaderProgram(vertexShader, fragmentShader);
     glUseProgram(shader);
     

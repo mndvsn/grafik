@@ -22,6 +22,12 @@
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Grafik.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="src\res\shaders\basic.vs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="src\res\shaders\basic.fs" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{DB07EC7E-BA66-4D5D-9F27-D43B071DCDA1}</ProjectGuid>
