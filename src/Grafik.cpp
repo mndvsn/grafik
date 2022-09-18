@@ -2,20 +2,13 @@
  * Grafik 
  * Copyright 2012-2022 Martin Furuberg 
  */
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-static std::string LoadShader(const std::string& filePath)
-{
-    const std::ifstream file(filePath);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
+#include <iostream>
+#include <fstream>
 
-    return buffer.str();
-}
+#include "utils/File.h"
 
 static unsigned int CompileShader(unsigned int type, const std::string& source)
 {
@@ -26,7 +19,7 @@ static unsigned int CompileShader(unsigned int type, const std::string& source)
 
     // Check for errors
     int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);    
+    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
     if (result == GL_FALSE)
     {
         int length;
@@ -60,7 +53,7 @@ static unsigned int CreateShaderProgram(const std::string& vertexShader, const s
     return program;
 }
 
-int main(void)
+int main()
 {
     if (!glfwInit())
     {
@@ -89,16 +82,8 @@ int main(void)
     std::cout << "Vendor: " << glGetString(GL_VENDOR) << "\n";
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << "\n";
 
-    GLint numExtensions;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
-    std::cout << "Extensions:\n";
-    for (GLint i = 0; i < numExtensions; i++)
-    {
-        std::cout << glGetStringi(GL_EXTENSIONS, i) << "\n";
-    }
-
     // Data for triangle
-    const float positions[6] = {
+    constexpr float positions[6] = {
        -0.5f, -0.5f,
         0.0f,  0.5f,
         0.5f, -0.5f
@@ -114,8 +99,11 @@ int main(void)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
 
-    const std::string vertexShader = LoadShader("src/res/shaders/basic.vs");
-    const std::string fragmentShader = LoadShader("src/res/shaders/basic.fs");
+    File vsFile("src/res/shaders/basic.vs");
+    const std::string vertexShader = vsFile.Read();
+    
+    File fsFile("src/res/shaders/basic.fs");
+    const std::string fragmentShader = fsFile.Read();
     
     const unsigned int shader = CreateShaderProgram(vertexShader, fragmentShader);
     glUseProgram(shader);
