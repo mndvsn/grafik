@@ -1,0 +1,38 @@
+# Visual Studio
+.vs/
+
+# Rider
+.idea/
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+*.ipch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+!*.lib
+
+# Binary Files
+bin/*
+*.exe
+
+# Compiled source files
+intermediate/*
+
