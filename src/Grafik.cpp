@@ -10,6 +10,8 @@
 #include <cmath>
 #include <numbers>
 
+#include "IndexBuffer.h"
+#include "VertexBuffer.h"
 #include "utils/File.h"
 #include "utils/GLDebug.h"
 
@@ -145,19 +147,13 @@ int main()
     glBindVertexArray(vao);
     
     // Generate vertex buffer for static draw
-    unsigned int buffer {};
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-
+    VertexBuffer vBuffer(positions, sizeof(positions));
+    
     // Define position attribute
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
 
-    unsigned int ibo {};
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    IndexBuffer iBuffer(indices, 6);
     
     File vsFile("src/res/shaders/basic.vs");
     const std::string vertexShader = vsFile.Read();

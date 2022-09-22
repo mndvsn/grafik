@@ -24,9 +24,15 @@
     <ClCompile Include="src\utils\File.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\GLDebug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\utils\File.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\GLDebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
