@@ -1,5 +1,5 @@
 ﻿/**
-* Grafik
+ * Grafik
  * VertexBuffer
  * Copyright 2012-2022 Martin Furuberg 
  */

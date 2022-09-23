@@ -10,7 +10,8 @@
 #include <cmath>
 #include <numbers>
 
-#include "IndexBuffer.h"
+#include "ElementBuffer.h"
+#include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "utils/File.h"
 #include "utils/GLDebug.h"
@@ -142,18 +143,21 @@ int main()
         2, 3, 0
     };
 
-    unsigned int vao {};
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    
+    // Generate Vertex Array Object
+    VertexArray vao;
+        
     // Generate vertex buffer for static draw
     VertexBuffer vBuffer(positions, sizeof(positions));
-    
-    // Define position attribute
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, 0);
 
-    IndexBuffer iBuffer(indices, 6);
+    // Define layout
+    VertexBufferLayout layout;
+    layout.Push<float>(2); // position attribute, 2 floats
+
+    // Add buffer with attributes to VAO
+    vao.AddBuffer(vBuffer, layout);
+
+    // Bind element/index buffer
+    ElementBuffer eBuffer(indices, 6);
     
     File vsFile("src/res/shaders/basic.vs");
     const std::string vertexShader = vsFile.Read();
@@ -187,7 +191,7 @@ int main()
         auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
         glUniform4f(uniformLocation, 0.5f + diffCos*0.5f, 0.5f + diffSin*0.5f, 0.0f, 1.0f);
 
-        glBindVertexArray(vao);
+        vao.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         glfwSwapBuffers(window);

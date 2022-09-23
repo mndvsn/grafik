@@ -13,10 +13,12 @@
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Grafik.cpp" />
-    <ClCompile Include="src\IndexBuffer.cpp" />
+    <ClCompile Include="src\ElementBuffer.cpp" />
     <ClCompile Include="src\utils\File.cpp" />
     <ClCompile Include="src\utils\GLDebug.cpp" />
+    <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
+    <ClCompile Include="src\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\res\shaders\basic.vs" />
@@ -25,10 +27,12 @@
     <Compile Include="src\res\shaders\basic.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\IndexBuffer.h" />
+    <ClInclude Include="src\ElementBuffer.h" />
     <ClInclude Include="src\utils\File.h" />
     <ClInclude Include="src\utils\GLDebug.h" />
+    <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
+    <ClInclude Include="src\VertexBufferLayout.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
