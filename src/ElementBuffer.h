@@ -16,6 +16,8 @@ public:
     ElementBuffer(const unsigned* data, unsigned count);
     ~ElementBuffer();
 
+    unsigned GetId() const { return _id; }
+
     void Bind() const;
     static void Unbind();
 

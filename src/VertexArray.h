@@ -16,7 +16,9 @@ private:
 public:
     VertexArray();
     ~VertexArray();
-
+    
+    unsigned GetId() const { return _id; }
+    
     void Bind() const;
     static void Unbind();
     

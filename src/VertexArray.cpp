@@ -30,17 +30,22 @@ void VertexArray::Unbind()
 
 void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {
+    // use one binding point for now
+    constexpr unsigned bufferBindingPoint { 0 };
+    // get data from start of buffer
+    constexpr unsigned offset { 0 };
+    
     // Bind this VAO
     Bind();
-
-    // Bind VertexBuffer
-    vb.Bind();
     
     // Define each attribute (element) in layout
     for (auto& element : layout.GetElements())
     {
-        glVertexAttribPointer(element.location, element.count, element.type, element.normalized, layout.GetStride(),
-            reinterpret_cast<const void*>(static_cast<intptr_t>(element.offset)));  // NOLINT(performance-no-int-to-ptr)
+        glVertexAttribFormat(element.location, element.count, element.type, element.normalized, element.offset);
+        glVertexAttribBinding(element.location, bufferBindingPoint);
         glEnableVertexAttribArray(element.location);
     }
+    
+    // Bind VertexBuffer to binding point
+    glBindVertexBuffer(bufferBindingPoint, vb.GetId(), offset, layout.GetStride());
 }

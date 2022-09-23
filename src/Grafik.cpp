@@ -169,7 +169,12 @@ int main()
     glUseProgram(shader);
 
     int uniformLocation = glGetUniformLocation(shader, "u_Color");
-    glUniform4f(uniformLocation, 1.0f, 0.0f, 1.0f, 1.0f);
+    glUniform4f(uniformLocation, 1.0f, 0.0f, 1.0f, 1.0f); // set initial value
+
+    // unbind state
+    glUseProgram(0);
+    VertexArray::Unbind();
+    VertexBuffer::Unbind();
     
     double cycle {};
     
@@ -182,6 +187,9 @@ int main()
         totalTimeElapsed = timeElapsedNow;
         
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // Draw in wireframe mode
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         // Draw two triangles with created program, uniform and vertex array object
         glUseProgram(shader);
