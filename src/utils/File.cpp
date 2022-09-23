@@ -1,5 +1,6 @@
 ﻿/**
-* Grafik 
+ * Grafik
+ * File
  * Copyright 2012-2022 Martin Furuberg 
  */
 #include "File.h"

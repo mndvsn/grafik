@@ -7,6 +7,7 @@
 
 #include <glad/glad.h>
 
+
 VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &_id);
