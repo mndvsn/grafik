@@ -11,56 +11,13 @@
 #include <numbers>
 
 #include "ElementBuffer.h"
+#include "Shader.h"
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-#include "utils/File.h"
 #include "utils/GLDebug.h"
 
 
 GLFWwindow* window { nullptr };
-
-static unsigned int CompileShader(unsigned int type, const std::string& source)
-{
-    const unsigned int id = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(id, 1, &src, nullptr);
-    glCompileShader(id);
-
-    // Check for errors
-    int result;
-    glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-    if (result == GL_FALSE)
-    {
-        int length {};
-        glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = static_cast<char*>(alloca(length * sizeof(char)));
-        glGetShaderInfoLog(id, length, &length, message);
-        std::cout << "Compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << " shader failed: ";
-        std::cout << message << "\n";
-
-        glDeleteShader(id);
-        return 0;
-    }
-    
-    return id;
-}
-
-static unsigned int CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
-{
-    const unsigned int program = glCreateProgram();
-    const unsigned int vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
-    const unsigned int fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
-
-    glAttachShader(program, vs);
-    glAttachShader(program, fs);
-    glLinkProgram(program);
-    glValidateProgram(program);
-
-    glDeleteShader(vs);
-    glDeleteShader(fs);
-
-    return program;
-}
 
 int InitOGL(const char* title, const int width, const int height)
 {
@@ -101,7 +58,7 @@ int InitOGL(const char* title, const int width, const int height)
     std::cout << "Shading language: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
     std::cout << "GL Version: " << glGetString(GL_VERSION) << "\n";
     std::cout << "Vendor: " << glGetString(GL_VENDOR) << "\n";
-    std::cout << "Renderer: " << glGetString(GL_RENDERER) << "\n";
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 
     // Set up debug/error message handling
     int flags {};
@@ -158,21 +115,14 @@ int main()
 
     // Bind element/index buffer
     ElementBuffer eBuffer(indices, 6);
-    
-    File vsFile("src/res/shaders/basic.vs");
-    const std::string vertexShader = vsFile.Read();
-    
-    File fsFile("src/res/shaders/basic.fs");
-    const std::string fragmentShader = fsFile.Read();
-    
-    const unsigned int shader = CreateShaderProgram(vertexShader, fragmentShader);
-    glUseProgram(shader);
 
-    int uniformLocation = glGetUniformLocation(shader, "u_Color");
-    glUniform4f(uniformLocation, 1.0f, 0.0f, 1.0f, 1.0f); // set initial value
+    // Create basic shader
+    Shader basicShader("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
+    basicShader.Bind();
+    basicShader.SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f); // set initial color
 
     // unbind state
-    glUseProgram(0);
+    Shader::Unbind();
     VertexArray::Unbind();
     VertexBuffer::Unbind();
     
@@ -189,15 +139,15 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Draw in wireframe mode
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         // Draw two triangles with created program, uniform and vertex array object
-        glUseProgram(shader);
+        basicShader.Bind();
 
         cycle = fmod(cycle + 50*deltaTime, 360.0);
-        auto diffSin = static_cast<float>(sin(cycle * std::numbers::pi / 180.0));
-        auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
-        glUniform4f(uniformLocation, 0.5f + diffCos*0.5f, 0.5f + diffSin*0.5f, 0.0f, 1.0f);
+        const auto diffSin = static_cast<float>(sin(cycle * std::numbers::pi / 180.0));
+        const auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
+        basicShader.SetUniform4f("u_Color", 0.5f + diffCos*0.5f, 0.5f + diffSin*0.5f, 0.0f, 1.0f);
 
         vao.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -205,9 +155,6 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    // Clean up
-    glDeleteProgram(shader);
     
     glfwTerminate();
     return 0;

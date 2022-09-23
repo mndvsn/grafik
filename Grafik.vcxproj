@@ -14,6 +14,7 @@
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\Grafik.cpp" />
     <ClCompile Include="src\ElementBuffer.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\utils\File.cpp" />
     <ClCompile Include="src\utils\GLDebug.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
@@ -21,13 +22,14 @@
     <ClCompile Include="src\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="src\res\shaders\basic.vs" />
+    <Content Include="src\res\shaders\basic.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="src\res\shaders\basic.fs" />
+    <Compile Include="src\res\shaders\basic.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ElementBuffer.h" />
+    <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\utils\File.h" />
     <ClInclude Include="src\utils\GLDebug.h" />
     <ClInclude Include="src\VertexArray.h" />
