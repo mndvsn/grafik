@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
+    <ClCompile Include="src\GLRender.cpp" />
     <ClCompile Include="src\Grafik.cpp" />
     <ClCompile Include="src\ElementBuffer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
@@ -29,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ElementBuffer.h" />
+    <ClInclude Include="src\GLRender.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\utils\File.h" />
     <ClInclude Include="src\utils\GLDebug.h" />
