@@ -8,7 +8,7 @@
 #include <glad/glad.h>
 
 
-ElementBuffer::ElementBuffer(const unsigned* data, unsigned count)
+ElementBuffer::ElementBuffer(const unsigned* data, int count)
     : _count { count }
 {
     glGenBuffers(1, &_id);

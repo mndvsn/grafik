@@ -7,6 +7,8 @@
 
 #include "ElementBuffer.h"
 #include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
+#include "Renderer.h"
 #include "utils/GLDebug.h"
 
 #include <iostream>
@@ -64,10 +66,10 @@ void GLRender::Init()
 
 #ifdef _DEBUG
     // Print adapter info
-    std::cout << "Shading language: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
-    std::cout << "GL Version: " << glGetString(GL_VERSION) << "\n";
-    std::cout << "Vendor: " << glGetString(GL_VENDOR) << "\n";
-    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "Shading language: \t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
+    std::cout << "GL Version: \t\t"     << glGetString(GL_VERSION) << "\n";
+    std::cout << "Vendor: \t\t\t"       << glGetString(GL_VENDOR) << "\n";
+    std::cout << "Renderer: \t\t\t"     << glGetString(GL_RENDERER) << std::endl;
 
     // Set up debug/error message handling
     int flags{};
@@ -93,7 +95,7 @@ void GLRender::Setup()
         -0.5f,  0.5f
      };
 
-    constexpr unsigned int indices[] =
+    constexpr unsigned indices[] =
     {
         0, 1, 2,
         2, 3, 0
@@ -103,23 +105,21 @@ void GLRender::Setup()
     if (!vao) vao.emplace();
     
     // Generate vertex buffer for static draw
-    VertexBuffer vBuffer(positions, sizeof(positions));
+    const VertexBuffer vbo(positions, sizeof(positions));
 
     // Define layout
     VertexBufferLayout layout;
     layout.Push<float>(2); // position attribute, 2 floats
 
-    // Add buffer with attributes to VAO
-    vao->AddBuffer(vBuffer, layout);
+    // Add vertex buffer with attributes to VAO
+    vao->AddVertexBuffer(vbo, layout);
 
-    // Bind element/index buffer
-    ElementBuffer eBuffer(indices, 6);
+    // Generate element/index buffer and bind to VAO
+    const ElementBuffer ebo(indices, 6);
+    vao->AddElementBuffer(ebo);
 
     // Create basic shader
-    if (!basicShader)
-    {
-        basicShader.emplace("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
-    }
+    if (!basicShader) basicShader.emplace("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
     basicShader->Bind();
     basicShader->SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f); // set initial color
 
@@ -133,6 +133,13 @@ void GLRender::Run()
 {
     double totalTimeElapsed { 0 }, timeElapsedNow { 0 }, deltaTime { 0 };
     double cycle {};
+
+    Renderer renderer;
+
+#ifdef DRAW_WIREFRAME
+    // Draw in wireframe mode
+    renderer.SetWireframeMode(true);
+#endif
     
     // Keep loop until the user closes the window
     while (!glfwWindowShouldClose(_window))
@@ -142,14 +149,9 @@ void GLRender::Run()
         deltaTime = timeElapsedNow - totalTimeElapsed;
         totalTimeElapsed = timeElapsedNow;
         
-        glClear(GL_COLOR_BUFFER_BIT);
-
-#       ifdef DRAW_WIREFRAME
-        // Draw in wireframe mode
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-#       endif
-        
-        // Draw two triangles with created program, uniform and vertex array object
+        renderer.Clear();
+       
+        // Draw two triangles with vertex array object, compiled shader and set uniform 
         basicShader->Bind();
 
         cycle = fmod(cycle + 50*deltaTime, 360.0);
@@ -157,8 +159,7 @@ void GLRender::Run()
         const auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
         basicShader->SetUniform4f("u_Color", 0.5f + diffCos*0.5f, 0.5f + diffSin*0.5f, 0.0f, 1.0f);
 
-        vao->Bind();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        renderer.Render(*vao, *basicShader);
 
         glfwSwapBuffers(_window);
         glfwPollEvents();

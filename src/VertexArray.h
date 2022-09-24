@@ -4,14 +4,16 @@
  * Copyright 2012-2022 Martin Furuberg 
  */
 #pragma once
-#include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
 
+class ElementBuffer;
+class VertexBuffer;
+class VertexBufferLayout;
 
 class VertexArray
 {
 private:
-    unsigned _id;
+    unsigned _id { 0 };
+    int _elementCount { 0 };
 
 public:
     VertexArray();
@@ -22,5 +24,8 @@ public:
     void Bind() const;
     static void Unbind();
     
-    void AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
+    void AddVertexBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
+    void AddElementBuffer(const ElementBuffer& ebo);
+    
+    int GetElementCount() const { return _elementCount; }
 };

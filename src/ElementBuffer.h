@@ -10,10 +10,10 @@ class ElementBuffer
 {
 private:
     unsigned _id { 0 };
-    unsigned _count { 0 };
+    int _count { 0 };
     
 public:
-    ElementBuffer(const unsigned* data, unsigned count);
+    ElementBuffer(const unsigned* data, int count);
     ~ElementBuffer();
 
     unsigned GetId() const { return _id; }
@@ -21,5 +21,5 @@ public:
     void Bind() const;
     static void Unbind();
 
-    unsigned GetCount() const { return _count; }
+    int GetCount() const { return _count; }
 };

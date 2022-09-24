@@ -5,6 +5,10 @@
  */
 #include "VertexArray.h"
 
+#include "ElementBuffer.h"
+#include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
+
 #include <glad/glad.h>
 
 
@@ -29,7 +33,7 @@ void VertexArray::Unbind()
     glBindVertexArray(0);
 }
 
-void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
+void VertexArray::AddVertexBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {
     // use one binding point for now
     constexpr unsigned bufferBindingPoint { 0 };
@@ -49,4 +53,9 @@ void VertexArray::AddBuffer(const VertexBuffer& vb, const VertexBufferLayout& la
     
     // Bind VertexBuffer to binding point
     glBindVertexBuffer(bufferBindingPoint, vb.GetId(), offset, layout.GetStride());
+}
+
+void VertexArray::AddElementBuffer(const ElementBuffer& ebo)
+{
+    _elementCount = ebo.GetCount();
 }
