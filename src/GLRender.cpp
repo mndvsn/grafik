@@ -11,6 +11,8 @@
 #include "Renderer.h"
 #include "utils/GLDebug.h"
 
+#include <glm/ext/matrix_clip_space.hpp>
+
 #include <iostream>
 #include <cmath>
 #include <numbers>
@@ -89,6 +91,9 @@ void GLRender::Setup()
     // Set blend function
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Define projection matrix
+    projectionMatrix = glm::ortho(-1.0f, 1.0f, -0.75f, 0.75f, -1.0f, 1.0f);
     
     // Data for triangle
     constexpr float vertices[] =
@@ -127,6 +132,7 @@ void GLRender::Setup()
     // Create basic shader
     if (!basicShader) basicShader.emplace("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
     basicShader->Bind();
+    basicShader->SetUniformMat4f("u_MVP", projectionMatrix);
     basicShader->SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f); // set initial color
 
     // Load texture

@@ -8,6 +8,7 @@
 #include "utils/File.h"
 
 #include <glad/glad.h>
+
 #include <filesystem>
 #include <iostream>
 
@@ -106,6 +107,11 @@ void Shader::SetUniform1f(const std::string& name, float value)
 void Shader::SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3)
 {
     glUniform4f(GetUniformLocation(name), f0, f1, f2, f3);
+}
+
+void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
+{
+    glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
 }
 
 int Shader::GetUniformLocation(const std::string& name)

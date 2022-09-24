@@ -4,6 +4,8 @@
  * Copyright 2012-2022 Martin Furuberg 
  */
 #pragma once
+#include <glm/mat4x4.hpp>
+
 #include <string>
 #include <unordered_map>
 
@@ -30,8 +32,10 @@ public:
     void SetUniform1i(const std::string& name, int value);
     void SetUniform1f(const std::string& name, float value);
     void SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3);
+    void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
+
     int GetUniformLocation(const std::string& name);
-    
+
 private:
     unsigned CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader);
     unsigned CompileShaderSource(unsigned type, const std::string& source);

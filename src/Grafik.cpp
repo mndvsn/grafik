@@ -10,7 +10,7 @@
 
 int main()
 {
-    GLRender render("Grafik", 600, 600);
+    GLRender render("Grafik", 800, 600);
 
     try
     {
