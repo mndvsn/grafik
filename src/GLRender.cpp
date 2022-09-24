@@ -11,6 +11,8 @@
 #include "Renderer.h"
 #include "utils/GLDebug.h"
 
+#include <glm/mat4x4.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <iostream>
@@ -92,9 +94,6 @@ void GLRender::Setup()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Define projection matrix
-    projectionMatrix = glm::ortho(-1.0f, 1.0f, -0.75f, 0.75f, -1.0f, 1.0f);
-    
     // Data for triangle
     constexpr float vertices[] =
     {
@@ -129,10 +128,16 @@ void GLRender::Setup()
     const ElementBuffer ebo(indices, 6);
     vao->AddElementBuffer(ebo);
 
+    // Define matrices
+    const glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -0.75f, 0.75f, -1.0f, 1.0f);
+    const glm::mat4 view = translate(glm::mat4(1.0f), glm::vec3(-0.2, 0, 0));
+    const glm::mat4 model = translate(glm::mat4(1.0f), glm::vec3(0, 0.1, 0));
+    mvp = projection * view * model;
+    
     // Create basic shader
     if (!basicShader) basicShader.emplace("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
     basicShader->Bind();
-    basicShader->SetUniformMat4f("u_MVP", projectionMatrix);
+    basicShader->SetUniformMat4f("u_MVP", mvp);
     basicShader->SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f); // set initial color
 
     // Load texture

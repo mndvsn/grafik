@@ -11,7 +11,7 @@
 #include "Shader.h"
 #include "Texture.h"
 
-#include <glm/mat4x4.hpp>
+#include <glm/fwd.hpp>
 
 #include <optional>
 #include <string>
@@ -37,5 +37,5 @@ public:
     std::optional<Shader> basicShader {};
     std::optional<Texture> texture {};
 
-    glm::mat4 projectionMatrix;
+    glm::mat4 mvp { 1.0f };
 };
