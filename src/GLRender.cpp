@@ -68,8 +68,8 @@ void GLRender::Init()
     // Print adapter info
     std::cout << "Shading language: \t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
     std::cout << "GL Version: \t\t"     << glGetString(GL_VERSION) << "\n";
-    std::cout << "Vendor: \t\t\t"       << glGetString(GL_VENDOR) << "\n";
-    std::cout << "Renderer: \t\t\t"     << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "Vendor: \t\t"         << glGetString(GL_VENDOR) << "\n";
+    std::cout << "Renderer: \t\t"       << glGetString(GL_RENDERER) << std::endl;
 
     // Set up debug/error message handling
     int flags{};
@@ -86,13 +86,18 @@ void GLRender::Init()
 
 void GLRender::Setup()
 {
+    // Set blend function
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     // Data for triangle
-    constexpr float positions[] =
+    constexpr float vertices[] =
     {
-        -0.5f, -0.5f,
-         0.5f, -0.5f,
-         0.5f,  0.5f,
-        -0.5f,  0.5f
+        // position     // uv
+        -0.5f, -0.5f,   0.0f, 0.0f,
+         0.5f, -0.5f,   1.0f, 0.0f,
+         0.5f,  0.5f,   1.0f, 1.0f,
+        -0.5f,  0.5f,   0.0f, 1.0f
      };
 
     constexpr unsigned indices[] =
@@ -105,11 +110,12 @@ void GLRender::Setup()
     if (!vao) vao.emplace();
     
     // Generate vertex buffer for static draw
-    const VertexBuffer vbo(positions, sizeof(positions));
+    const VertexBuffer vbo(vertices, sizeof(vertices));
 
     // Define layout
     VertexBufferLayout layout;
     layout.Push<float>(2); // position attribute, 2 floats
+    layout.Push<float>(2); // uv attribute, 2 floats
 
     // Add vertex buffer with attributes to VAO
     vao->AddVertexBuffer(vbo, layout);
@@ -122,6 +128,12 @@ void GLRender::Setup()
     if (!basicShader) basicShader.emplace("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
     basicShader->Bind();
     basicShader->SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f); // set initial color
+
+    // Load texture
+    if (!texture) texture.emplace("src/res/textures/metal_plates.png");
+    // bind to texture unit
+    texture->Bind(0);
+    basicShader->SetUniform1i("u_Texture", 0);
 
     // unbind state
     Shader::Unbind();
@@ -159,6 +171,7 @@ void GLRender::Run()
         const auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
         basicShader->SetUniform4f("u_Color", 0.5f + diffCos*0.5f, 0.5f + diffSin*0.5f, 0.0f, 1.0f);
 
+        texture->Bind();
         renderer.Render(*vao, *basicShader);
 
         glfwSwapBuffers(_window);

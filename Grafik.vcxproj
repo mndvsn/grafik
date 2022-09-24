@@ -17,6 +17,7 @@
     <ClCompile Include="src\ElementBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\utils\File.cpp" />
     <ClCompile Include="src\utils\GLDebug.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
@@ -25,6 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\res\shaders\basic.vert" />
+    <Content Include="src\res\textures\metal_plates.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\res\shaders\basic.frag" />
@@ -34,6 +36,7 @@
     <ClInclude Include="src\GLRender.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\utils\File.h" />
     <ClInclude Include="src\utils\GLDebug.h" />
     <ClInclude Include="src\VertexArray.h" />

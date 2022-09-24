@@ -12,6 +12,9 @@
 File::File(const char* inFilePath)
 {
     filePath = inFilePath;
+
+    // throw exceptions
+    fin.exceptions (std::ifstream::failbit | std::ifstream::badbit);
 }
 
 std::string File::Read()

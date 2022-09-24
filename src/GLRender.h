@@ -7,10 +7,12 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Shader.h"
 #include "VertexArray.h"
+#include "Shader.h"
+#include "Texture.h"
 
 #include <optional>
+#include <string>
 
 
 class GLRender
@@ -31,5 +33,6 @@ public:
 
     std::optional<VertexArray> vao {};
     std::optional<Shader> basicShader {};
+    std::optional<Texture> texture {};
 
 };
