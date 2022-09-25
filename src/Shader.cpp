@@ -4,9 +4,9 @@
  * Copyright 2012-2022 Martin Furuberg 
  */
 #include "Shader.h"
-
 #include "utils/File.h"
 
+#include <glm/glm.hpp>
 #include <glad/glad.h>
 
 #include <filesystem>
@@ -109,9 +109,19 @@ void Shader::SetUniform4f(const std::string& name, float f0, float f1, float f2,
     glUniform4f(GetUniformLocation(name), f0, f1, f2, f3);
 }
 
+void Shader::SetUniformVec3f(const std::string& name, const glm::vec3& value)
+{
+    glUniform3fv(GetUniformLocation(name), 1, &value.x);
+}
+
+void Shader::SetUniformVec4f(const std::string& name, const glm::vec4& value)
+{
+    glUniform4fv(GetUniformLocation(name), 1, &value.x);
+}
+
 void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix)
 {
-    glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
+    glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0].x);
 }
 
 int Shader::GetUniformLocation(const std::string& name)

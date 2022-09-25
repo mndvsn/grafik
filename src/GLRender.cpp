@@ -11,13 +11,19 @@
 #include "Renderer.h"
 #include "utils/GLDebug.h"
 
-#include <glm/mat4x4.hpp>
+// ImGUI
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+
+// GLM
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <iostream>
 #include <cmath>
 #include <numbers>
+#include <sstream>
 
 
 //#define DRAW_WIREFRAME
@@ -30,6 +36,7 @@ GLRender::GLRender(const char* title, const int width, const int height)
 
 void GLRender::Init()
 {
+    glfwSetErrorCallback(glfwError);
     if (!glfwInit())
     {
         {
@@ -68,24 +75,29 @@ void GLRender::Init()
         }
     }
 
-#ifdef _DEBUG
-    // Print adapter info
-    std::cout << "Shading language: \t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
-    std::cout << "GL Version: \t\t"     << glGetString(GL_VERSION) << "\n";
-    std::cout << "Vendor: \t\t"         << glGetString(GL_VENDOR) << "\n";
-    std::cout << "Renderer: \t\t"       << glGetString(GL_RENDERER) << std::endl;
+#   ifdef _DEBUG
+    InitDebug();
+#   endif
 
-    // Set up debug/error message handling
-    int flags{};
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-    {
-        glEnable(GL_DEBUG_OUTPUT);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-        glDebugMessageCallback(HandleGLDebugMessage, nullptr);
-        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_TRUE);
-    }
-#endif
+    // Setup Dear ImGui context
+    InitImGUI();
+}
+
+void GLRender::InitImGUI()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    // Setup GLFW + GLSL
+    std::stringstream glsl_version;
+    glsl_version << "#version " << glGetStringi(GL_SHADING_LANGUAGE_VERSION, 0);
+    ImGui_ImplGlfw_InitForOpenGL(_window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version.str().c_str());
 }
 
 void GLRender::Setup()
@@ -128,17 +140,13 @@ void GLRender::Setup()
     const ElementBuffer ebo(indices, 6);
     vao->AddElementBuffer(ebo);
 
-    // Define matrices
-    const glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -0.75f, 0.75f, -1.0f, 1.0f);
-    const glm::mat4 view = translate(glm::mat4(1.0f), glm::vec3(-0.2, 0, 0));
-    const glm::mat4 model = translate(glm::mat4(1.0f), glm::vec3(0, 0.1, 0));
-    mvp = projection * view * model;
+    // Define matrices    
+    projection = glm::ortho(-1.0f, 1.0f, -0.75f, 0.75f, -1.0f, 1.0f);
+    view = translate(glm::mat4(1.0f), glm::vec3(0.0f));
     
     // Create basic shader
     if (!basicShader) basicShader.emplace("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
     basicShader->Bind();
-    basicShader->SetUniformMat4f("u_MVP", mvp);
-    basicShader->SetUniform4f("u_Color", 1.0f, 0.0f, 1.0f, 1.0f); // set initial color
 
     // Load texture
     if (!texture) texture.emplace("src/res/textures/metal_plates.png");
@@ -157,6 +165,13 @@ void GLRender::Run()
     double totalTimeElapsed { 0 }, timeElapsedNow { 0 }, deltaTime { 0 };
     double cycle {};
 
+    // Model transform
+    glm::vec3 translation { 0.0f };
+
+    // Color
+    bool cycleColor { true };
+    glm::vec4 color { 1.0f };
+    
     Renderer renderer;
 
 #ifdef DRAW_WIREFRAME
@@ -173,24 +188,96 @@ void GLRender::Run()
         totalTimeElapsed = timeElapsedNow;
         
         renderer.Clear();
-       
+
+        // Begin ImGUI frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        if (cycleColor)
+        {
+            cycle = fmod(cycle + 50*deltaTime, 360.0);
+            const auto diffSin = static_cast<float>(sin(cycle * std::numbers::pi / 180.0));
+            const auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
+            color.r = 0.5f + diffCos * 0.5f;
+            color.g = 0.5f + diffSin * 0.5f;
+            color.b = 1.0f;
+        }
+
+        model = translate(glm::mat4(1.0f), translation);
+        mvp = projection * view * model;
+        
         // Draw two triangles with vertex array object, compiled shader and set uniform 
         basicShader->Bind();
-
-        cycle = fmod(cycle + 50*deltaTime, 360.0);
-        const auto diffSin = static_cast<float>(sin(cycle * std::numbers::pi / 180.0));
-        const auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
-        basicShader->SetUniform4f("u_Color", 0.5f + diffCos*0.5f, 0.5f + diffSin*0.5f, 0.0f, 1.0f);
+        basicShader->SetUniformVec4f("u_Color", color);
+        basicShader->SetUniformMat4f("u_MVP", mvp);
 
         texture->Bind();
         renderer.Render(*vao, *basicShader);
 
+        // Create Settings window
+        constexpr float padding { 15.f };
+        const ImGuiViewport* viewport = ImGui::GetMainViewport();
+        constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings;
+        const ImVec2 work_pos = viewport->WorkPos;
+        const ImVec2 work_size = viewport->WorkSize;
+        ImVec2 window_pos, window_pos_pivot;
+        window_pos.x = work_pos.x + work_size.x - padding;
+        window_pos.y = work_pos.y + padding;
+        window_pos_pivot.x = 1.0f;
+        ImGui::SetNextWindowBgAlpha(0.75f);
+        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        
+        ImGui::Begin("Settings", nullptr, window_flags);
+        ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Separator();
+        ImGui::SliderFloat2("XY", &translation.x, -1.0f, 1.0f);
+        ImGui::Checkbox("Cycle colors", &cycleColor);
+        ImGui::End();
+        
+        // Render ImGUI
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        
         glfwSwapBuffers(_window);
         glfwPollEvents();
     }
+
+    // Clean up
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
+
+#ifdef _DEBUG
+void GLRender::InitDebug()
+{
+    // Print adapter info
+    std::cout << "Shading language: \t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
+    std::cout << "GL Version: \t\t"     << glGetString(GL_VERSION) << "\n";
+    std::cout << "Vendor: \t\t"         << glGetString(GL_VENDOR) << "\n";
+    std::cout << "Renderer: \t\t"       << glGetString(GL_RENDERER) << std::endl;
+
+    // Set up debug/error message handling
+    int flags {};
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(HandleGLDebugMessage, nullptr);
+        glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_ERROR, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_TRUE);
+    }
+}
+#endif
+
+void GLRender::glfwError(int error, const char* description)
+{
+    std::cout << "GLFW Error (" << error << "): " << description << std::endl;
 }
 
 GLRender::~GLRender()
 {
+    glfwDestroyWindow(_window);
     glfwTerminate();
 }
