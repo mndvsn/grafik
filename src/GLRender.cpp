@@ -141,7 +141,7 @@ void GLRender::Setup()
     vao->AddElementBuffer(ebo);
 
     // Define matrices    
-    projection = glm::ortho(-1.0f, 1.0f, -0.75f, 0.75f, -1.0f, 1.0f);
+    projection = glm::perspective(65.0f, static_cast<float>(_width) / static_cast<float>(_height), 0.1f, 100.0f);
     view = translate(glm::mat4(1.0f), glm::vec3(0.0f));
     
     // Create basic shader
@@ -165,12 +165,13 @@ void GLRender::Run()
     double totalTimeElapsed { 0 }, timeElapsedNow { 0 }, deltaTime { 0 };
     double cycle {};
 
-    // Model transform
-    glm::vec3 translation { 0.0f };
-
-    // Color
-    bool cycleColor { true };
+    // Values
     glm::vec4 color { 1.0f };
+    bool bCycleColor { true };
+    bool bDoCycle { true };
+    int count { 25 };
+    float radius { 0.5f };
+    float speed { 0.7f };
     
     Renderer renderer;
 
@@ -194,26 +195,41 @@ void GLRender::Run()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        if (cycleColor)
+        if (bDoCycle)
         {
-            cycle = fmod(cycle + 50*deltaTime, 360.0);
-            const auto diffSin = static_cast<float>(sin(cycle * std::numbers::pi / 180.0));
-            const auto diffCos = static_cast<float>(cos(cycle * std::numbers::pi / 180.0));
-            color.r = 0.5f + diffCos * 0.5f;
-            color.g = 0.5f + diffSin * 0.5f;
-            color.b = 1.0f;
+            cycle = fmod(cycle + static_cast<double>(speed) * 50 * deltaTime, 360.0);
         }
 
-        model = translate(glm::mat4(1.0f), translation);
-        mvp = projection * view * model;
-        
-        // Draw two triangles with vertex array object, compiled shader and set uniform 
+        // Draw the quad (two triangles) a few times in a circle
         basicShader->Bind();
-        basicShader->SetUniformVec4f("u_Color", color);
-        basicShader->SetUniformMat4f("u_MVP", mvp);
-
         texture->Bind();
-        renderer.Render(*vao, *basicShader);
+        
+        for (int i = 0; i < count; i++)
+        {
+            const double degStep { 360 / static_cast<double>(count) };
+            const float deg { static_cast<float>(cycle + degStep * static_cast<double>(i)) };
+            const float rad { deg * std::numbers::pi_v<float> / 180.0f };
+            glm::vec3 t {};
+            t.x = radius * sinf(rad);
+            t.y = radius * cosf(rad);
+            t.z = static_cast<float>(i) * 0.02f - 1.0f;
+
+            if (bCycleColor)
+            {
+                color.r = 0.5f + cos(rad) * 0.5f;
+                color.g = 0.5f + sin(rad) * 0.5f;
+                color.b = 0.5f + sin(rad + std::numbers::pi_v<float>) * 0.5f;
+            }
+
+            model = translate(glm::mat4(1.0f), t);
+            model = rotate(model, std::numbers::pi_v<float> * 0.2f * sin(rad), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = rotate(model, std::numbers::pi_v<float> * 2.0f * glm::fract(static_cast<float>(cycle)*2.0f/360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = scale(model, glm::vec3(0.7f, 0.7f, 1.0f));
+            mvp = projection * view * model;
+            basicShader->SetUniformMat4f("u_MVP", mvp);
+            basicShader->SetUniformVec4f("u_Color", color);
+            renderer.Render(*vao, *basicShader);
+        }
 
         // Create Settings window
         constexpr float padding { 15.f };
@@ -231,8 +247,12 @@ void GLRender::Run()
         ImGui::Begin("Settings", nullptr, window_flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Separator();
-        ImGui::SliderFloat2("XY", &translation.x, -1.0f, 1.0f);
-        ImGui::Checkbox("Cycle colors", &cycleColor);
+        ImGui::SliderInt("Count", &count, 1, 50);
+        ImGui::SliderFloat("Radius", &radius, -1.0f, 1.0f);
+        ImGui::SliderFloat("Speed", &speed, -1.0f, 5.0f);
+        // ImGui::SliderFloat2("1 XY", &translation.x, -1.0f, 1.0f);
+        ImGui::Checkbox("Rotate", &bDoCycle);
+        ImGui::Checkbox("Cycle colors", &bCycleColor);
         ImGui::End();
         
         // Render ImGUI
