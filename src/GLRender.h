@@ -7,13 +7,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "VertexArray.h"
-#include "Shader.h"
-#include "Texture.h"
-
-#include <glm/mat4x4.hpp>
-
-#include <optional>
 #include <string>
 
 
@@ -32,16 +25,6 @@ public:
     void Init();
     void Setup();
     void Run();
-
-    std::optional<VertexArray> vao {};
-    std::optional<Shader> basicShader {};
-    std::optional<Texture> texture {};
-
-    // Matrices
-    glm::mat4 projection {};
-    glm::mat4 view {};
-    glm::mat4 model {};
-    glm::mat4 mvp {};
     
 private:
     void InitImGUI();
