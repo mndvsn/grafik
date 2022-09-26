@@ -35,13 +35,11 @@
     <ClCompile Include="src\VertexBufferLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="src\res\shaders\basic.vert" />
-    <Content Include="src\res\shaders\color.frag" />
-    <Content Include="src\res\shaders\color.vert" />
-    <Content Include="src\res\textures\metal_plates.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="src\res\shaders\basic.frag" />
+    <Content Include="data\shaders\basic.frag" />
+    <Content Include="data\shaders\basic.vert" />
+    <Content Include="data\shaders\color.frag" />
+    <Content Include="data\shaders\color.vert" />
+    <Content Include="data\textures\metal_plates.png" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\imgui\imconfig.h" />

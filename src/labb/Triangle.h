@@ -22,17 +22,18 @@ namespace labb
         LTriangle(Renderer& rr);
         ~LTriangle() override;
 
+        void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;
         void BeginGUI(bool* bKeep) override;
-        void BeginUpdate(double DeltaTime) override;
 
+    private:
         std::optional<VertexArray> _vao {};
         std::optional<Shader> _triangleShader {};
 
         // Matrices
-        glm::mat4 projection { 1.0f };
-        glm::mat4 view { 1.0f };
-        glm::mat4 model { 1.0f };
-        glm::mat4 mvp { 1.0f };
+        glm::mat4 _projection { 1.0f };
+        glm::mat4 _view { 1.0f };
+        glm::mat4 _model { 1.0f };
+        glm::mat4 _mvp { 1.0f };
     };
 }

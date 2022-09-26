@@ -12,8 +12,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-#include <numbers>
-
 
 namespace labb
 {
@@ -23,15 +21,15 @@ namespace labb
         (void)GetRenderer().GetFramebufferSize(width, height);
         
         // Data for triangle
-        constexpr float vertices[] =
+        constexpr float vertices[]
         {
             // position     // color
-             0.0f,  0.5f,   1.0f, 0.0f, 0.0f, 1.0f,
-             0.5f, -0.5f,   0.0f, 1.0f, 0.0f, 1.0f,
-            -0.5f, -0.5f,   0.0f, 0.0f, 1.0f, 1.0f
+            0.0f,  0.5f,   1.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f,   0.0f, 1.0f, 0.0f, 1.0f,
+           -0.5f, -0.5f,   0.0f, 0.0f, 1.0f, 1.0f
         };
 
-        constexpr unsigned indices[] =
+        constexpr unsigned indices[]
         {
             0, 1, 2
         };
@@ -55,19 +53,29 @@ namespace labb
         _vao->AddElementBuffer(ebo);
         
         // Define matrices
-        // const float ratio { (float)width / (float)height };
-        projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f);
-        // projection = glm::ortho(-ratio, ratio, -1.0f, 1.0f, 1.0f, -1.0f);
-        view = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f));
+        _projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f);
+        _view = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f));
     
         // Create a simple vertex color shader
-        if (!_triangleShader) _triangleShader.emplace("src/res/shaders/color.vert", "src/res/shaders/color.frag");
+        if (!_triangleShader) _triangleShader.emplace("data/shaders/color.vert", "data/shaders/color.frag");
         _triangleShader->Bind();
 
         // unbind state
         Shader::Unbind();
         VertexArray::Unbind();
         VertexBuffer::Unbind();
+    }
+
+    void LTriangle::BeginUpdate(double DeltaTime)
+    {
+        LLab::BeginUpdate(DeltaTime);
+
+        // Update matrices with current rotation
+        _model = rotate(glm::mat4(1.0f), _rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+        _model = rotate(_model, _rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+        _model = rotate(_model, _rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+        _view = translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+        _mvp = _projection * _view * _model;
     }
 
     void LTriangle::BeginRender()
@@ -77,37 +85,8 @@ namespace labb
 
         // Draw the triangle
         _triangleShader->Bind();
-        /*
-        for (int i = 0; i < _count; i++)
-        {
-            const double degStep { 360 / static_cast<double>(_count) };
-            const float deg { static_cast<float>(_cycle + degStep * static_cast<double>(i)) };
-            const float rad { deg * std::numbers::pi_v<float> / 180.0f };
-            glm::vec3 t {};
-            t.x = _radius * sinf(rad);
-            t.y = _radius * cosf(rad);
-            t.z = static_cast<float>(i) * 0.02f - 1.0f;
-        
-            if (_bCycleColor)
-            {
-                _color.r = 0.5f + cos(rad) * 0.5f;
-                _color.g = 0.5f + sin(rad) * 0.5f;
-                _color.b = 0.5f + sin(rad + std::numbers::pi_v<float>) * 0.5f;
-            }
-
-        */
-            projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f);
-            model = rotate(glm::mat4(1.0f), _rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-            model = rotate(model, _rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-            model = rotate(model, _rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-            view = translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-            // model = rotate(glm::mat4(1.0f), std::numbers::pi_v<float>, _rotation);
-            // model = scale(model, glm::vec3(0.7f, 0.7f, 1.0f));
-            mvp = projection * view * model;
-            _triangleShader->SetUniformMat4f("u_MVP", mvp);
-            // _triangleShader->SetUniformVec3f("u_Color", _color);
-            GetRenderer().Render(*_vao, *_triangleShader);
-        //}
+        _triangleShader->SetUniformMat4f("u_MVP", _mvp);
+        GetRenderer().Render(*_vao, *_triangleShader);
     }
 
     void LTriangle::BeginGUI(bool* bKeep)
@@ -126,20 +105,15 @@ namespace labb
         window_pos_pivot.x = 1.0f;
         ImGui::SetNextWindowBgAlpha(0.75f);
         ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
-        
+
+        // Add controls for rotation
         ImGui::Begin("Settings", bKeep, window_flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Separator();
-        // ImGui::SliderFloat3("Rotation", &_rotation.x, -1.0f, 1.0f);
         ImGui::SliderAngle("Rot X", &_rotation.x, -180.0f, 180.0f);
         ImGui::SliderAngle("Rot Y", &_rotation.y, -180.0f, 180.0f);
         ImGui::SliderAngle("Rot Z", &_rotation.z, -180.0f, 180.0f);
         ImGui::End();
-    }
-
-    void LTriangle::BeginUpdate(double DeltaTime)
-    {
-        LLab::BeginUpdate(DeltaTime);
     }
 
     LTriangle::~LTriangle()

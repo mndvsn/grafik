@@ -29,9 +29,9 @@ namespace labb
         LStacks(Renderer& rr);
         ~LStacks() override;
 
+        void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;
         void BeginGUI(bool* bKeep) override;
-        void BeginUpdate(double DeltaTime) override;
 
     private:
         std::optional<VertexArray> _vao {};

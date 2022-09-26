@@ -22,8 +22,11 @@ namespace labb
         int width, height;
         (void)GetRenderer().GetFramebufferSize(width, height);
 
+        // Looks nicer without intersecting triangles 
+        glDisable(GL_DEPTH_TEST);
+        
         // Data for triangle
-        constexpr float vertices[] =
+        constexpr float vertices[]
         {
             // position     // uv
             -0.5f, -0.5f,   0.0f, 0.0f,
@@ -32,7 +35,7 @@ namespace labb
             -0.5f,  0.5f,   0.0f, 1.0f
         };
 
-        constexpr unsigned indices[] =
+        constexpr unsigned indices[]
         {
             0, 1, 2,
             2, 3, 0
@@ -61,11 +64,11 @@ namespace labb
         _view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
     
         // Create basic shader
-        if (!_shader) _shader.emplace("src/res/shaders/basic.vert", "src/res/shaders/basic.frag");
+        if (!_shader) _shader.emplace("data/shaders/basic.vert", "data/shaders/basic.frag");
         _shader->Bind();
 
         // Load texture
-        if (!_texture) _texture.emplace("src/res/textures/metal_plates.png");
+        if (!_texture) _texture.emplace("data/textures/metal_plates.png");
         // bind to texture unit
         _texture->Bind(0);
         _shader->SetUniform1i("u_Texture", 0);
@@ -74,6 +77,16 @@ namespace labb
         Shader::Unbind();
         VertexArray::Unbind();
         VertexBuffer::Unbind();
+    }
+
+    void LStacks::BeginUpdate(double DeltaTime)
+    {
+        LLab::BeginUpdate(DeltaTime);
+
+        if (_bDoCycle)
+        {
+            _cycle = fmod(_cycle + static_cast<double>(_speed) * 50 * DeltaTime, 360.0);
+        }
     }
 
     void LStacks::BeginRender()
@@ -105,7 +118,7 @@ namespace labb
             _model = translate(glm::mat4(1.0f), t);
             _model = rotate(_model, std::numbers::pi_v<float> * 0.2f * sin(rad), glm::vec3(0.0f, 1.0f, 0.0f));
             _model = rotate(_model, std::numbers::pi_v<float> * 2.0f * glm::fract(static_cast<float>(_cycle)*2.0f/360.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            _model = scale(_model, glm::vec3(0.7f, 0.7f, 1.0f));
+            _model = scale(_model, glm::vec3(0.7f));
             _mvp = _projection * _view * _model;
             _shader->SetUniformMat4f("u_MVP", _mvp);
             _shader->SetUniformVec4f("u_Color", _color);
@@ -139,16 +152,6 @@ namespace labb
         ImGui::Checkbox("Rotate", &_bDoCycle);
         ImGui::Checkbox("Cycle colors", &_bCycleColor);
         ImGui::End();
-    }
-
-    void LStacks::BeginUpdate(double DeltaTime)
-    {
-        LLab::BeginUpdate(DeltaTime);
-
-        if (_bDoCycle)
-        {
-            _cycle = fmod(_cycle + static_cast<double>(_speed) * 50 * DeltaTime, 360.0);
-        }
     }
 
     LStacks::~LStacks()

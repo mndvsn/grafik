@@ -17,8 +17,8 @@ namespace labb
         LClearColor(Renderer& rr);
         ~LClearColor() override;
 
+        void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;
         void BeginGUI(bool* bKeep) override;
-        void BeginUpdate(double DeltaTime) override;
     };
 }
