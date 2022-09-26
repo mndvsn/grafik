@@ -10,6 +10,7 @@
 
 // Labb
 #include "labb/ClearColor.h"
+#include "labb/Stacks.h"
 #include "labb/Triangle.h"
 
 // ImGUI
@@ -102,6 +103,9 @@ void GLRender::Setup()
     // Set blend function
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Enable depth buffer
+    glEnable(GL_DEPTH_TEST);
 }
 
 void GLRender::Run()
@@ -125,6 +129,7 @@ void GLRender::Run()
     // Add labs to main menu
     menu->RegisterLab<labb::LClearColor>("Clear Color");
     menu->RegisterLab<labb::LTriangle>("Triangle");
+    menu->RegisterLab<labb::LStacks>("Stacks");
 
     // Keep running loop until we should shutdown
     while (!glfwWindowShouldClose(_window))
