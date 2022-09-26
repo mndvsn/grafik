@@ -23,6 +23,7 @@
     <ClCompile Include="src\ElementBuffer.cpp" />
     <ClCompile Include="src\labb\ClearColor.cpp" />
     <ClCompile Include="src\labb\Lab.cpp" />
+    <ClCompile Include="src\labb\Triangle.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
@@ -34,6 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="src\res\shaders\basic.vert" />
+    <Content Include="src\res\shaders\color.frag" />
+    <Content Include="src\res\shaders\color.vert" />
     <Content Include="src\res\textures\metal_plates.png" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +56,7 @@
     <ClInclude Include="src\GLRender.h" />
     <ClInclude Include="src\labb\ClearColor.h" />
     <ClInclude Include="src\labb\Lab.h" />
+    <ClInclude Include="src\labb\Triangle.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />

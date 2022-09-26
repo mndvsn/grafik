@@ -10,6 +10,7 @@
 
 // Labb
 #include "labb/ClearColor.h"
+#include "labb/Triangle.h"
 
 // ImGUI
 #include <imgui/imgui.h>
@@ -123,6 +124,7 @@ void GLRender::Run()
 
     // Add labs to main menu
     menu->RegisterLab<labb::LClearColor>("Clear Color");
+    menu->RegisterLab<labb::LTriangle>("Triangle");
 
     // Keep running loop until we should shutdown
     while (!glfwWindowShouldClose(_window))
