@@ -22,7 +22,7 @@ namespace labb
     {
     public:
         LLab(Renderer& renderer);
-        virtual ~LLab() = default;
+        virtual ~LLab();
 
         virtual void BeginRender();
         virtual void BeginGUI(bool* bKeep);

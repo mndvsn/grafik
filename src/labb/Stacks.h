@@ -27,7 +27,6 @@ namespace labb
     
     public:
         LStacks(Renderer& rr);
-        ~LStacks() override;
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;

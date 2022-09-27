@@ -20,7 +20,6 @@ namespace labb
         
     public:
         LTriangle(Renderer& rr);
-        ~LTriangle() override;
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;

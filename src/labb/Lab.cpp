@@ -5,6 +5,10 @@
  */
 #include "Lab.h"
 
+#include "VertexArray.h"
+#include "VertexBuffer.h"
+#include "Shader.h"
+
 
 namespace labb
 {
@@ -12,6 +16,13 @@ namespace labb
         : _renderer { renderer }
     {
         
+    }
+
+    LLab::~LLab()
+    {
+        Shader::Unbind();
+        VertexArray::Unbind();
+        VertexBuffer::Unbind();
     }
 
     void LLab::BeginRender()

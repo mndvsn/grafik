@@ -120,11 +120,4 @@ namespace labb
         ImGui::SliderAngle("Rot Z", &_rotation.z, -180.0f, 180.0f);
         ImGui::End();
     }
-
-    LTriangle::~LTriangle()
-    {
-        Shader::Unbind();
-        VertexArray::Unbind();
-        VertexBuffer::Unbind();
-    }
 }

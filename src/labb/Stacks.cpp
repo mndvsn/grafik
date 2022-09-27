@@ -162,11 +162,4 @@ namespace labb
         ImGui::Checkbox("Cycle colors", &_bCycleColor);
         ImGui::End();
     }
-
-    LStacks::~LStacks()
-    {
-        Shader::Unbind();
-        VertexArray::Unbind();
-        VertexBuffer::Unbind();
-    }
 }

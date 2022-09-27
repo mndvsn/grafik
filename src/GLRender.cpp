@@ -104,9 +104,6 @@ void GLRender::Setup()
     // Set blend function
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // Enable depth buffer
-    glEnable(GL_DEPTH_TEST);
 }
 
 void GLRender::Run()
@@ -140,6 +137,10 @@ void GLRender::Run()
         deltaTime = timeElapsedNow - totalTimeElapsed;
         totalTimeElapsed = timeElapsedNow;
 
+        // Enable depth buffer
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_STENCIL_TEST);
+
         if (lab)
         {
             lab->BeginUpdate(deltaTime);
@@ -150,6 +151,9 @@ void GLRender::Run()
             menu->BeginRender();
         }
 
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glDepthMask(GL_TRUE);
+        
         // Begin ImGUI frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
