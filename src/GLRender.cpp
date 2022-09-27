@@ -10,6 +10,7 @@
 
 // Labb
 #include "labb/ClearColor.h"
+#include "labb/Mirror.h"
 #include "labb/Stacks.h"
 #include "labb/Triangle.h"
 
@@ -128,6 +129,7 @@ void GLRender::Run()
     menu->RegisterLab<labb::LClearColor>("Clear Color");
     menu->RegisterLab<labb::LTriangle>("Triangle");
     menu->RegisterLab<labb::LStacks>("Stacks");
+    menu->RegisterLab<labb::LMirror>("Mirror");
 
     // Keep running loop until we should shutdown
     while (!glfwWindowShouldClose(_window))
