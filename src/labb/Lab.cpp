@@ -53,7 +53,7 @@ namespace labb
         }
     }
 
-    LLabMenu::LLabMenu(Renderer& renderer, LLab*& activeLabPtr)
+    LLabMenu::LLabMenu(Renderer& renderer, std::unique_ptr<LLab>& activeLabPtr)
         : LLab { renderer },
         _activeLab { activeLabPtr }
     {
@@ -88,8 +88,7 @@ namespace labb
             {
                 if (ImGui::MenuItem(lab.name.c_str()))
                 {
-                    delete _activeLab;
-                    _activeLab = lab.createInstance();
+                    _activeLab.reset(lab.createInstance());
                 }
             }
             ImGui::EndMenu();

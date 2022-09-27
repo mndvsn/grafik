@@ -19,6 +19,7 @@
 #include <imgui/imgui_impl_opengl3.h>
 
 #include <iostream>
+#include <memory>
 #include <sstream>
 
 
@@ -123,8 +124,8 @@ void GLRender::Run()
 
     // Set to false to exit active lab
     static bool bKeep { true };
-    labb::LLab* lab { nullptr };
-    const auto menu = new labb::LLabMenu(renderer, lab);
+    auto lab = std::unique_ptr<labb::LLab> {};
+    const auto menu = std::make_unique<labb::LLabMenu>(renderer, lab);
 
     // Add labs to main menu
     menu->RegisterLab<labb::LClearColor>("Clear Color");
@@ -164,8 +165,7 @@ void GLRender::Run()
             lab->BeginGUI(&bKeep);
             if (!bKeep)
             {
-                delete lab;
-                lab = nullptr;
+                lab.reset();
                 bKeep = true;
             }
         }
@@ -177,10 +177,6 @@ void GLRender::Run()
         glfwSwapBuffers(_window);
         glfwPollEvents();
     }
-
-    // Clean up
-    if (lab != menu) delete menu;
-    delete lab;
 }
 
 #ifdef _DEBUG

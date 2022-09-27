@@ -48,12 +48,11 @@ namespace labb
 
     class LLabMenu : public LLab
     {
-        LLab*& _activeLab;
-        // Renderer* _window { nullptr };
+        std::unique_ptr<LLab>& _activeLab;
         std::vector<LLabMenuItem> _labs;
     
     public:
-        LLabMenu(Renderer& renderer, LLab*& activeLabPtr);
+        LLabMenu(Renderer& renderer, std::unique_ptr<LLab>& activeLabPtr);
 
         void BeginRender() override;
         void BeginGUI(bool* bKeep) override;
