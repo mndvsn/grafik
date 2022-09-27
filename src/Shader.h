@@ -17,7 +17,7 @@ class Shader
     std::string _shaderName { };
     std::string _vertexFilePath { };
     std::string _fragmentFilePath { };
-    std::unordered_map<std::string, int> _uniformLocations;
+    mutable std::unordered_map<std::string, int> _uniformLocations;
 
 public:
     Shader(const std::string& vertexFile, const std::string& fragmentFile);
@@ -37,7 +37,7 @@ public:
     void SetUniformVec4f(const std::string& name, const glm::vec4& value);
     void SetUniformMat4f(const std::string& name, const glm::mat4& matrix);
 
-    int GetUniformLocation(const std::string& name);
+    int GetUniformLocation(const std::string& name) const;
 
 private:
     unsigned CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader);
