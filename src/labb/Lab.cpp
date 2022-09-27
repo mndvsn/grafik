@@ -23,11 +23,34 @@ namespace labb
     void LLab::BeginGUI(bool* bKeep)
     {
         (void)bKeep;
+
+        if (_bHasError)
+        {
+            const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+            ImGui::SetNextWindowPos(main_viewport->GetCenter(), ImGuiCond_Always, { 0.5f, 0.5f });
+            ImGui::SetNextWindowSizeConstraints({ 250, -1 }, { 450,0 });
+            if (ImGui::Begin("Error", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize))
+            {
+                ImGui::AlignTextToFramePadding();
+                ImGui::PushTextWrapPos(450.0f);
+                ImGui::Text("%s", _errorString.c_str());
+                ImGui::End();
+            }
+        }
     }
 
     void LLab::BeginUpdate(double DeltaTime)
     {
         (void)DeltaTime;
+    }
+
+    void LLab::RenderError(const std::string& error)
+    {
+        if (!_bHasError || _errorString != error)
+        {
+            _bHasError = true;
+            _errorString = error;
+        }
     }
 
     LLabMenu::LLabMenu(Renderer& renderer, LLab*& activeLabPtr)

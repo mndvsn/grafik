@@ -5,22 +5,17 @@
  */
 #include "File.h"
 
+
 #include <iostream>
+#include <mutex>
 #include <stdexcept>
 #include <sstream>
 
-File::File(const char* inFilePath)
-{
-    filePath = inFilePath;
 
-    // throw exceptions
-    fin.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-}
-
-std::string File::Read()
+std::optional<std::string> File::Read()
 {
     static std::mutex mutex;
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard lock(mutex);
     fin.open(filePath, std::ios::in);
 
     try
@@ -33,13 +28,20 @@ std::string File::Read()
     catch (std::runtime_error &e)
     {
         std::cout << e.what() << std::endl;
+        fin.close();
+        return {};
     }
 
     std::stringstream buffer;
     buffer << fin.rdbuf();
     std::string contents = buffer.str();
-
     fin.close();
-    
+
+    if (contents.empty())
+    {
+        std::cout << "Warning: File " << filePath << " is empty!" << std::endl;
+        return {};
+    }
+
     return contents;
 }

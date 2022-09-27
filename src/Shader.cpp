@@ -20,14 +20,20 @@ Shader::Shader(const std::string& vertexFile, const std::string& fragmentFile)
     
     // Read vertex shader from file
     File vsFile(vertexFile.c_str());
-    const std::string vertexSource = vsFile.Read();
-    
+    const auto vertexSource = vsFile.Read();
+
     // Read fragment shader from file
     File fsFile(fragmentFile.c_str());
-    const std::string fragmentSource = fsFile.Read();
+    const auto fragmentSource = fsFile.Read();
+
+    if (!vertexSource || !fragmentSource)
+    {
+        std::cout << "Error: Failed loading source for shader '" << _shaderName << "'." << std::endl;
+        return;
+    }
 
     // Compile into program
-    _id = CreateShaderProgram(vertexSource, fragmentSource);
+    _id = CreateShaderProgram(*vertexSource, *fragmentSource);
 }
 
 unsigned Shader::CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
@@ -40,6 +46,17 @@ unsigned Shader::CreateShaderProgram(const std::string& vertexShader, const std:
     glAttachShader(program, fs);
     glLinkProgram(program);
     glValidateProgram(program);
+
+    int valid {};
+    glGetProgramiv(program, GL_VALIDATE_STATUS, &valid);
+    if (valid)
+    {
+        _compiled = true;
+    }
+    else
+    {
+        std::cout << "Warning: Failed to compile shader '" << _shaderName << "'." << std::endl;
+    }
 
     glDeleteShader(vs);
     glDeleteShader(fs);
@@ -78,15 +95,14 @@ std::string Shader::ExtractName(const std::string& filePath) const
     return path.stem().string();
 }
 
-void Shader::Bind() const
+bool Shader::Bind() const
 {
-    if (_id == 0)
+    if (IsOK())
     {
-        std::cout << "Warning: Could not use shader '" << _shaderName << ". Shader not compiled.\n";
-        return;
+        glUseProgram(_id);
+        return true;
     }
-    
-    glUseProgram(_id);
+    return false;
 }
 
 void Shader::Unbind()

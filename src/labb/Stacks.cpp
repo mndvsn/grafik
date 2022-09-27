@@ -42,8 +42,8 @@ namespace labb
         };
         
         // Create Vertex Array Object
-        if (!_vao) _vao.emplace();
-    
+        _vao.emplace();
+
         // Generate vertex buffer for static draw
         const VertexBuffer vbo(vertices, sizeof(vertices));
         
@@ -51,27 +51,28 @@ namespace labb
         VertexBufferLayout layout;
         layout.Push<float>(2); // position attribute, 2 floats
         layout.Push<float>(2); // uv attribute, 2 floats
-
+        
         // Add vertex buffer with attributes to VAO
         _vao->AddVertexBuffer(vbo, layout);
-
+        
         // Generate element/index buffer and bind to VAO
         const ElementBuffer ebo(indices, 6);
         _vao->AddElementBuffer(ebo);
         
         // Define matrices
         _projection = glm::perspective(65.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f);
-        _view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f));
-    
-        // Create basic shader
-        if (!_shader) _shader.emplace("data/shaders/basic.vert", "data/shaders/basic.frag");
-        _shader->Bind();
 
-        // Load texture
-        if (!_texture) _texture.emplace("data/textures/metal_plates.png");
-        // bind to texture unit
-        _texture->Bind(0);
-        _shader->SetUniform1i("u_Texture", 0);
+        // Create basic shader
+        _shader.emplace("data/shaders/basic.vert", "data/shaders/basic.frag");
+        if (_shader->Bind())
+        {
+            // Load texture and bind to texture unit
+            _texture.emplace("data/textures/metal_plates.png");
+            if (constexpr int unit=0; _texture->Bind(unit))
+            {
+                _shader->SetUniform1i("u_Texture", unit);
+            }
+        }
 
         // unbind state
         Shader::Unbind();
@@ -94,10 +95,19 @@ namespace labb
         GetRenderer().SetClearColor({ 0.0f, 0.0f, 0.0f });
         GetRenderer().Clear();
 
-        // Draw the quad (two triangles) a few times in a circle
-        _shader->Bind();
-        _texture->Bind();
+        if (!_shader->Bind())
+        {
+            RenderError("Shader error!");
+            return;
+        }
+
+        if (!_texture->Bind())
+        {
+            RenderError("Failed to load texture!");
+            return;
+        }
         
+        // Draw the quad (two triangles) a few times in a circle
         for (int i = 0; i < _count; i++)
         {
             const double degStep { 360 / static_cast<double>(_count) };
@@ -133,17 +143,16 @@ namespace labb
         // Create Settings window
         constexpr float padding { 15.f };
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
-        constexpr ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings;
-        const ImVec2 work_pos = viewport->WorkPos;
-        const ImVec2 work_size = viewport->WorkSize;
-        ImVec2 window_pos, window_pos_pivot;
-        window_pos.x = work_pos.x + work_size.x - padding;
-        window_pos.y = work_pos.y + padding;
-        window_pos_pivot.x = 1.0f;
+        constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings;
+        const ImVec2 workPos = viewport->WorkPos;
+        const ImVec2 workSize = viewport->WorkSize;
+        ImVec2 position;
+        position.x = workPos.x + workSize.x - padding;
+        position.y = workPos.y + padding;
         ImGui::SetNextWindowBgAlpha(0.75f);
-        ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
+        ImGui::SetNextWindowPos(position, ImGuiCond_Always, { 1.0f, 0.0f });
         
-        ImGui::Begin("Settings", bKeep, window_flags);
+        ImGui::Begin("Settings", bKeep, flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Separator();
         ImGui::SliderInt("Count", &_count, 1, 50);

@@ -22,7 +22,7 @@ Texture::Texture(const std::string& filePath) : _filePath { filePath }
     if (_localBuffer)
     {
         glGenTextures(1, &_id);
-        Bind();
+        glBindTexture(GL_TEXTURE_2D, _id);
 
         // Set texture parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -32,6 +32,8 @@ Texture::Texture(const std::string& filePath) : _filePath { filePath }
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, _localBuffer);
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        _loaded = true;
     }
     else
     {
@@ -47,10 +49,15 @@ Texture::~Texture()
     glDeleteTextures(1, &_id);
 }
 
-void Texture::Bind(unsigned unit) const
+bool Texture::Bind(unsigned unit) const
 {
-    glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_2D, _id);
+    if (IsOK())
+    {
+        glActiveTexture(GL_TEXTURE0 + unit);
+        glBindTexture(GL_TEXTURE_2D, _id);
+        return true;
+    }
+    return false;
 }
 
 void Texture::Unbind() const

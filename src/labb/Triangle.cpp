@@ -57,8 +57,11 @@ namespace labb
         _view = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f));
     
         // Create a simple vertex color shader
-        if (!_triangleShader) _triangleShader.emplace("data/shaders/color.vert", "data/shaders/color.frag");
-        _triangleShader->Bind();
+        _triangleShader.emplace("data/shaders/color.vert", "data/shaders/color.frag");
+        if (!_triangleShader->Bind())
+        {
+            RenderError("Shader error!");
+        }
 
         // unbind state
         Shader::Unbind();
@@ -84,9 +87,11 @@ namespace labb
         GetRenderer().Clear();
 
         // Draw the triangle
-        _triangleShader->Bind();
-        _triangleShader->SetUniformMat4f("u_MVP", _mvp);
-        GetRenderer().Render(*_vao, *_triangleShader);
+        if (_triangleShader->Bind())
+        {
+            _triangleShader->SetUniformMat4f("u_MVP", _mvp);
+            GetRenderer().Render(*_vao, *_triangleShader);
+        }
     }
 
     void LTriangle::BeginGUI(bool* bKeep)

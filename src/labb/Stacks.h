@@ -34,14 +34,14 @@ namespace labb
         void BeginGUI(bool* bKeep) override;
 
     private:
-        std::optional<VertexArray> _vao {};
-        std::optional<Shader> _shader {};
-        std::optional<Texture> _texture {};
+        std::optional<VertexArray> _vao;
+        std::optional<Shader> _shader;
+        std::optional<Texture> _texture;
 
         // Matrices
-        glm::mat4 _projection {};
-        glm::mat4 _view {};
-        glm::mat4 _model {};
-        glm::mat4 _mvp {};
+        glm::mat4 _projection { 1.0f };
+        glm::mat4 _view { 1.0f };
+        glm::mat4 _model { 1.0f };
+        glm::mat4 _mvp { 1.0f };
     };
 }

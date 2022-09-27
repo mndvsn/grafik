@@ -15,7 +15,6 @@ namespace labb
     
     public:
         LClearColor(Renderer& rr);
-        ~LClearColor() override;
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;

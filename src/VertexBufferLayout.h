@@ -25,7 +25,7 @@ private:
   int _stride { 0 };
 
 public:
-    VertexBufferLayout();
+    VertexBufferLayout() = default;
     ~VertexBufferLayout() = default;
 
     template<typename T>

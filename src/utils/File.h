@@ -6,13 +6,14 @@
 #pragma once
 
 #include <fstream>
-#include <mutex>
 #include <format>
+#include <optional>
+
 
 class File
 {
 public:
-    File(const char* inFilePath);
+    File(const char* inFilePath) : filePath { inFilePath } {}
     File(const File&) = delete;
     File& operator=(const File&) = delete;
     ~File() = default;
@@ -22,5 +23,5 @@ private:
     std::string filePath;
     
 public:    
-    std::string Read();
+    std::optional<std::string> Read();
 };

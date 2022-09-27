@@ -8,11 +8,6 @@
 #include <stdexcept>
 
 
-VertexBufferLayout::VertexBufferLayout()
-{
-    
-}
-
 template<typename T>
 void VertexBufferLayout::Push(int count)
 {

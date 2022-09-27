@@ -85,8 +85,8 @@ void GLRender::InitImGUI()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();

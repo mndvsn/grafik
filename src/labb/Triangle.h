@@ -27,8 +27,8 @@ namespace labb
         void BeginGUI(bool* bKeep) override;
 
     private:
-        std::optional<VertexArray> _vao {};
-        std::optional<Shader> _triangleShader {};
+        std::optional<VertexArray> _vao;
+        std::optional<Shader> _triangleShader;
 
         // Matrices
         glm::mat4 _projection { 1.0f };

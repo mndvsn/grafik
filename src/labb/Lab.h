@@ -32,6 +32,12 @@ namespace labb
         
     protected:
         Renderer& _renderer;
+        
+        void RenderError(const std::string& error);
+        
+    private:
+        bool _bHasError { false };
+        std::string _errorString { };
     };
 
     struct LLabMenuItem

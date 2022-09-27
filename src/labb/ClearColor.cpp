@@ -15,6 +15,11 @@ namespace labb
         
     }
 
+    void LClearColor::BeginUpdate(double DeltaTime)
+    {
+        LLab::BeginUpdate(DeltaTime);
+    }
+
     void LClearColor::BeginRender()
     {
         GetRenderer().SetClearColor(_color);
@@ -28,15 +33,5 @@ namespace labb
         ImGui::Begin("Clear Color", bKeep, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::ColorEdit4("Color", &_color.r);
         ImGui::End();
-    }
-
-    void LClearColor::BeginUpdate(double DeltaTime)
-    {
-        LLab::BeginUpdate(DeltaTime);
-    }
-
-    LClearColor::~LClearColor()
-    {
-        
     }
 }

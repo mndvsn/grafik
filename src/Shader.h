@@ -12,8 +12,8 @@
 
 class Shader
 {
-private:
     unsigned _id { 0 };
+    bool _compiled { false };
     std::string _shaderName { };
     std::string _vertexFilePath { };
     std::string _fragmentFilePath { };
@@ -24,8 +24,9 @@ public:
     ~Shader();
 
     unsigned GetId() const { return _id; }
+    bool IsOK() const { return _compiled && _id; }
 
-    void Bind() const;
+    bool Bind() const;
     static void Unbind();
 
     // Uniforms
