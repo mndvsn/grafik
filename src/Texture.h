@@ -23,6 +23,7 @@ public:
     bool Bind(unsigned unit = 0) const;
     void Unbind() const;
 
+    unsigned GetId() const { return _id; }
     bool IsOK() const { return _loaded; }
 
     int GetWidth() const { return _width; }

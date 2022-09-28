@@ -22,9 +22,6 @@ namespace labb
         int width, height;
         (void)GetRenderer().GetFramebufferSize(width, height);
 
-        // Looks nicer without intersecting triangles 
-        glDisable(GL_DEPTH_TEST);
-        
         // Data for triangle
         constexpr float vertices[]
         {
@@ -94,6 +91,9 @@ namespace labb
     {
         GetRenderer().SetClearColor({ 0.0f, 0.0f, 0.0f });
         GetRenderer().Clear();
+
+        // Looks nicer without intersecting triangles 
+        glDisable(GL_DEPTH_TEST);
 
         if (!_shader->Bind())
         {

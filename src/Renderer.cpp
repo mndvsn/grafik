@@ -16,12 +16,20 @@ Renderer::Renderer(GLFWwindow* window)
     _context = window;
 }
 
-void Renderer::Render(const VertexArray& vao, const Shader& shader) const
+void Renderer::Render(const VertexArray& vao, const Shader& shader, const int elementStart, int elementEnd) const
 {
-    shader.Bind();
-    vao.Bind();
-    
-    glDrawElements(GL_TRIANGLES, vao.GetElementCount(), GL_UNSIGNED_INT, nullptr);
+    if (shader.Bind())
+    {
+        vao.Bind();
+
+        if (!elementEnd)
+        {
+            elementEnd = vao.GetElementCount()-1;
+        }
+        const int count = elementEnd+1 - elementStart;
+        const void* offset = reinterpret_cast<const void*>(static_cast<intptr_t>(sizeof(unsigned)*elementStart)); // NOLINT(performance-no-int-to-ptr)
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, offset);
+    }
 }
 
 void Renderer::Clear() const

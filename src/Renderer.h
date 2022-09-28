@@ -20,7 +20,7 @@ public:
     Renderer(GLFWwindow* window);
     ~Renderer();
     
-    void Render(const VertexArray& vao, const Shader& shader) const;
+    void Render(const VertexArray& vao, const Shader& shader, int elementStart = 0, int elementEnd = 0) const;
 
     void Clear() const;
     void SetClearColor(const glm::vec3& color);
