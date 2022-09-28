@@ -6,7 +6,9 @@
 #include "GLRender.h"
 
 #include "Renderer.h"
+#ifdef _DEBUG
 #include "utils/GLDebug.h"
+#endif
 
 // Labb
 #include "labb/ClearColor.h"
@@ -16,8 +18,8 @@
 
 // ImGUI
 #include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 
 #include <iostream>
 #include <memory>
@@ -160,6 +162,7 @@ void GLRender::Run()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        //ImGui::ShowDemoWindow();
 
         if (menu)
         {
