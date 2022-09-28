@@ -5,6 +5,7 @@
  */
 #include "Mirror.h"
 
+#include "ElementBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
@@ -21,60 +22,64 @@ namespace labb
 
         GetRenderer().SetClearColor({ 0.7f, 0.9f, 0.8f });
 
-        //TODO: Use Indices
-        
         // Data for triangle
         constexpr float vertices[]
         {
-            // position           // color           // uv
-            -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-                                                    
-            -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
-                                                    
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f,
-                                                    
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-                                                    
-            -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f,  0.0f, 1.0f,
-                                                    
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,
+            // pos                // col             // uv        // texId
+            // cube
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 1.0f,  0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f,  0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,  0.0f,
 
-            -1.0f, -1.0f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-             1.0f, -1.0f, -0.5f,  0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-             1.0f,  1.0f, -0.5f,  0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-             1.0f,  1.0f, -0.5f,  0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-            -1.0f,  1.0f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-            -1.0f, -1.0f, -0.5f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f
+             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f,  0.0f,
+             0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,  0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,  0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,  0.0f,
+
+             0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f,  0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,  0.0f,
+
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  1.0f, 1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  1.0f, 0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 0.0f,  0.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  0.0f, 1.0f,  0.0f,
+             0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  1.0f, 1.0f,  0.0f,
+             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  1.0f, 0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,  0.0f, 0.0f,  0.0f,
+
+            -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  0.0f, 1.0f,  0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,  1.0f, 1.0f,  0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f,  1.0f, 0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 1.0f,  0.0f, 0.0f,  0.0f,
+
+            // floor plane
+            -1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 0.0f,  0.0f, 1.0f,  1.0f,
+             1.0f, -1.0f, -1.0f,  0.0f, 0.0f, 0.0f,  1.0f, 1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f,  0.0f, 0.0f, 0.0f,  1.0f, 0.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,  0.0f, 0.0f, 0.0f,  0.0f, 0.0f,  1.0f,
+        };
+
+        constexpr unsigned indices[]
+        {
+            0, 1, 2, // front
+            2, 3, 0,
+            4, 5, 6, // right
+            6, 7, 4,
+            8, 9, 10, // back
+            10, 11, 8,
+            12, 13, 14, // left
+            14, 15, 12,
+            16, 17, 18, // top
+            18, 19, 16,
+            20, 21, 22, // bottom
+            22, 23, 20,
+            24, 25, 26, // plane
+            26, 27, 24
         };
 
         // Create Vertex Array Object
@@ -88,24 +93,30 @@ namespace labb
         layout.Push<float>(3); // position attribute, 2 floats
         layout.Push<float>(3); // color attribute, 3 floats
         layout.Push<float>(2); // uv attribute, 2 floats
+        layout.Push<float>(1); // texture id attribute, 1 float
 
         // Add vertex buffer with attributes to VAO
         _vao->AddVertexBuffer(vbo, layout);
 
+        // Generate element/index buffer and bind to VAO
+        const ElementBuffer ebo(indices, 42);
+        _vao->AddElementBuffer(ebo);
+        
         // Define matrices
         _projection = glm::perspective(45.0f, static_cast<float>(width) / static_cast<float>(height), 1.0f, 10.0f);
-        // _view = glm::translate(_view, glm::vec3(0.0f, 0.0f, -1.5f));
-        _view = glm::lookAt(glm::vec3(1.5f, 1.5f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        // _view = glm::translate(_view, glm::vec3(1.0f, -1.0f, -3.0f));
+        _view = glm::lookAt(glm::vec3(1.5f, 1.5f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         // Create basic shader
         _shader.emplace("data/shaders/mirror.vert", "data/shaders/mirror.frag");
         if (_shader->Bind())
         {
-            // Load texture and bind to texture unit
-            _texture.emplace("data/textures/metal_plates.png");
-            if (constexpr int unit=0; _texture->Bind(unit))
+            // Load textures and bind to texture unit
+            _texture1.emplace("data/textures/metal_plates.png");
+            _texture2.emplace("data/textures/ground_base.jpg");
+            if (_texture1->Bind(0) && _texture2->Bind(1))
             {
-                _shader->SetUniform1i("u_Texture", unit);
+                _shader->SetUniform1iv("u_Textures", { 0, 1 });
             }
         }
 
@@ -124,9 +135,9 @@ namespace labb
             _cycle = fmod(_cycle + static_cast<double>(_speed) * DeltaTime, 360.0);
         }
         _model = glm::mat4(1.0f);
-        _model = rotate(_model, static_cast<float>(_cycle * glm::radians(180.0)), glm::vec3(0.0f, 0.0f, 1.0f));
+        _model = rotate(_model, static_cast<float>(_cycle * glm::radians(180.0)), glm::vec3(0.0f, 1.0f, 0.0f));
 
-        _view = glm::lookAt(_cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        _view = glm::lookAt(_cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         
         _mvp = _projection * _view * _model;
     }
@@ -141,7 +152,7 @@ namespace labb
             return;
         }
 
-        if (!_texture->Bind())
+        if (!_texture1->Bind(0) || !_texture2->Bind(1))
         {
             RenderError("Failed to load texture!");
             return;
@@ -153,30 +164,31 @@ namespace labb
         _vao->Bind();
 
         // Draw cube
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        GetRenderer().Render(*_vao, *_shader, 0, 35);
 
         glEnable(GL_STENCIL_TEST); // Start stencil testing
-        
+
         // Draw plane
         glStencilFunc(GL_ALWAYS, 1, 0xFF); // Set all bits to 1
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); // Replace bit value to 1, if dp+st test pass
         glStencilMask(0xFF); // Write to stencil buffer
         glDepthMask(false); // Ignore depth buffer
         glClear(GL_STENCIL_BUFFER_BIT); // Clear default value 0 in buffer
-        
-        glDrawArrays(GL_TRIANGLES, 36, 6);
+
+        GetRenderer().Render(*_vao, *_shader, 36, 41);
 
         // Draw mirrored cube
         glStencilFunc(GL_EQUAL, 1, 0xFF); // Set test to value == 1
         glStencilMask(0x00); // No draw in stencil buffer
         glDepthMask(true); // Write to depth buffer
 
-        const glm::mat4 _modelTrans = translate(_model, glm::vec3(0, 0, -1));
-        _model = glm::scale(_modelTrans, glm::vec3(1, 1, -1));
+        const glm::mat4 _modelTrans = translate(_model, glm::vec3(0, -1.5, 0));
+        _model = glm::scale(_modelTrans, glm::vec3(1, -1, 1));
         _mvp = _projection * _view * _model;
         _shader->SetUniformMat4f("u_MVP", _mvp);
         _shader->SetUniform1f("u_ReflectDarken", 1-_reflectDarken);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        GetRenderer().Render(*_vao, *_shader, 0, 35);
 
         glDisable(GL_STENCIL_TEST); // End stencil testing
     }

@@ -42,6 +42,7 @@
     <Content Include="data\shaders\color.vert" />
     <Content Include="data\shaders\mirror.frag" />
     <Content Include="data\shaders\mirror.vert" />
+    <Content Include="data\textures\ground_base.jpg" />
     <Content Include="data\textures\metal_plates.png" />
   </ItemGroup>
   <ItemGroup>

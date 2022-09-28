@@ -18,7 +18,7 @@ namespace labb
     class LMirror : public LLab
     {
         float       _speed          { 0.2f };
-        float       _colorAlpha     { 0.4f };
+        float       _colorAlpha     { 0.55f };
         float       _reflectDarken  { 0.85f };
         double      _cycle          { 0 };
         glm::vec3   _cameraPosition { 2.0f, 1.50f, 1.20f };
@@ -34,7 +34,8 @@ namespace labb
     private:
         std::optional<VertexArray> _vao;
         std::optional<Shader> _shader;
-        std::optional<Texture> _texture;
+        std::optional<Texture> _texture1;
+        std::optional<Texture> _texture2;
 
         // Matrices
         glm::mat4 _projection { 1.0f };
