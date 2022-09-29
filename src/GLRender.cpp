@@ -128,31 +128,20 @@ void GLRender::Run()
     auto lab = std::unique_ptr<labb::LLab> {};
     const auto menu = std::make_unique<labb::LLabMenu>(renderer, lab);
 
+    // Add labs to main menu
+    menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
+    menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
+    menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
+    menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
+
+    // Create an initial lab if requested and matching shortname is found
     if (!_initLab.empty())
     {
-        if (_initLab == "clearcolor")
+        if (const auto maybeLab = menu->CreateLabIfExists(_initLab))
         {
-            lab = std::make_unique<labb::LClearColor>(renderer);
-        }
-        else if (_initLab == "triangle")
-        {
-            lab = std::make_unique<labb::LTriangle>(renderer);
-        }
-        else if (_initLab == "stacks")
-        {
-            lab = std::make_unique<labb::LStacks>(renderer);
-        }
-        else if (_initLab == "mirror")
-        {
-            lab = std::make_unique<labb::LMirror>(renderer);
+            lab.reset(*maybeLab);
         }
     }
-
-    // Add labs to main menu
-    menu->RegisterLab<labb::LClearColor>("Clear Color");
-    menu->RegisterLab<labb::LTriangle>("Triangle");
-    menu->RegisterLab<labb::LStacks>("Stacks");
-    menu->RegisterLab<labb::LMirror>("Mirror");
 
     // Keep running loop until we should shutdown
     while (!glfwWindowShouldClose(_window))

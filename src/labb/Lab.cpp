@@ -9,6 +9,8 @@
 #include "VertexBuffer.h"
 #include "Shader.h"
 
+#include <ranges>
+
 
 namespace labb
 {
@@ -95,7 +97,7 @@ namespace labb
     {
         if (ImGui::BeginMenu("Open"))
         {
-            for (auto& lab : _labs)
+            for (auto& lab : _labs | std::views::values)
             {
                 if (ImGui::MenuItem(lab.name.c_str()))
                 {
@@ -112,5 +114,14 @@ namespace labb
                 glfwSetWindowShouldClose(window, GLFW_TRUE);
             }
         }
+    }
+
+    std::optional<LLab*> LLabMenu::CreateLabIfExists(const std::string& labShortName)
+    {
+        if (const auto labItem = _labs.find(labShortName); labItem != _labs.end())
+        {
+            return labItem->second.createInstance();
+        }
+        return {};
     }
 }

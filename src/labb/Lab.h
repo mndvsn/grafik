@@ -13,6 +13,8 @@
 
 #include <functional>
 #include <iostream>
+#include <map>
+#include <optional>
 #include <string>
 
 
@@ -49,7 +51,7 @@ namespace labb
     class LLabMenu : public LLab
     {
         std::unique_ptr<LLab>& _activeLab;
-        std::vector<LLabMenuItem> _labs;
+        std::map<std::string, LLabMenuItem> _labs;
     
     public:
         LLabMenu(Renderer& renderer, std::unique_ptr<LLab>& activeLabPtr);
@@ -59,17 +61,17 @@ namespace labb
         void BeginLabMenu();
 
         template<typename T>
-        void RegisterLab(const std::string& name)
+        void RegisterLab(const std::string& name, const std::string& shortName)
         {
             std::cout << "Registering lab: " << name << std::endl;
-
-            _labs.push_back({ name,
-                [this]
+            _labs.insert({ shortName,
                 {
-                    return new T(_renderer);
+                    name, [this] { return new T(_renderer); }
                 }
             });
         }
+
+        std::optional<LLab*> CreateLabIfExists(const std::string& labShortName);
     };
 }
 
