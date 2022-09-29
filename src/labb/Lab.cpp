@@ -97,7 +97,7 @@ namespace labb
     {
         if (ImGui::BeginMenu("Open"))
         {
-            for (auto& lab : _labs | std::views::values)
+            for (const auto& lab : _labs | std::views::values)
             {
                 if (ImGui::MenuItem(lab.name.c_str()))
                 {
@@ -118,7 +118,13 @@ namespace labb
 
     std::optional<LLab*> LLabMenu::CreateLabIfExists(const std::string& labShortName)
     {
-        if (const auto labItem = _labs.find(labShortName); labItem != _labs.end())
+        auto matchesShortName = [labShortName](auto& labItem)
+        {
+            return labItem.first == labShortName;
+        };
+        
+        const auto labItem = std::ranges::find_if(_labs, matchesShortName);
+        if (labItem != _labs.end())
         {
             return labItem->second.createInstance();
         }
