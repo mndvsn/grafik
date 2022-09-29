@@ -8,9 +8,12 @@
 #include <iostream>
 
 
-int main()
+const char* findInitialLab(int n, char* args[]);
+
+int main(const int argc, char *argv[])
 {
-    GLRender render("Grafik", 800, 600);
+    const char* lab = findInitialLab(argc, argv);
+    GLRender render("Grafik", 1100, 750, lab);
 
     try
     {
@@ -26,4 +29,17 @@ int main()
     render.Run();
     
     return 0;
+}
+
+const char* findInitialLab(const int n, char* args[])
+{
+    const char* finding { "" };
+    for (int i=0; i<n; i++)
+    {
+        if (strcmp(args[i], "-l") == 0 && n > i)
+        {
+            finding = args[i+1];
+        }
+    }
+    return finding;
 }

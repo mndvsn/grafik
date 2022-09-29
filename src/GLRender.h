@@ -12,14 +12,14 @@
 
 class GLRender
 {
-private:
     GLFWwindow* _window { nullptr };
     std::string _title { };
     int _width { 640 };
     int _height { 480 };
+    std::string _initLab { };
 
 public:
-    GLRender(const char* title, const int width, const int height);
+    GLRender(const char* title, int width, int height, const char* initLab);
     ~GLRender();
 
     void Init();

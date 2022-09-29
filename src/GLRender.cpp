@@ -28,10 +28,11 @@
 
 //#define DRAW_WIREFRAME
 
-GLRender::GLRender(const char* title, const int width, const int height)
+GLRender::GLRender(const char* title, const int width, const int height, const char* initLab)
     : _title { title }
     , _width { width }
     , _height { height }
+    , _initLab { initLab }
 {
     
 }
@@ -126,6 +127,26 @@ void GLRender::Run()
     static bool bKeep { true };
     auto lab = std::unique_ptr<labb::LLab> {};
     const auto menu = std::make_unique<labb::LLabMenu>(renderer, lab);
+
+    if (!_initLab.empty())
+    {
+        if (_initLab == "clearcolor")
+        {
+            lab = std::make_unique<labb::LClearColor>(renderer);
+        }
+        else if (_initLab == "triangle")
+        {
+            lab = std::make_unique<labb::LTriangle>(renderer);
+        }
+        else if (_initLab == "stacks")
+        {
+            lab = std::make_unique<labb::LStacks>(renderer);
+        }
+        else if (_initLab == "mirror")
+        {
+            lab = std::make_unique<labb::LMirror>(renderer);
+        }
+    }
 
     // Add labs to main menu
     menu->RegisterLab<labb::LClearColor>("Clear Color");
