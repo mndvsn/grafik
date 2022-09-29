@@ -59,6 +59,7 @@ namespace labb
         void BeginRender() override;
         void BeginGUI(bool* bKeep) override;
         void BeginLabMenu();
+        void BeginBigMenu();
 
         template<typename T>
         void RegisterLab(const std::string& name, const std::string& shortName)

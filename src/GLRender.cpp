@@ -94,13 +94,19 @@ void GLRender::InitImGUI()
     io.IniFilename = nullptr;
 
     // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImGui::StyleColorsDark(&style);
+    style.WindowRounding = 3.0f;
+    style.FrameRounding = 3.0f;
 
     // Setup GLFW + GLSL
     std::stringstream glsl_version;
     glsl_version << "#version " << glGetStringi(GL_SHADING_LANGUAGE_VERSION, 0);
     ImGui_ImplGlfw_InitForOpenGL(_window, true);
     ImGui_ImplOpenGL3_Init(glsl_version.str().c_str());
+
+    const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
+    IM_ASSERT(font != nullptr);
 }
 
 void GLRender::Setup()
@@ -160,7 +166,7 @@ void GLRender::Run()
             lab->BeginUpdate(deltaTime);
             lab->BeginRender();
         }
-        else if (menu)
+        else
         {
             menu->BeginRender();
         }
@@ -174,19 +180,23 @@ void GLRender::Run()
         ImGui::NewFrame();
         //ImGui::ShowDemoWindow();
 
-        if (menu)
-        {
-            menu->BeginGUI(&bKeep);
-        }
+        // Draw main menu UI
+        menu->BeginGUI(&bKeep);
 
         if (lab)
         {
+            // Draw lab specific UI
             lab->BeginGUI(&bKeep);
             if (!bKeep)
             {
                 lab.reset();
                 bKeep = true;
             }
+        }
+        else
+        {
+            // Draw selection window
+            menu->BeginBigMenu();
         }
 
         // Render ImGUI
