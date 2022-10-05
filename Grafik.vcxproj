@@ -22,6 +22,7 @@
     <ClCompile Include="src\GLRender.cpp" />
     <ClCompile Include="src\Grafik.cpp" />
     <ClCompile Include="src\ElementBuffer.cpp" />
+    <ClCompile Include="src\labb\Batch.cpp" />
     <ClCompile Include="src\labb\ClearColor.cpp" />
     <ClCompile Include="src\labb\Lab.cpp" />
     <ClCompile Include="src\labb\Mirror.cpp" />
@@ -39,6 +40,8 @@
   <ItemGroup>
     <Content Include="data\shaders\basic.frag" />
     <Content Include="data\shaders\basic.vert" />
+    <Content Include="data\shaders\batch.frag" />
+    <Content Include="data\shaders\batch.vert" />
     <Content Include="data\shaders\color.frag" />
     <Content Include="data\shaders\color.vert" />
     <Content Include="data\shaders\mirror.frag" />
@@ -58,6 +61,7 @@
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\ElementBuffer.h" />
     <ClInclude Include="src\GLRender.h" />
+    <ClInclude Include="src\labb\Batch.h" />
     <ClInclude Include="src\labb\ClearColor.h" />
     <ClInclude Include="src\labb\Lab.h" />
     <ClInclude Include="src\labb\Mirror.h" />

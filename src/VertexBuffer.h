@@ -12,7 +12,7 @@ private:
     unsigned _id { 0 };
     
 public:
-    VertexBuffer(const void* data, unsigned size);
+    VertexBuffer(const void* data, unsigned size, bool dynamic = false);
     ~VertexBuffer();
 
     unsigned GetId() const { return _id; }

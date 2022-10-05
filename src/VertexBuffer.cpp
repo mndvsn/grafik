@@ -8,11 +8,11 @@
 #include <glad/glad.h>
 
 
-VertexBuffer::VertexBuffer(const void* data, unsigned size)
+VertexBuffer::VertexBuffer(const void* data, unsigned size, bool dynamic)
 {
     glGenBuffers(1, &_id);
     Bind();
-    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, data, dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 }
 
 VertexBuffer::~VertexBuffer()

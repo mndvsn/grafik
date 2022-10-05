@@ -15,6 +15,7 @@
 #include "labb/Mirror.h"
 #include "labb/Stacks.h"
 #include "labb/Triangle.h"
+#include "labb/Batch.h"
 
 // ImGUI
 #include <imgui/imgui.h>
@@ -139,6 +140,7 @@ void GLRender::Run()
     menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
     menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
     menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
+    menu->RegisterLab<labb::LBatch>("Batch", "batch");
 
     // Create an initial lab if requested and matching shortname is found
     if (!_initLab.empty())
