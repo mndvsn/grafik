@@ -11,15 +11,14 @@
 #include "Shader.h"
 #include "Texture.h"
 
-#include <array>
 #include <optional>
 
 
 namespace labb
 {
-    constexpr size_t quadCount { 4 };
-    constexpr size_t verticesCount { quadCount * 4 };
-    constexpr size_t indicesCount { quadCount * 6 };
+    constexpr size_t batchQuadCapacity { 20000 };
+    constexpr size_t verticesCount { batchQuadCapacity * 4 };
+    constexpr size_t indicesCount { batchQuadCapacity * 6 };
     
     struct Vertex
     {
@@ -33,19 +32,21 @@ namespace labb
     {
         float       _speed          { 0.2f };
         double      _cycle          { 0 };
-        glm::vec3   _cameraPosition { 0.0f, 0.0f, -3.0f };
-        bool        _bSpin          { true };
+        glm::vec3   _cameraPosition { 0.0f, 0.0f, -7.5f };
+        bool        _bSpin          { false };
+        int         _quads          { 5928 };
         int         _draws          { 0 };
     
     public:
         LBatch(Renderer& rr);
+        ~LBatch() override;
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;
         void BeginGUI(bool* bKeep) override;
 
     protected:
-        static std::array<Vertex, 4> MakeQuad(float x, float y, float width = 1.0f, float height = 1.0f, float texId = 0.0f);
+        static Vertex* MakeQuad(Vertex* vertexPtr, float x, float y, float width = 1.0f, float height = 1.0f, float texId = 0.0f, glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f });
 
     private:
         VertexArray _vao {};
@@ -53,6 +54,8 @@ namespace labb
         Shader _shader { "data/shaders/batch.vert", "data/shaders/batch.frag" };
         std::optional<Texture> _texture1;
         std::optional<Texture> _texture2;
+
+        Vertex* _vertices { nullptr };
 
         // Matrices
         glm::mat4 _projection { 1.0f };

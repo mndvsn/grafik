@@ -11,6 +11,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include <vector>
+
 
 namespace labb
 {
@@ -19,7 +21,7 @@ namespace labb
         int width, height;
         (void)GetRenderer().GetFramebufferSize(width, height);
 
-        GetRenderer().SetClearColor({ 0.7f, 0.9f, 0.8f });
+        GetRenderer().SetClearColor({ 1.0f, 1.0f, 1.0f });
 
         // Define layout
         VertexBufferLayout layout;
@@ -31,9 +33,12 @@ namespace labb
         // Add vertex buffer with attributes to VAO
         _vao.AddVertexBuffer(_vbo, layout);
 
+        // Make array of vertices
+        _vertices = new Vertex[verticesCount];
+
         // Generate element/index buffer and bind to VAO
-        uint32_t indices[indicesCount];
-        uint32_t offset { 0 };
+        unsigned indices[indicesCount];
+        unsigned offset { 0 };
         for (size_t i = 0; i < indicesCount; i += 6)
         {
             indices[i+0] = offset + 0;
@@ -106,24 +111,48 @@ namespace labb
             return;
         }
 
-        // Create vertex data
-        Vertex vertices[verticesCount];
-        const auto quad1 = MakeQuad(-0.5f, 0.5f, 1.0f, 1.0f, 0);
-        const auto quad2 = MakeQuad(0.5f, 0.5f, 1.0f, 1.0f, 1);
-        const auto quad3 = MakeQuad(-0.5f, -0.5f, 1.0f, 1.0f, 1);
-        const auto quad4 = MakeQuad(0.5f, -0.5f, 1.0f, 1.0f, 0);
-        memcpy(vertices + quad1.size() * 0, quad1.data(), quad1.size() * sizeof(Vertex));
-        memcpy(vertices + quad1.size() * 1, quad2.data(), quad2.size() * sizeof(Vertex));
-        memcpy(vertices + quad1.size() * 2, quad3.data(), quad3.size() * sizeof(Vertex));
-        memcpy(vertices + quad1.size() * 3, quad4.data(), quad4.size() * sizeof(Vertex));
-        
+        // Fill buffer with vertex data
+        Vertex* vertexPtr = _vertices;
+        const size_t rows { static_cast<unsigned>(floor(sqrt(std::max(_quads, 1)))) };
+        size_t cols { static_cast<unsigned>(ceil(_quads/rows)) };
+        if (rows * cols != verticesCount)
+        {
+            cols++;
+        }
+
+        // Calc values for grid
+        constexpr float size { 0.1f };
+        const float startX { -size * static_cast<float>(cols) * 0.5f };
+        const float startY {  size * static_cast<float>(rows) * 0.5f };
+
+        size_t n{0}, curY{0}, curX{0};
+        while (n < static_cast<size_t>(_quads))
+        {
+            const float x = startX + static_cast<float>(curX) * size + size * 0.5f;
+            const float y = startY - static_cast<float>(curY) * size - size * 0.5f;
+            glm::vec4 color { 1.0f };
+            color.r = static_cast<float>(curY) / static_cast<float>(rows);
+            color.g = 1.0f - static_cast<float>(curX) / static_cast<float>(cols);
+            color.b = static_cast<float>(curX) / static_cast<float>(cols);
+
+            vertexPtr = MakeQuad(vertexPtr, x, y, size, size, (curY + curX) % 2 ? 1.0f : 0.0f, color);
+
+            curY++;
+            if (curY == rows)
+            {
+                curY = 0;
+                curX++;
+            }
+            n++;
+        }
+
         _vbo.Bind();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, verticesCount * sizeof(Vertex), _vertices);
 
         _shader.SetUniformMat4f("u_MVP", _mvp);
 
         _vao.Bind();
-        GetRenderer().Render(_vao, _shader);
+        GetRenderer().Render(_vao, _shader, 0, _quads * 6 - 1);
         _draws++;
     }
 
@@ -144,7 +173,9 @@ namespace labb
         ImGui::SetNextWindowPos(position, ImGuiCond_Always, { 1.0f, 0.0f });
         
         ImGui::Begin("Settings", bKeep, flags);
-        ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0 / static_cast<double>(ImGui::GetIO().Framerate),
+            static_cast<double>(ImGui::GetIO().Framerate));
+        ImGui::Text("Quads: %d", _quads);
         ImGui::SameLine(0, 20.0f);
         ImGui::Text("Draw calls: %d", _draws);
         ImGui::Separator();
@@ -154,33 +185,42 @@ namespace labb
         ImGui::SliderFloat("Camera X", &_cameraPosition.x, -5.0f, 5.0f);
         ImGui::SliderFloat("Camera Y", &_cameraPosition.y, -5.0f, 5.0f);
         ImGui::SliderFloat("Camera Z", &_cameraPosition.z, -10.0f, -1.0f);
+        ImGui::DragInt("Quads", &_quads, 1, 0, batchQuadCapacity, "%d",
+            ImGuiSliderFlags_Logarithmic);
         ImGui::End();
     }
 
-    std::array<Vertex, 4> LBatch::MakeQuad(float x, float y, float width /*= 1.0f*/, float height /*= 1.0f*/, float texId /*= 0.0f*/)
+    Vertex* LBatch::MakeQuad(Vertex* vertexPtr, float x, float y, float width /*= 1.0f*/, float height /*= 1.0f*/, float texId /*= 0.0f*/, glm::vec4 color /*1, 1, 1, 1*/)
     {
-        Vertex v1 {}, v2 {}, v3 {}, v4 {};
+        vertexPtr->Position = { x-width*0.5f, y+height*0.5f,  0.0f };
+        vertexPtr->Color = color;
+        vertexPtr->TexCoords = { 0.0f, 1.0f };
+        vertexPtr->TexId = texId;
+        vertexPtr++;
 
-        v1.Position = { x-width*0.5f, y+height*0.5f,  0.0f };
-        v2.Position = { x+width*0.5f, y+height*0.5f,  0.0f };
-        v3.Position = { x+width*0.5f, y-height*0.5f,  0.0f };
-        v4.Position = { x-width*0.5f, y-height*0.5f,  0.0f };
+        vertexPtr->Position = { x+width*0.5f, y+height*0.5f,  0.0f };
+        vertexPtr->Color = color;
+        vertexPtr->TexCoords = { 1.0f, 1.0f };
+        vertexPtr->TexId = texId;
+        vertexPtr++;
 
-        v1.Color = { 1.0f, 0.0f, 0.0f, 1.0f };
-        v2.Color = { 0.0f, 1.0f, 0.0f, 1.0f };
-        v3.Color = { 0.0f, 0.0f, 1.0f, 1.0f };
-        v4.Color = { 1.0f, 1.0f, 0.0f, 1.0f };
+        vertexPtr->Position = { x+width*0.5f, y-height*0.5f,  0.0f };
+        vertexPtr->Color = color;
+        vertexPtr->TexCoords = { 1.0f, 0.0f };
+        vertexPtr->TexId = texId;
+        vertexPtr++;
 
-        v1.TexCoords = { 0.0f, 1.0f };
-        v2.TexCoords = { 1.0f, 1.0f };
-        v3.TexCoords = { 1.0f, 0.0f };
-        v4.TexCoords = { 0.0f, 0.0f };
+        vertexPtr->Position = { x-width*0.5f, y-height*0.5f,  0.0f };
+        vertexPtr->Color = color;
+        vertexPtr->TexCoords = { 0.0f, 0.0f };
+        vertexPtr->TexId = texId;
+        vertexPtr++;
 
-        v1.TexId = texId;
-        v2.TexId = texId;
-        v3.TexId = texId;
-        v4.TexId = texId;
-        
-        return { v1, v2, v3, v4 };
+        return vertexPtr;
+    }
+
+    LBatch::~LBatch()
+    {
+        delete[] _vertices;
     }
 }
