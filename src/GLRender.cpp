@@ -107,7 +107,7 @@ void GLRender::InitImGUI()
     ImGui_ImplOpenGL3_Init(glsl_version.str().c_str());
 
     const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
-    IM_ASSERT(font != nullptr);
+    IM_ASSERT(font != nullptr); (void)font;
 }
 
 void GLRender::Setup()
