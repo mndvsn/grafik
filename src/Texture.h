@@ -8,15 +8,18 @@
 
 class Texture
 {
-    unsigned _id { 0 };
     std::string _filePath {};
     unsigned char* _localBuffer { nullptr };
+    int _bpp { 0 };
+
+protected:
+    unsigned _id { 0 };
     bool _loaded { false };
     int _width { 0 };
     int _height { 0 };
-    int _bpp { 0 };
 
 public:
+    Texture() = default;
     Texture(const std::string& filePath);
     ~Texture();
 

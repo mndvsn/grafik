@@ -11,6 +11,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
+#include <chrono>
+#include <random>
 #include <vector>
 
 
@@ -22,6 +24,8 @@ namespace labb
         (void)GetRenderer().GetFramebufferSize(width, height);
 
         GetRenderer().SetClearColor({ 1.0f, 1.0f, 1.0f });
+
+        RandomizeSeed();
 
         // Define layout
         VertexBufferLayout layout;
@@ -63,11 +67,12 @@ namespace labb
         if (_shader.Bind())
         {
             // Load textures and bind to texture unit
+            _texture0.emplace(true);
             _texture1.emplace("data/textures/metal_plates.png");
             _texture2.emplace("data/textures/ground_base.jpg");
-            if (_texture1->Bind(0) && _texture2->Bind(1))
+            if (_texture0->Bind(0) && _texture1->Bind(1) && _texture2->Bind(2))
             {
-                _shader.SetUniform1iv("u_Textures", { 0, 1 });
+                _shader.SetUniform1iv("u_Textures", { 0, 1, 2 });
             }
         }
 
@@ -105,7 +110,7 @@ namespace labb
             return;
         }
 
-        if (!_texture1->Bind(0) || !_texture2->Bind(1))
+        if (!_texture0->Bind(0) || !_texture1->Bind(1) || !_texture2->Bind(2))
         {
             RenderError("Failed to load texture!");
             return;
@@ -125,17 +130,23 @@ namespace labb
         const float startX { -size * static_cast<float>(cols) * 0.5f };
         const float startY {  size * static_cast<float>(rows) * 0.5f };
 
+        randomEngine.seed(_seed);
+        randomizer.reset();
+        auto randomTextureId = std::bind(std::ref(randomizer), std::ref(randomEngine));
+
         size_t n{0}, curY{0}, curX{0};
         while (n < static_cast<size_t>(_quads))
         {
+            const float texId = static_cast<float>(randomTextureId());
             const float x = startX + static_cast<float>(curX) * size + size * 0.5f;
             const float y = startY - static_cast<float>(curY) * size - size * 0.5f;
+            const float z = texId * _breakAmount - _breakAmount;
             glm::vec4 color { 1.0f };
             color.r = static_cast<float>(curY) / static_cast<float>(rows);
             color.g = 1.0f - static_cast<float>(curX) / static_cast<float>(cols);
             color.b = static_cast<float>(curX) / static_cast<float>(cols);
 
-            vertexPtr = MakeQuad(vertexPtr, x, y, size, size, (curY + curX) % 2 ? 1.0f : 0.0f, color);
+            vertexPtr = MakeQuad(vertexPtr, x, y, z, size, size, texId, color);
 
             curY++;
             if (curY == rows)
@@ -185,38 +196,48 @@ namespace labb
         ImGui::SliderFloat("Camera X", &_cameraPosition.x, -5.0f, 5.0f);
         ImGui::SliderFloat("Camera Y", &_cameraPosition.y, -5.0f, 5.0f);
         ImGui::SliderFloat("Camera Z", &_cameraPosition.z, -10.0f, -1.0f);
+        ImGui::SliderFloat("Break-up", &_breakAmount, 0.0f, 3.0f);
         ImGui::DragInt("Quads", &_quads, 1, 0, batchQuadCapacity, "%d",
             ImGuiSliderFlags_Logarithmic);
+        if (ImGui::Button("Randomize"))
+        {
+            RandomizeSeed();
+        }
         ImGui::End();
     }
 
-    Vertex* LBatch::MakeQuad(Vertex* vertexPtr, float x, float y, float width /*= 1.0f*/, float height /*= 1.0f*/, float texId /*= 0.0f*/, glm::vec4 color /*1, 1, 1, 1*/)
+    Vertex* LBatch::MakeQuad(Vertex* vertexPtr, float x, float y, float z, float width /*= 1.0f*/, float height /*= 1.0f*/, float texId /*= 0.0f*/, glm::vec4 color /*1, 1, 1, 1*/)
     {
-        vertexPtr->Position = { x-width*0.5f, y+height*0.5f,  0.0f };
+        vertexPtr->Position = { x-width*0.5f, y+height*0.5f, z };
         vertexPtr->Color = color;
         vertexPtr->TexCoords = { 0.0f, 1.0f };
         vertexPtr->TexId = texId;
         vertexPtr++;
 
-        vertexPtr->Position = { x+width*0.5f, y+height*0.5f,  0.0f };
+        vertexPtr->Position = { x+width*0.5f, y+height*0.5f, z };
         vertexPtr->Color = color;
         vertexPtr->TexCoords = { 1.0f, 1.0f };
         vertexPtr->TexId = texId;
         vertexPtr++;
 
-        vertexPtr->Position = { x+width*0.5f, y-height*0.5f,  0.0f };
+        vertexPtr->Position = { x+width*0.5f, y-height*0.5f, z };
         vertexPtr->Color = color;
         vertexPtr->TexCoords = { 1.0f, 0.0f };
         vertexPtr->TexId = texId;
         vertexPtr++;
 
-        vertexPtr->Position = { x-width*0.5f, y-height*0.5f,  0.0f };
+        vertexPtr->Position = { x-width*0.5f, y-height*0.5f, z };
         vertexPtr->Color = color;
         vertexPtr->TexCoords = { 0.0f, 0.0f };
         vertexPtr->TexId = texId;
         vertexPtr++;
 
         return vertexPtr;
+    }
+
+    void LBatch::RandomizeSeed()
+    {
+        _seed = static_cast<unsigned>(std::chrono::system_clock::now().time_since_epoch().count());
     }
 
     LBatch::~LBatch()
