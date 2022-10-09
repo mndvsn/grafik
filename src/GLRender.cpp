@@ -11,11 +11,12 @@
 #endif
 
 // Labb
+#include "labb/Batch.h"
 #include "labb/ClearColor.h"
 #include "labb/Mirror.h"
+#include "labb/Loop.h"
 #include "labb/Stacks.h"
 #include "labb/Triangle.h"
-#include "labb/Batch.h"
 
 // ImGUI
 #include <imgui/imgui.h>
@@ -141,6 +142,7 @@ void GLRender::Run()
     menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
     menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
     menu->RegisterLab<labb::LBatch>("Batch", "batch");
+    menu->RegisterLab<labb::LLoop>("Loop", "loop");
 
     // Create an initial lab if requested and matching shortname is found
     if (!_initLab.empty())

@@ -26,6 +26,7 @@
     <ClCompile Include="src\labb\Batch.cpp" />
     <ClCompile Include="src\labb\ClearColor.cpp" />
     <ClCompile Include="src\labb\Lab.cpp" />
+    <ClCompile Include="src\labb\Loop.cpp" />
     <ClCompile Include="src\labb\Mirror.cpp" />
     <ClCompile Include="src\labb\Stacks.cpp" />
     <ClCompile Include="src\labb\Triangle.cpp" />
@@ -45,9 +46,14 @@
     <Content Include="data\shaders\batch.vert" />
     <Content Include="data\shaders\color.frag" />
     <Content Include="data\shaders\color.vert" />
+    <Content Include="data\shaders\loop.frag" />
+    <Content Include="data\shaders\loop.vert" />
     <Content Include="data\shaders\mirror.frag" />
     <Content Include="data\shaders\mirror.vert" />
     <Content Include="data\textures\ground_base.jpg" />
+    <Content Include="data\textures\loop.png" />
+    <Content Include="data\textures\loop_alpha.png" />
+    <Content Include="data\textures\loop_alpha_inv.png" />
     <Content Include="data\textures\metal_plates.png" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +72,7 @@
     <ClInclude Include="src\labb\Batch.h" />
     <ClInclude Include="src\labb\ClearColor.h" />
     <ClInclude Include="src\labb\Lab.h" />
+    <ClInclude Include="src\labb\Loop.h" />
     <ClInclude Include="src\labb\Mirror.h" />
     <ClInclude Include="src\labb\Stacks.h" />
     <ClInclude Include="src\labb\Triangle.h" />

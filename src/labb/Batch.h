@@ -19,17 +19,9 @@
 namespace labb
 {
     constexpr size_t batchQuadCapacity { 20000 };
-    constexpr size_t verticesCount { batchQuadCapacity * 4 };
-    constexpr size_t indicesCount { batchQuadCapacity * 6 };
-    
-    struct Vertex
-    {
-        glm::vec3   Position    { 0.0f, 0.0f, 0.0f };
-        glm::vec4   Color       { 1.0f, 1.0f, 1.0f, 1.0f };
-        glm::vec2   TexCoords   { 0.0f, 0.0f };
-        float       TexId       { 0.0f };
-    };
-    
+    constexpr size_t batchVerticesCount { batchQuadCapacity * 4 };
+    constexpr size_t batchIndicesCount { batchQuadCapacity * 6 };
+
     class LBatch : public LLab
     {
         float       _speed          { 0.2f };
@@ -49,11 +41,12 @@ namespace labb
         void BeginGUI(bool* bKeep) override;
 
     protected:
-        static Vertex* MakeQuad(Vertex* vertexPtr, float x, float y, float z, float width = 1.0f, float height = 1.0f, float texId = 0.0f, glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f });
+        static Vertex* MakeQuad(Vertex* vertexPtr, float x, float y, float z, float width = 1.0f, float height = 1.0f,
+            float texId = 0.0f, glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f });
 
     private:
         VertexArray _vao {};
-        VertexBuffer _vbo { nullptr, sizeof(Vertex) * verticesCount, true };
+        VertexBuffer _vbo { nullptr, sizeof(Vertex) * batchVerticesCount, true };
         Shader _shader { "data/shaders/batch.vert", "data/shaders/batch.frag" };
         std::optional<DataTexture> _texture0;
         std::optional<Texture> _texture1;

@@ -38,12 +38,12 @@ namespace labb
         _vao.AddVertexBuffer(_vbo, layout);
 
         // Make array of vertices
-        _vertices = new Vertex[verticesCount];
+        _vertices = new Vertex[batchVerticesCount];
 
         // Generate element/index buffer and bind to VAO
-        unsigned indices[indicesCount];
+        unsigned indices[batchIndicesCount];
         unsigned offset { 0 };
-        for (size_t i = 0; i < indicesCount; i += 6)
+        for (size_t i = 0; i < batchIndicesCount; i += 6)
         {
             indices[i+0] = offset + 0;
             indices[i+1] = offset + 1;
@@ -56,7 +56,7 @@ namespace labb
             offset += 4;
         }
         
-        const ElementBuffer ebo(indices, indicesCount);
+        const ElementBuffer ebo(indices, batchIndicesCount);
         _vao.AddElementBuffer(ebo);
         
         // Define matrices
@@ -120,7 +120,7 @@ namespace labb
         Vertex* vertexPtr = _vertices;
         const size_t rows { static_cast<unsigned>(floor(sqrt(std::max(_quads, 1)))) };
         size_t cols { static_cast<unsigned>(ceil(_quads/rows)) };
-        if (rows * cols != verticesCount)
+        if (rows * cols != batchVerticesCount)
         {
             cols++;
         }
@@ -158,7 +158,7 @@ namespace labb
         }
 
         _vbo.Bind();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, verticesCount * sizeof(Vertex), _vertices);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, batchVerticesCount * sizeof(Vertex), _vertices);
 
         _shader.SetUniformMat4f("u_MVP", _mvp);
 
