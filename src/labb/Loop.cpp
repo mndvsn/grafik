@@ -121,7 +121,15 @@ namespace labb
         _shader.SetUniformVec4f("u_Color", _fgColor);
 
         _vao.Bind();
+        // Z-sorting fix: Use either culling + draw 2x or disable depth test
+        glEnable(GL_CULL_FACE);
+        // glDepthMask(GL_FALSE);
+        glCullFace(GL_BACK);
         GetRenderer().Render(_vao, _shader);
+        glCullFace(GL_FRONT);
+        GetRenderer().Render(_vao, _shader);
+        glDisable(GL_CULL_FACE);
+        // glDepthMask(GL_TRUE);
     }
 
     void LLoop::BeginGUI(bool* bKeep)
@@ -152,7 +160,7 @@ namespace labb
         ImGui::SliderFloat("Camera Y", &_cameraPosition.y, -2.0f, 2.0f);
         ImGui::SliderFloat("Camera Z", &_cameraPosition.z, -10.0f, -1.0f);
         ImGui::SliderInt("Texture", &_texId, 0, 2);
-        ImGui::ColorEdit3("Foreground", &_fgColor.r);
+        ImGui::ColorEdit4("Foreground", &_fgColor.r);
         ImGui::ColorEdit3("Background", &_bgColor.r);
         ImGui::End();
     }

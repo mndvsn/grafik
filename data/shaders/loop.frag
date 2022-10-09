@@ -15,5 +15,4 @@ void main()
     float texId2 = v_TexId;
     vec4 texColor = texture(u_Textures[u_TexId], v_TexCoord);
     color = v_Color * u_Color * texColor;
-    if (color.a < 0.01) discard;
 }
