@@ -163,6 +163,9 @@ namespace labb
         _shader->SetUniform1f("u_ColorAlpha", _colorAlpha);
         _vao->Bind();
 
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+
         // Draw cube
         GetRenderer().Render(*_vao, *_shader, 0, 35);
 
@@ -188,9 +191,11 @@ namespace labb
         _shader->SetUniformMat4f("u_MVP", _mvp);
         _shader->SetUniform1f("u_ReflectDarken", 1-_reflectDarken);
 
+        glCullFace(GL_BACK);
         GetRenderer().Render(*_vao, *_shader, 0, 35);
 
         glDisable(GL_STENCIL_TEST); // End stencil testing
+        glDisable(GL_CULL_FACE);
     }
 
     void LMirror::BeginGUI(bool* bKeep)
