@@ -13,6 +13,9 @@ uniform vec4 u_Color;
 void main()
 {
     float texId2 = v_TexId;
-    vec4 texColor = texture(u_Textures[u_TexId], v_TexCoord);
+    vec2 UVs = v_TexCoord;
+    if (gl_FrontFacing)
+        UVs =  vec2(1 - v_TexCoord.x, v_TexCoord.y);
+    vec4 texColor = texture(u_Textures[u_TexId], UVs);
     color = v_Color * u_Color * texColor;
 }
