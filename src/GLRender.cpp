@@ -105,7 +105,8 @@ void GLRender::InitImGUI()
     std::stringstream glsl_version;
     glsl_version << "#version " << glGetStringi(GL_SHADING_LANGUAGE_VERSION, 0);
     ImGui_ImplGlfw_InitForOpenGL(_window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version.str().c_str());
+    ImGui_ImplOpenGL3_Init();
+    // ImGui_ImplOpenGL3_Init(glsl_version.str().c_str());
 
     const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
     IM_ASSERT(font != nullptr); (void)font;
