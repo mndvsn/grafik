@@ -1,8 +1,8 @@
-[submodule "glm"]
-	path = include/glm
-	url = git@github.com:g-truc/glm.git
-	branch = master
 [submodule "imgui"]
 	path = include/imgui
 	url = git@github.com:ocornut/imgui.git
+	branch = master
+[submodule "glm"]
+	path = include/glm
+	url = git@github.com:g-truc/glm.git
 	branch = master
