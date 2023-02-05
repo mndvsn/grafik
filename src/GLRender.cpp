@@ -22,6 +22,7 @@
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_vulkan.h>
 
 #include <iostream>
 #include <memory>
@@ -30,10 +31,11 @@
 
 //#define DRAW_WIREFRAME
 
-GLRender::GLRender(const char* title, const int width, const int height, const char* initLab)
+GLRender::GLRender(const char* title, const int width, const int height, const bool useVulkan, const char* initLab)
     : _title { title }
     , _width { width }
     , _height { height }
+    , _bVulkan { useVulkan }
     , _initLab { initLab }
 {
     
@@ -49,13 +51,22 @@ void GLRender::Init()
         }
     }
 
-    // Set context to 4.6 Core
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    if (_bVulkan)
+    {
+        // Vulkan
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    }
+    else
+    {
+        // Set OpenGL context to 4.6 Core
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #ifdef _DEBUG
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
+    }
 
     // Create window and init glfw with context
     _window = glfwCreateWindow(_width, _height, _title.c_str(), nullptr, nullptr);
@@ -63,7 +74,7 @@ void GLRender::Init()
     {
         glfwTerminate();
         {
-            throw std::runtime_error("OpenGL context initialization failed!");
+            throw std::runtime_error("Window context initialization failed!");
         }
     }
     glfwMakeContextCurrent(_window);
@@ -71,8 +82,8 @@ void GLRender::Init()
     // swap buffers in sync with screen freq aka v-sync
     glfwSwapInterval(1);
 
-    // Initialize GLAD
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+    // Initialize GLAD (OpenGL extensions)
+    if (!_bVulkan && !gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
     {
         glfwTerminate();
         {
@@ -81,11 +92,17 @@ void GLRender::Init()
     }
 
 #   ifdef _DEBUG
-    InitDebug();
+    if (!_bVulkan)
+    {
+        InitDebug();
+    }
 #   endif
 
     // Setup Dear ImGui context
-    InitImGUI();
+    if (!_bVulkan)
+    {
+        InitImGUI();
+    }
 }
 
 void GLRender::InitImGUI()
@@ -101,12 +118,22 @@ void GLRender::InitImGUI()
     style.WindowRounding = 3.0f;
     style.FrameRounding = 3.0f;
 
-    // Setup GLFW + GLSL
-    std::stringstream glsl_version;
-    glsl_version << "#version " << glGetStringi(GL_SHADING_LANGUAGE_VERSION, 0);
-    ImGui_ImplGlfw_InitForOpenGL(_window, true);
-    ImGui_ImplOpenGL3_Init();
-    // ImGui_ImplOpenGL3_Init(glsl_version.str().c_str());
+    if (_bVulkan)
+    {
+        // Setup GLFW + Vulkan
+        
+        ImGui_ImplGlfw_InitForVulkan(_window, true);
+        // ImGui_ImplVulkan_Init( ImGui_ImplVulkan_InitInfo );
+    }
+    else
+    {
+        // Setup GLFW + OpenGL + GLSL
+        std::stringstream glsl_version;
+        glsl_version << "#version " << glGetStringi(GL_SHADING_LANGUAGE_VERSION, 0);
+        ImGui_ImplGlfw_InitForOpenGL(_window, true);
+        ImGui_ImplOpenGL3_Init();
+        // ImGui_ImplOpenGL3_Init(glsl_version.str().c_str());
+    }
 
     const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
     IM_ASSERT(font != nullptr); (void)font;
@@ -114,13 +141,25 @@ void GLRender::InitImGUI()
 
 void GLRender::Setup()
 {
+    if (_bVulkan) return;
+    
     // Set blend function
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void GLRender::TempRun()
+{
+    while (!glfwWindowShouldClose(_window))
+    {
+        glfwPollEvents();
+    }
+}
+
 void GLRender::Run()
 {
+    if (_bVulkan) return TempRun();
+    
     Renderer renderer(_window);
     
     double totalTimeElapsed { 0 },
@@ -242,9 +281,18 @@ void GLRender::glfwError(int error, const char* description)
 
 GLRender::~GLRender()
 {
-    ImGui_ImplOpenGL3_Shutdown();
+    /*
+    if (_bVulkan)
+    {
+        ImGui_ImplVulkan_Shutdown();
+    }
+    else
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+    }
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    */
     
     glfwDestroyWindow(_window);
     glfwTerminate();
