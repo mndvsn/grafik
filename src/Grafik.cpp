@@ -4,6 +4,7 @@
  * Copyright 2012-2022 Martin Furuberg 
  */
 #include "GLRender.h"
+#include "VulkanRender.h"
 
 #include <iostream>
 
@@ -13,14 +14,26 @@ bool checkVulkan(const int n, char* args[]);
 
 int main(const int argc, char *argv[])
 {
+    RenderApp* app = nullptr;
+    
     const bool bVulkan = checkVulkan(argc, argv);
     const char* lab = findInitialLab(argc, argv);
-    GLRender render("Grafik", 1100, 750, bVulkan, lab);
+
+    //TODO: Implement a common APP class, and GLFW window wrappers for OpenGL + Vulkan
+    if (bVulkan)
+    {
+        app = new VulkanRender("Grafik", 1100, 750, lab);
+    }
+    else
+    {
+        app = new GLRender("Grafik", 1100, 750, lab);
+    }
+    
 
     try
     {
-        render.Init();
-        render.Setup();
+        app->Init();
+        app->Setup();
     }
     catch (const std::runtime_error& ex)
     {
@@ -28,7 +41,9 @@ int main(const int argc, char *argv[])
         return EXIT_FAILURE;
     }
     
-    render.Run();
+    app->Run();
+
+    delete app;
     
     return EXIT_SUCCESS;
 }

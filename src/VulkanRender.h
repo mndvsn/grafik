@@ -1,19 +1,18 @@
 ﻿/**
  * Grafik
- * GLRender
- * Copyright 2012-2022 Martin Furuberg 
+ * VulkanRender
+ * Copyright Martin Furuberg 
  */
 #pragma once
-#include <glad/glad.h>
-
+#define GLFW_INCLUDE_VULKAN
 #include "RenderApp.h"
 
-
-class GLRender: public RenderApp
+class VulkanRender : public RenderApp
 {
+
 public:
-    GLRender(const char* title, int width, int height, const char* initLab);
-    ~GLRender() override;
+    VulkanRender(const char* title, int width, int height, const char* initLab);
+    // ~VulkanRender() override;
 
     void Init() override;
     void Setup() override;

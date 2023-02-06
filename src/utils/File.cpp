@@ -45,3 +45,39 @@ std::optional<std::string> File::Read()
 
     return contents;
 }
+
+std::optional<std::vector<char>> File::ReadBytes()
+{
+    static std::mutex mutex;
+    std::lock_guard lock(mutex);
+    fin.open(filePath, std::ios::ate | std::ios::binary);
+
+    try
+    {
+        if (!fin.is_open())
+        {
+            throw std::runtime_error(std::format("File: Unable to open file {}", filePath));
+        }
+    }
+    catch (std::runtime_error &e)
+    {
+        std::cout << e.what() << std::endl;
+        fin.close();
+        return {};
+    }
+
+    size_t fileSize = fin.tellg();
+    std::vector<char> buffer(fileSize);
+
+    fin.seekg(0);
+    fin.read(buffer.data(), fileSize);
+    fin.close();
+
+    if (!fileSize)
+    {
+        std::cout << "Warning: File " << filePath << " is empty!" << std::endl;
+        return {};
+    }
+
+    return buffer;
+}

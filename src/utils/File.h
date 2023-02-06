@@ -8,6 +8,7 @@
 #include <fstream>
 #include <format>
 #include <optional>
+#include <vector>
 
 
 class File
@@ -24,4 +25,5 @@ private:
     
 public:    
     std::optional<std::string> Read();
+    std::optional<std::vector<char>> ReadBytes();
 };
