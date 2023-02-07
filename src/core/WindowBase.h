@@ -15,8 +15,14 @@ public:
 
     virtual void Init(const std::string& title, int width, int height) = 0;
     virtual void Loop() = 0;
+    
+    virtual void BeginImGUI() const = 0;
+    virtual void RenderImGUI() const = 0;
 
+    [[nodiscard]] virtual GLFWwindow* GetWindow() const = 0;
     [[nodiscard]] virtual bool IsRunning() const = 0;
+    
+    virtual void Shutdown() = 0;
 
 protected:
     virtual void CreateWindow(const std::string& title, int width, int height) = 0;
@@ -40,8 +46,6 @@ public:
     Window &operator=(const Window &) = delete;
 
     virtual void InitGLFW();
-    
-    [[nodiscard]] GLFWwindow* GetWindow() const { return _window; }
 
 protected:
     static void glfwError(int error, const char* description);

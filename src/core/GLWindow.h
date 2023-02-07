@@ -17,7 +17,13 @@ public:
     void Init(const std::string& title, int width, int height) override;
     void Loop() override;
 
+    void BeginImGUI() const override;
+    void RenderImGUI() const override;
+
+    [[nodiscard]] GLFWwindow* GetWindow() const override { return _window; }
     [[nodiscard]] bool IsRunning() const override;
+
+    void Shutdown() override;
 
 protected:
     void CreateWindow(const std::string& title, int width, int height) override;

@@ -5,6 +5,10 @@
  */
 #include "Application.h"
 #include "GLWindow.h"
+#include "Renderer.h"
+
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 #include <iostream>
 
@@ -43,13 +47,34 @@ void Application::Run() const
 {
     std::cout << "Application::Run()" << std::endl;
 
+    Renderer renderer(window->GetWindow());
+
     // Keep running until we should close and exit
     while (window && window->IsRunning())
     {
+        BeginImGUI();
+        RenderImGUI();
+        
         window->Loop();
     }
 
     appShouldExit = true;
+}
+
+void Application::BeginImGUI() const
+{
+    // Begin ImGUI frame
+    window->BeginImGUI();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+    ImGui::ShowDemoWindow();
+}
+
+void Application::RenderImGUI() const
+{
+    // Render ImGUI
+    ImGui::Render();
+    window->RenderImGUI();
 }
 
 Application& Application::Get()
@@ -57,7 +82,12 @@ Application& Application::Get()
     return *application;
 }
 
-Application::~Application() = default;
+Application::~Application()
+{
+    window->Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
 
 void Application::CheckArgs(ApplicationConfig& config)
 {

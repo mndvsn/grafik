@@ -14,6 +14,9 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 #include <iostream>
+#include <memory>
+#include <sstream>
+
 
 
 //#define DRAW_WIREFRAME
@@ -68,7 +71,25 @@ void GLWindow::CreateWindow(const std::string& title, const int width, const int
 
 void GLWindow::InitImGUI()
 {
-    std::cout << "GLWindow::InitImGUI" << std::endl;
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
+
+    // Setup Dear ImGui style
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImGui::StyleColorsDark(&style);
+    style.WindowRounding = 3.0f;
+    style.FrameRounding = 3.0f;
+
+    // Setup GLFW + OpenGL + GLSL
+    std::stringstream glsl_version;
+    glsl_version << "#version " << glGetStringi(GL_SHADING_LANGUAGE_VERSION, 0);
+    ImGui_ImplGlfw_InitForOpenGL(_window, true);
+    ImGui_ImplOpenGL3_Init();
+
+    const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
+    IM_ASSERT(font != nullptr); (void)font;
 }
 
 void GLWindow::Loop()
@@ -77,15 +98,27 @@ void GLWindow::Loop()
     glfwPollEvents();
 }
 
+void GLWindow::BeginImGUI() const
+{
+    ImGui_ImplOpenGL3_NewFrame();
+}
+
+void GLWindow::RenderImGUI() const
+{
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
 bool GLWindow::IsRunning() const
 {
     return !glfwWindowShouldClose(_window);
 }
 
-GLWindow::~GLWindow()
+void GLWindow::Shutdown()
 {
-    
+    ImGui_ImplOpenGL3_Shutdown();
 }
+
+GLWindow::~GLWindow() = default;
 
 #ifdef _DEBUG
 void GLWindow::InitDebug()

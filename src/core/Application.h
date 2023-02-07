@@ -49,8 +49,9 @@ public:
     void Init();
     void Setup();
     void Run() const;
-    
+
 private:
+    void BeginImGUI() const;
+    void RenderImGUI() const;
     static void CheckArgs(ApplicationConfig& config);
-    
 };
