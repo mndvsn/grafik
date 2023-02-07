@@ -3,73 +3,56 @@
  * Grafik
  * Copyright 2012-2022 Martin Furuberg 
  */
-#include "GLRender.h"
-#include "VulkanRender.h"
+#ifdef GK_WIN
+#include "core/Application.h"
 
 #include <iostream>
 
 
-const char* findInitialLab(int n, char* args[]);
-bool checkVulkan(const int n, char* args[]);
+bool appShouldExit { false };
 
-int main(const int argc, char *argv[])
+int Grafik(const int argc, char** argv)
 {
-    RenderApp* app = nullptr;
-    
-    const bool bVulkan = checkVulkan(argc, argv);
-    const char* lab = findInitialLab(argc, argv);
+    while (!appShouldExit)
+    {
+        ApplicationConfig config("Grafik", 1100, 750);
+        config.args = { argc, argv };
 
-    //TODO: Implement a common APP class, and GLFW window wrappers for OpenGL + Vulkan
-    if (bVulkan)
-    {
-        app = new VulkanRender("Grafik", 1100, 750, lab);
-    }
-    else
-    {
-        app = new GLRender("Grafik", 1100, 750, lab);
-    }
-    
+        const auto app = new Application(config);
 
-    try
-    {
-        app->Init();
-        app->Setup();
-    }
-    catch (const std::runtime_error& ex)
-    {
-        std::cerr << "Error: " << ex.what() << std::endl;
-        return EXIT_FAILURE;
-    }
-    
-    app->Run();
+        try
+        {
+            app->Init();
+            app->Setup();
+        }
+        catch (const std::runtime_error& ex)
+        {
+            std::cerr << "Error: " << ex.what() << std::endl;
+            return EXIT_FAILURE;
+        }
 
-    delete app;
-    
+        app->Run();
+
+        delete app;
+    }
     return EXIT_SUCCESS;
 }
 
-const char* findInitialLab(const int n, char* args[])
+#ifdef GK_DISTR
+
+#include <Windows.h>
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
-    const char* finding { "" };
-    for (int i=0; i<n; i++)
-    {
-        if (strcmp(args[i], "-l") == 0 && n > i)
-        {
-            finding = args[i+1];
-        }
-    }
-    return finding;
+    return Grafik(__argc, __argv);
 }
 
-bool checkVulkan(const int n, char* args[])
+#else
+
+int main(const int argc, char** argv)
 {
-    for (int i=0; i<n; i++)
-    {
-        if (strcmp(args[i], "-vulkan") == 0)
-        {
-            std::cout << "Using Vulkan" << std::endl;
-            return true;
-        }
-    }
-    return false;
+    return Grafik(argc, argv);
 }
+
+#endif
+#endif
