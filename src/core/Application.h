@@ -5,6 +5,7 @@
  */
 #pragma once
 
+#include <memory>
 #include <string>
 
 
@@ -29,9 +30,12 @@ struct ApplicationConfig
     ApplicationArgs args { };
 };
 
+class IWindow;
+
 class Application
 {
     ApplicationConfig _config;
+    std::unique_ptr<IWindow> window;
     
 public:
     Application(ApplicationConfig config = ApplicationConfig());

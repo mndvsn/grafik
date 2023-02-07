@@ -4,6 +4,7 @@
  * Copyright 2023 Martin Furuberg
  */
 #include "Application.h"
+#include "GLWindow.h"
 
 #include <iostream>
 
@@ -17,12 +18,20 @@ Application::Application(ApplicationConfig config)
     application = this;
     
     // Parse launch arguments
-    CheckArgs(config);
+    CheckArgs(_config);
 }
 
 void Application::Init()
 {
     //TODO: GLFW window wrappers for OpenGL + Vulkan
+    if (!_config.bVulkan)
+    {
+        window = std::make_unique<GLWindow>();
+    }
+    
+    if (!window) return;
+
+    window->Init(_config.title, _config.width, _config.height);
 }
 
 void Application::Setup()
@@ -33,6 +42,12 @@ void Application::Setup()
 void Application::Run() const
 {
     std::cout << "Application::Run()" << std::endl;
+
+    // Keep running until we should close and exit
+    while (window && window->IsRunning())
+    {
+        window->Loop();
+    }
 
     appShouldExit = true;
 }

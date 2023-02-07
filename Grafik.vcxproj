@@ -23,6 +23,8 @@
     <ClCompile Include="include\imgui\imgui_tables.cpp" />
     <ClCompile Include="include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
+    <ClCompile Include="src\core\GLWindow.cpp" />
+    <ClCompile Include="src\core\WindowBase.cpp" />
     <ClCompile Include="src\DataTexture.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\GLRender.cpp" />
@@ -77,6 +79,8 @@
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\core\Application.h" />
+    <ClInclude Include="src\core\GLWindow.h" />
+    <ClInclude Include="src\core\WindowBase.h" />
     <ClInclude Include="src\DataTexture.h" />
     <ClInclude Include="src\ElementBuffer.h" />
     <ClInclude Include="src\GLRender.h" />
