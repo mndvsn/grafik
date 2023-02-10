@@ -47,7 +47,6 @@ public:
     static Application& Get();
 
     void Init();
-    void Setup();
     void Run() const;
 
 private:

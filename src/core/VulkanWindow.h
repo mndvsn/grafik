@@ -1,18 +1,18 @@
 ﻿/**
  * Grafik
- * GLWindow
+ * VulkanWindow
  * Copyright 2023 Martin Furuberg 
  */
 #pragma once
-#include <glad/glad.h>
+#define GLFW_INCLUDE_VULKAN
 #include "WindowBase.h"
 
 
-class GLWindow : public Window, public IWindow
+class VulkanWindow : public Window, public IWindow
 {
 public:
-    GLWindow() = default;
-    ~GLWindow() override;
+    VulkanWindow() = default;
+    ~VulkanWindow() override;
 
     void Init(const std::string& title, int width, int height) override;
     void Setup() override;

@@ -23,7 +23,6 @@ int Grafik(const int argc, char** argv)
         try
         {
             app->Init();
-            app->Setup();
         }
         catch (const std::runtime_error& ex)
         {

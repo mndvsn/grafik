@@ -5,7 +5,16 @@
  */
 #include "Application.h"
 #include "GLWindow.h"
+#include "VulkanWindow.h"
 #include "Renderer.h"
+
+// Labb
+#include "labb/Batch.h"
+#include "labb/ClearColor.h"
+#include "labb/Mirror.h"
+#include "labb/Loop.h"
+#include "labb/Stacks.h"
+#include "labb/Triangle.h"
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -15,6 +24,8 @@
 
 static Application* application { nullptr };
 extern bool appShouldExit;
+
+//#define DRAW_WIREFRAME
 
 Application::Application(ApplicationConfig config)
     : _config { std::move(config) }
@@ -28,34 +39,113 @@ Application::Application(ApplicationConfig config)
 void Application::Init()
 {
     //TODO: GLFW window wrappers for OpenGL + Vulkan
-    if (!_config.bVulkan)
+    if (_config.bVulkan)
+    {
+        window = std::make_unique<VulkanWindow>();
+    }
+    else
     {
         window = std::make_unique<GLWindow>();
     }
     
-    if (!window) return;
-
     window->Init(_config.title, _config.width, _config.height);
-}
-
-void Application::Setup()
-{
-    
 }
 
 void Application::Run() const
 {
     std::cout << "Application::Run()" << std::endl;
 
-    Renderer renderer(window->GetWindow());
-
-    // Keep running until we should close and exit
-    while (window && window->IsRunning())
+    // temp Vulkan bypass
+    if (_config.bVulkan)
     {
+        while (window->IsRunning())
+        {
+            window->BeginFrame();
+            window->EndFrame();
+        }
+        appShouldExit = true;
+        return;
+    }
+    
+    Renderer renderer(window->GetWindow());
+    
+    double totalTimeElapsed { 0 },
+        timeElapsedNow { 0 },
+        deltaTime { 0 };
+
+#ifdef DRAW_WIREFRAME
+    // Draw in wireframe mode
+    renderer.SetWireframeMode(true);
+#endif
+
+    // Set to false to exit active lab
+    static bool bKeep { true };
+    auto lab = std::unique_ptr<labb::LLab> {};
+    const auto menu = std::make_unique<labb::LLabMenu>(renderer, lab);
+
+    // Add labs to main menu
+    menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
+    menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
+    menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
+    menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
+    menu->RegisterLab<labb::LBatch>("Batch", "batch");
+    menu->RegisterLab<labb::LLoop>("Loop", "loop");
+
+    // Create an initial lab if requested and matching shortname is found
+    if (!_config.initLab.empty())
+    {
+        if (const auto maybeLab = menu->CreateLabIfExists(_config.initLab))
+        {
+            lab.reset(*maybeLab);
+        }
+    }
+    
+    // Keep running until we should close and exit
+    while (window->IsRunning())
+    {
+        // Update timers
+        timeElapsedNow = glfwGetTime();
+        deltaTime = timeElapsedNow - totalTimeElapsed;
+        totalTimeElapsed = timeElapsedNow;
+
+        // Reset context state
+        window->BeginFrame();
+
+        if (lab)
+        {
+            lab->BeginUpdate(deltaTime);
+            lab->BeginRender();
+        }
+        else
+        {
+            menu->BeginRender();
+        }
+
         BeginImGUI();
+
+        // Draw main menu UI
+        menu->BeginGUI(&bKeep);
+
+        if (lab)
+        {
+            // Draw lab specific UI
+            lab->BeginGUI(&bKeep);
+            if (!bKeep)
+            {
+                lab.reset();
+                bKeep = true;
+            }
+        }
+        else
+        {
+            // Draw selection window
+            menu->BeginBigMenu();
+        }
+
+        // Render UI
         RenderImGUI();
         
-        window->Loop();
+        window->EndFrame();
     }
 
     appShouldExit = true;
@@ -67,7 +157,7 @@ void Application::BeginImGUI() const
     window->BeginImGUI();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 }
 
 void Application::RenderImGUI() const
@@ -85,8 +175,6 @@ Application& Application::Get()
 Application::~Application()
 {
     window->Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 void Application::CheckArgs(ApplicationConfig& config)
@@ -96,13 +184,12 @@ void Application::CheckArgs(ApplicationConfig& config)
         // Look for vulkan flag
         if (strcmp(config.args[i], "-vulkan") == 0)
         {
-            std::cout << "Using Vulkan" << std::endl;
             config.bVulkan = true;
         }
         // Look for lab init option
         else if (config.args.count > i+1 && strcmp(config.args[i], "-l") == 0)
         {
-            config.initLab = config.args[i][i+1];
+            config.initLab = config.args[i+1];
         }
     }
 }

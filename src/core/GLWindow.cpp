@@ -14,12 +14,8 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 
 #include <iostream>
-#include <memory>
 #include <sstream>
 
-
-
-//#define DRAW_WIREFRAME
 
 void GLWindow::Init(const std::string& title, const int width, const int height)
 {
@@ -42,6 +38,9 @@ void GLWindow::Init(const std::string& title, const int width, const int height)
 
     // Setup Dear ImGui context
     InitImGUI();
+
+    // Set context state
+    Setup();
 }
 
 void GLWindow::CreateWindow(const std::string& title, const int width, const int height)
@@ -92,7 +91,21 @@ void GLWindow::InitImGUI()
     IM_ASSERT(font != nullptr); (void)font;
 }
 
-void GLWindow::Loop()
+void GLWindow::Setup()
+{
+    // Set blend function
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
+void GLWindow::BeginFrame()
+{
+    // Enable depth buffer
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+}
+
+void GLWindow::EndFrame()
 {
     glfwSwapBuffers(_window);
     glfwPollEvents();
@@ -100,6 +113,9 @@ void GLWindow::Loop()
 
 void GLWindow::BeginImGUI() const
 {
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDepthMask(GL_TRUE);
+    
     ImGui_ImplOpenGL3_NewFrame();
 }
 
@@ -116,6 +132,10 @@ bool GLWindow::IsRunning() const
 void GLWindow::Shutdown()
 {
     ImGui_ImplOpenGL3_Shutdown();
+    
+    //
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 GLWindow::~GLWindow() = default;
