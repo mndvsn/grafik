@@ -16,7 +16,7 @@ public:
     virtual void Init(const std::string& title, int width, int height) = 0;
     virtual void Setup() = 0;
     virtual void BeginFrame() = 0;
-    virtual void EndFrame() = 0;
+    virtual void Update() = 0;
     
     virtual void BeginImGUI() const = 0;
     virtual void RenderImGUI() const = 0;

@@ -58,7 +58,7 @@ void VulkanWindow::BeginFrame()
 {
 }
 
-void VulkanWindow::EndFrame()
+void VulkanWindow::Update()
 {
     glfwPollEvents();
 }

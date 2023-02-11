@@ -17,7 +17,7 @@ public:
     void Init(const std::string& title, int width, int height) override;
     void Setup() override;
     void BeginFrame() override;
-    void EndFrame() override;
+    void Update() override;
 
     void BeginImGUI() const override;
     void RenderImGUI() const override;

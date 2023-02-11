@@ -105,7 +105,7 @@ void GLWindow::BeginFrame()
     glDisable(GL_STENCIL_TEST);
 }
 
-void GLWindow::EndFrame()
+void GLWindow::Update()
 {
     glfwSwapBuffers(_window);
     glfwPollEvents();

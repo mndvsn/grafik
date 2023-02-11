@@ -61,7 +61,7 @@ void Application::Run() const
         while (window->IsRunning())
         {
             window->BeginFrame();
-            window->EndFrame();
+            window->Update();
         }
         appShouldExit = true;
         return;
@@ -145,7 +145,7 @@ void Application::Run() const
         // Render UI
         RenderImGUI();
         
-        window->EndFrame();
+        window->Update();
     }
 
     appShouldExit = true;
