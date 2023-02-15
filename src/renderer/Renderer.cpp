@@ -1,9 +1,11 @@
 ﻿/**
  * Grafik
  * Renderer
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright Martin Furuberg 
  */
 #include "Renderer.h"
+
+#include "renderer/RenderCommand.h"
 
 #include "VertexArray.h"
 #include "Shader.h"
@@ -30,6 +32,28 @@ void Renderer::Render(const VertexArray& vao, const Shader& shader, const int el
         const void* offset = reinterpret_cast<const void*>(static_cast<intptr_t>(sizeof(unsigned)*elementStart)); // NOLINT(performance-no-int-to-ptr)
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, offset);
     }
+}
+
+void Renderer::Init(RendererAPI::API api)
+{
+    RenderCommand::Init(api);
+}
+
+void Renderer::BeginFrame()
+{
+    RenderCommand::ResetState();
+}
+
+void Renderer::EndFrame()
+{
+}
+
+void Renderer::BeginScene()
+{
+}
+
+void Renderer::EndScene()
+{
 }
 
 void Renderer::Clear() const

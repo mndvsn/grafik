@@ -4,25 +4,29 @@
  * Copyright 2023 Martin Furuberg
  */
 #include "Application.h"
-#include "GLWindow.h"
-#include "VulkanWindow.h"
-#include "Renderer.h"
+
+#include "core/Window.h"
+#include "renderer/Renderer.h"
+#include "ui/UI.h"
 
 // Labb
+#include "labb/Lab.h"
+/*
 #include "labb/Batch.h"
+*/
 #include "labb/ClearColor.h"
+/*
 #include "labb/Mirror.h"
 #include "labb/Loop.h"
 #include "labb/Stacks.h"
 #include "labb/Triangle.h"
+*/
 
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
 
 #include <iostream>
 
 
-static Application* application { nullptr };
 extern bool appShouldExit;
 
 //#define DRAW_WIREFRAME
@@ -30,7 +34,7 @@ extern bool appShouldExit;
 Application::Application(ApplicationConfig config)
     : _config { std::move(config) }
 {
-    application = this;
+    _application = this;
     
     // Parse launch arguments
     CheckArgs(_config);
@@ -38,17 +42,36 @@ Application::Application(ApplicationConfig config)
 
 void Application::Init()
 {
-    //TODO: GLFW window wrappers for OpenGL + Vulkan
-    if (_config.bVulkan)
+    Renderer::Init(_config.api);
+
+    _window = std::make_unique<Window>();
+    _window->Init(_config.title, _config.width, _config.height);
+
+    // Init ImGUI
+    InitUI();
+}
+
+void Application::InitUI()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
+
+    // Configure style
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImGui::StyleColorsDark(&style);
+    style.WindowRounding = 3.0f;
+    style.FrameRounding = 3.0f;
+
+    _ui = UI::Create();
+    if (_ui)
     {
-        window = std::make_unique<VulkanWindow>();
+        _ui->Init(_window->GetSysWindow());
     }
-    else
-    {
-        window = std::make_unique<GLWindow>();
-    }
-    
-    window->Init(_config.title, _config.width, _config.height);
+
+    const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
+    IM_ASSERT(font != nullptr); (void)font;
 }
 
 void Application::Run() const
@@ -56,41 +79,40 @@ void Application::Run() const
     std::cout << "Application::Run()" << std::endl;
 
     // temp Vulkan bypass
-    if (_config.bVulkan)
+    if (_config.api == RendererAPI::API::Vulkan)
     {
-        while (window->IsRunning())
+        while (_window->IsRunning())
         {
-            window->BeginFrame();
-            window->Update();
+            // Renderer::BeginFrame();
+            _window->Update();
         }
         appShouldExit = true;
         return;
     }
-    
-    Renderer renderer(window->GetWindow());
-    
+
+#ifdef DRAW_WIREFRAME
+    // Draw in wireframe mode
+    RenderCommand::SetWireframeMode(true);
+#endif
+
     double totalTimeElapsed { 0 },
         timeElapsedNow { 0 },
         deltaTime { 0 };
 
-#ifdef DRAW_WIREFRAME
-    // Draw in wireframe mode
-    renderer.SetWireframeMode(true);
-#endif
-
     // Set to false to exit active lab
     static bool bKeep { true };
     auto lab = std::unique_ptr<labb::LLab> {};
-    const auto menu = std::make_unique<labb::LLabMenu>(renderer, lab);
+    const auto menu = std::make_unique<labb::LLabMenu>(lab);
 
     // Add labs to main menu
     menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
+/*
     menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
     menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
     menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
     menu->RegisterLab<labb::LBatch>("Batch", "batch");
     menu->RegisterLab<labb::LLoop>("Loop", "loop");
-
+*/
     // Create an initial lab if requested and matching shortname is found
     if (!_config.initLab.empty())
     {
@@ -101,7 +123,7 @@ void Application::Run() const
     }
     
     // Keep running until we should close and exit
-    while (window->IsRunning())
+    while (_window->IsRunning())
     {
         // Update timers
         timeElapsedNow = glfwGetTime();
@@ -109,7 +131,7 @@ void Application::Run() const
         totalTimeElapsed = timeElapsedNow;
 
         // Reset context state
-        window->BeginFrame();
+        Renderer::BeginFrame();
 
         if (lab)
         {
@@ -121,7 +143,7 @@ void Application::Run() const
             menu->BeginRender();
         }
 
-        BeginImGUI();
+        _ui->Begin();
 
         // Draw main menu UI
         menu->BeginGUI(&bKeep);
@@ -141,40 +163,21 @@ void Application::Run() const
             // Draw selection window
             menu->BeginBigMenu();
         }
+        
+        Renderer::EndFrame();
 
         // Render UI
-        RenderImGUI();
+        _ui->End();
         
-        window->Update();
+        _window->Update();
     }
 
     appShouldExit = true;
 }
 
-void Application::BeginImGUI() const
-{
-    // Begin ImGUI frame
-    window->BeginImGUI();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-    //ImGui::ShowDemoWindow();
-}
-
-void Application::RenderImGUI() const
-{
-    // Render ImGUI
-    ImGui::Render();
-    window->RenderImGUI();
-}
-
-Application& Application::Get()
-{
-    return *application;
-}
-
 Application::~Application()
 {
-    window->Shutdown();
+    _window->Shutdown();
 }
 
 void Application::CheckArgs(ApplicationConfig& config)
@@ -184,7 +187,7 @@ void Application::CheckArgs(ApplicationConfig& config)
         // Look for vulkan flag
         if (strcmp(config.args[i], "-vulkan") == 0)
         {
-            config.bVulkan = true;
+            config.api = RendererAPI::API::Vulkan;
         }
         // Look for lab init option
         else if (config.args.count > i+1 && strcmp(config.args[i], "-l") == 0)

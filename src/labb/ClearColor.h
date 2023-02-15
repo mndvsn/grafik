@@ -14,7 +14,7 @@ namespace labb
         glm::vec4 _color;
     
     public:
-        LClearColor(Renderer& rr);
+        LClearColor();
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;

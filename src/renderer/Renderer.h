@@ -1,9 +1,11 @@
 ﻿/**
  * Grafik
  * Renderer
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright Martin Furuberg 
  */
 #pragma once
+#include "renderer/RendererAPI.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/fwd.hpp>
@@ -22,6 +24,14 @@ public:
     
     void Render(const VertexArray& vao, const Shader& shader, int elementStart = 0, int elementEnd = 0) const;
 
+    static void Init(RendererAPI::API api);
+
+    static void BeginFrame();
+    static void EndFrame();
+    
+    static void BeginScene();
+    static void EndScene();
+    
     void Clear() const;
     void SetClearColor(const glm::vec3& color);
     void SetClearColor(const glm::vec4& color);

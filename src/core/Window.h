@@ -4,10 +4,16 @@
  * Copyright 2023 Martin Furuberg 
  */
 #pragma once
+#include "renderer/GraphicsContext.h"
+
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <memory>
 #include <string>
 
 
+/*
 class IWindow
 {
 public:
@@ -34,11 +40,12 @@ protected:
     virtual void InitDebug() = 0;
 #endif
 };
+*/
 
 class Window
 {
-protected:
     GLFWwindow* _window { nullptr };
+    std::unique_ptr<GraphicsContext> _context { nullptr };
 
 public:
     Window() = default;
@@ -47,7 +54,15 @@ public:
     Window(const Window &) = delete;
     Window &operator=(const Window &) = delete;
 
-    virtual void InitGLFW();
+    void Init(const std::string& title, int width, int height);
+    void CreateWindow(const char* title, int width, int height);
+
+    void Update();
+
+    [[nodiscard]] bool IsRunning() const;
+    [[nodiscard]] GLFWwindow* GetSysWindow() const { return _window; }
+    
+    void Shutdown();
 
 protected:
     static void glfwError(int error, const char* description);

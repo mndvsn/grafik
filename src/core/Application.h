@@ -4,10 +4,14 @@
  * Copyright 2023 Martin Furuberg 
  */
 #pragma once
+#include "renderer/RendererAPI.h"
 
 #include <memory>
 #include <string>
 
+
+class Window;
+class UI;
 
 struct ApplicationArgs
 {
@@ -25,17 +29,17 @@ struct ApplicationConfig
     std::string title { };
     int width { 640 };
     int height { 480 };
-    bool bVulkan { false };
+    RendererAPI::API api { RendererAPI::API::OpenGL };
     std::string initLab { };
     ApplicationArgs args { };
 };
 
-class IWindow;
-
 class Application
 {
     ApplicationConfig _config;
-    std::unique_ptr<IWindow> window;
+    std::unique_ptr<Window> _window { nullptr };
+    std::unique_ptr<UI> _ui { nullptr };
+    inline static Application* _application { nullptr };
     
 public:
     Application(ApplicationConfig config = ApplicationConfig());
@@ -44,13 +48,14 @@ public:
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
 
-    static Application& Get();
-
     void Init();
     void Run() const;
 
+    static Application& Get() { return *_application; }
+
+    [[nodiscard]] Window* GetWindow() const { return _window.get(); }
+
 private:
-    void BeginImGUI() const;
-    void RenderImGUI() const;
+    void InitUI();
     static void CheckArgs(ApplicationConfig& config);
 };
