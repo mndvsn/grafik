@@ -30,7 +30,7 @@ public:
     static void BeginScene();
     static void EndScene();
     
-    static void Render(const VertexArray& vao, const Shader& shader, int elementStart = 0, int elementEnd = 0);
+    static void Render(const VertexArray& vao, const std::shared_ptr<Shader>& shader, int elementStart = 0, int elementEnd = 0);
     
     void Clear() const;
     void SetClearColor(const glm::vec3& color);

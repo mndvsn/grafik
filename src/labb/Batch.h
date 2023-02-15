@@ -9,7 +9,7 @@
 #include "DataTexture.h"
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-#include "Shader.h"
+#include "renderer/Shader.h"
 #include "Texture.h"
 
 #include <optional>
@@ -47,7 +47,7 @@ namespace labb
     private:
         VertexArray _vao {};
         VertexBuffer _vbo { nullptr, sizeof(Vertex) * batchVerticesCount, true };
-        Shader _shader { "data/shaders/batch.vert", "data/shaders/batch.frag" };
+        std::shared_ptr<Shader> _shader { Shader::Create( "data/shaders/batch.vert", "data/shaders/batch.frag" ) };
         std::optional<DataTexture> _texture0;
         std::optional<Texture> _texture1;
         std::optional<Texture> _texture2;

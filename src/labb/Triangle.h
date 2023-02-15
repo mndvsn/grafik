@@ -7,7 +7,7 @@
 #include "Lab.h"
 
 #include "VertexArray.h"
-#include "Shader.h"
+#include "renderer/Shader.h"
 
 #include <optional>
 
@@ -27,7 +27,7 @@ namespace labb
 
     private:
         std::optional<VertexArray> _vao;
-        std::optional<Shader> _triangleShader;
+        std::shared_ptr<Shader> _triangleShader { nullptr };
 
         // Matrices
         glm::mat4 _projection { 1.0f };

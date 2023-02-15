@@ -7,6 +7,7 @@
 
 #include "core/Window.h"
 #include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ui/UI.h"
 
 // Labb
@@ -72,18 +73,6 @@ void Application::InitUI()
 void Application::Run() const
 {
     std::cout << "Application::Run()" << std::endl;
-
-    // temp Vulkan bypass
-    if (_config.api == RendererAPI::API::Vulkan)
-    {
-        while (_window->IsRunning())
-        {
-            // Renderer::BeginFrame();
-            _window->Update();
-        }
-        appShouldExit = true;
-        return;
-    }
 
 #ifdef DRAW_WIREFRAME
     // Draw in wireframe mode

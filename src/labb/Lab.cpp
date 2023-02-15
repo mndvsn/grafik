@@ -8,10 +8,12 @@
 #include "core/Application.h"
 #include "core/Window.h"
 #include "renderer/RenderCommand.h"
+#include "renderer/Shader.h"
 
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-#include "Shader.h"
+
+#include <GLFW/glfw3.h>
 
 #include <ranges>
 
@@ -159,7 +161,10 @@ namespace labb
     LLab::~LLab()
     {
         Shader::Unbind();
-        VertexArray::Unbind();
-        VertexBuffer::Unbind();
+        if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+        {
+            VertexArray::Unbind();
+            VertexBuffer::Unbind();
+        }
     }
 }

@@ -65,7 +65,7 @@ namespace labb
         _projection = glm::perspective(65.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f);
 
         // Create basic shader
-        _shader.emplace("data/shaders/basic.vert", "data/shaders/basic.frag");
+        _shader = Shader::Create("data/shaders/basic.vert", "data/shaders/basic.frag");
         if (_shader->Bind())
         {
             // Load texture and bind to texture unit
@@ -137,7 +137,7 @@ namespace labb
             _mvp = _projection * _view * _model;
             _shader->SetUniformMat4f("u_MVP", _mvp);
             _shader->SetUniformVec4f("u_Color", _color);
-            Renderer::Render(*_vao, *_shader);
+            Renderer::Render(*_vao, _shader);
         }
     }
 

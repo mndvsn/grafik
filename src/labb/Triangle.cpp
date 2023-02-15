@@ -62,7 +62,7 @@ namespace labb
         _view = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f));
     
         // Create a simple vertex color shader
-        _triangleShader.emplace("data/shaders/color.vert", "data/shaders/color.frag");
+        _triangleShader = Shader::Create("data/shaders/color.vert", "data/shaders/color.frag");
         if (!_triangleShader->Bind())
         {
             RenderError("Shader error!");
@@ -95,7 +95,7 @@ namespace labb
         if (_triangleShader->Bind())
         {
             _triangleShader->SetUniformMat4f("u_MVP", _mvp);
-            Renderer::Render(*_vao, *_triangleShader);
+            Renderer::Render(*_vao, _triangleShader);
         }
     }
 

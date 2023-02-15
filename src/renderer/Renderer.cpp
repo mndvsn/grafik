@@ -21,9 +21,9 @@ Renderer::Renderer(GLFWwindow* window)
     _context = window;
 }
 
-void Renderer::Render(const VertexArray& vao, const Shader& shader, const int elementStart, int elementEnd)
+void Renderer::Render(const VertexArray& vao, const std::shared_ptr<Shader>& shader, const int elementStart, int elementEnd)
 {
-    if (shader.Bind())
+    if (shader->Bind())
     {
         vao.Bind();
 

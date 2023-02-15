@@ -71,12 +71,12 @@ namespace labb
         _view = glm::translate(_view, _cameraPosition);
 
         // Check shader
-        if (_shader.Bind())
+        if (_shader->Bind())
         {
             // Bind texture units
             if (_texture0.Bind(0) && _texture1.Bind(1) && _texture2.Bind(2))
             {
-                _shader.SetUniform1iv("u_Textures", { 0, 1, 2 });
+                _shader->SetUniform1iv("u_Textures", { 0, 1, 2 });
             }
         }
 
@@ -109,7 +109,7 @@ namespace labb
         RenderCommand::SetClearColor(_bgColor);
         RenderCommand::ClearBuffer();
 
-        if (!_shader.Bind())
+        if (!_shader->Bind())
         {
             RenderError("Shader error!");
             return;
@@ -121,9 +121,9 @@ namespace labb
             return;
         }
 
-        _shader.SetUniformMat4f("u_MVP", _mvp);
-        _shader.SetUniform1i("u_TexId", _texId);
-        _shader.SetUniformVec4f("u_Color", _fgColor);
+        _shader->SetUniformMat4f("u_MVP", _mvp);
+        _shader->SetUniform1i("u_TexId", _texId);
+        _shader->SetUniformVec4f("u_Color", _fgColor);
 
         _vao.Bind();
         // Z-sorting fix: Use either culling + draw 2x or disable depth test

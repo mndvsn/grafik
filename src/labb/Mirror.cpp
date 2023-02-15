@@ -113,7 +113,7 @@ namespace labb
         _view = glm::lookAt(glm::vec3(1.5f, 1.5f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
         // Create basic shader
-        _shader.emplace("data/shaders/mirror.vert", "data/shaders/mirror.frag");
+        _shader = Shader::Create("data/shaders/mirror.vert", "data/shaders/mirror.frag");
         if (_shader->Bind())
         {
             // Load textures and bind to texture unit
@@ -172,7 +172,7 @@ namespace labb
         glCullFace(GL_FRONT);
 
         // Draw cube
-        Renderer::Render(*_vao, *_shader, 0, 35);
+        Renderer::Render(*_vao, _shader, 0, 35);
 
         glEnable(GL_STENCIL_TEST); // Start stencil testing
 
@@ -183,7 +183,7 @@ namespace labb
         glDepthMask(false); // Ignore depth buffer
         glClear(GL_STENCIL_BUFFER_BIT); // Clear default value 0 in buffer
 
-        Renderer::Render(*_vao, *_shader, 36, 41);
+        Renderer::Render(*_vao, _shader, 36, 41);
 
         // Draw mirrored cube
         glStencilFunc(GL_EQUAL, 1, 0xFF); // Set test to value == 1
@@ -197,7 +197,7 @@ namespace labb
         _shader->SetUniform1f("u_ReflectDarken", 1-_reflectDarken);
 
         glCullFace(GL_BACK);
-        Renderer::Render(*_vao, *_shader, 0, 35);
+        Renderer::Render(*_vao, _shader, 0, 35);
 
         glDisable(GL_STENCIL_TEST); // End stencil testing
         glDisable(GL_CULL_FACE);

@@ -15,7 +15,6 @@
 
 #include <chrono>
 #include <random>
-#include <vector>
 
 
 namespace labb
@@ -69,7 +68,7 @@ namespace labb
         _view = glm::translate(_view, _cameraPosition);
 
         // Check shader
-        if (_shader.Bind())
+        if (_shader->Bind())
         {
             // Load textures and bind to texture unit
             _texture0.emplace(true);
@@ -77,7 +76,7 @@ namespace labb
             _texture2.emplace("data/textures/ground_base.jpg");
             if (_texture0->Bind(0) && _texture1->Bind(1) && _texture2->Bind(2))
             {
-                _shader.SetUniform1iv("u_Textures", { 0, 1, 2 });
+                _shader->SetUniform1iv("u_Textures", { 0, 1, 2 });
             }
         }
 
@@ -109,7 +108,7 @@ namespace labb
 
         _draws = 0;
         
-        if (!_shader.Bind())
+        if (!_shader->Bind())
         {
             RenderError("Shader error!");
             return;
@@ -165,7 +164,7 @@ namespace labb
         _vbo.Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, batchVerticesCount * sizeof(Vertex), _vertices);
 
-        _shader.SetUniformMat4f("u_MVP", _mvp);
+        _shader->SetUniformMat4f("u_MVP", _mvp);
 
         _vao.Bind();
         Renderer::Render(_vao, _shader, 0, _quads * 6 - 1);
