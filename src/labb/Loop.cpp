@@ -5,6 +5,8 @@
  */
 #include "Loop.h"
 
+#include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ElementBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
@@ -17,12 +19,15 @@
 
 namespace labb
 {
-    LLoop::LLoop(Renderer& rr) : LLab { rr }
+    LLoop::LLoop()
     {
         int width, height;
-        (void)GetRenderer().GetFramebufferSize(width, height);
+        if (!Renderer::GetFramebufferSize(width, height))
+        {
+            std::cout << "Error reading framebuffer size" << std::endl;
+        }
 
-        GetRenderer().SetClearColor(_bgColor);
+        RenderCommand::SetClearColor(_bgColor);
 
         // Make array of vertices
         auto vertices = MakeCylinder({ 0.0f, 0.0f }, 2.0f, 1.0f, loopSegments);
@@ -101,8 +106,8 @@ namespace labb
 
     void LLoop::BeginRender()
     {
-        GetRenderer().SetClearColor(_bgColor);
-        GetRenderer().Clear();
+        RenderCommand::SetClearColor(_bgColor);
+        RenderCommand::ClearBuffer();
 
         if (!_shader.Bind())
         {
@@ -125,9 +130,9 @@ namespace labb
         glEnable(GL_CULL_FACE);
         // glDepthMask(GL_FALSE);
         glCullFace(GL_BACK);
-        GetRenderer().Render(_vao, _shader);
+        Renderer::Render(_vao, _shader);
         glCullFace(GL_FRONT);
-        GetRenderer().Render(_vao, _shader);
+        Renderer::Render(_vao, _shader);
         glDisable(GL_CULL_FACE);
         // glDepthMask(GL_TRUE);
     }

@@ -11,16 +11,12 @@
 
 // Labb
 #include "labb/Lab.h"
-/*
 #include "labb/Batch.h"
-*/
 #include "labb/ClearColor.h"
-/*
 #include "labb/Mirror.h"
 #include "labb/Loop.h"
 #include "labb/Stacks.h"
 #include "labb/Triangle.h"
-*/
 
 #include <imgui/imgui.h>
 
@@ -44,8 +40,8 @@ void Application::Init()
 {
     Renderer::Init(_config.api);
 
-    _window = std::make_unique<Window>();
-    _window->Init(_config.title, _config.width, _config.height);
+    WindowProperties props { _config.width, _config.height, _config.title };
+    _window = std::make_unique<Window>(props);
 
     // Init ImGUI
     InitUI();
@@ -64,8 +60,7 @@ void Application::InitUI()
     style.WindowRounding = 3.0f;
     style.FrameRounding = 3.0f;
 
-    _ui = UI::Create();
-    if (_ui)
+    if ((_ui = UI::Create()))
     {
         _ui->Init(_window->GetSysWindow());
     }
@@ -104,15 +99,17 @@ void Application::Run() const
     auto lab = std::unique_ptr<labb::LLab> {};
     const auto menu = std::make_unique<labb::LLabMenu>(lab);
 
-    // Add labs to main menu
-    menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
-/*
-    menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
-    menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
-    menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
-    menu->RegisterLab<labb::LBatch>("Batch", "batch");
-    menu->RegisterLab<labb::LLoop>("Loop", "loop");
-*/
+    if (_config.api == RendererAPI::API::OpenGL)
+    {
+        // Add labs to main menu
+        menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
+        menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
+        menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
+        menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
+        menu->RegisterLab<labb::LBatch>("Batch", "batch");
+        menu->RegisterLab<labb::LLoop>("Loop", "loop");
+    }
+
     // Create an initial lab if requested and matching shortname is found
     if (!_config.initLab.empty())
     {
@@ -143,32 +140,34 @@ void Application::Run() const
             menu->BeginRender();
         }
 
-        _ui->Begin();
-
-        // Draw main menu UI
-        menu->BeginGUI(&bKeep);
-
-        if (lab)
+        if (_ui)
         {
-            // Draw lab specific UI
-            lab->BeginGUI(&bKeep);
-            if (!bKeep)
+            _ui->Begin();
+
+            // Draw main menu UI
+            menu->BeginGUI(&bKeep);
+
+            if (lab)
             {
-                lab.reset();
-                bKeep = true;
+                // Draw lab specific UI
+                lab->BeginGUI(&bKeep);
+                if (!bKeep)
+                {
+                    lab.reset();
+                    bKeep = true;
+                }
             }
-        }
-        else
-        {
-            // Draw selection window
-            menu->BeginBigMenu();
+            else
+            {
+                // Draw selection window
+                menu->BeginBigMenu();
+            }
+
+            // Render UI
+            _ui->End();
         }
         
         Renderer::EndFrame();
-
-        // Render UI
-        _ui->End();
-        
         _window->Update();
     }
 

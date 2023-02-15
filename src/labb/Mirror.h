@@ -25,7 +25,7 @@ namespace labb
         bool        _bSpin          { true };
     
     public:
-        LMirror(Renderer& rr);
+        LMirror();
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;

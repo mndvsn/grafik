@@ -5,12 +5,18 @@
  */
 #include "Window.h"
 
-#include "renderer/GraphicsContext.h"
+#include <GLFW/glfw3.h>
 
 #include <iostream>
 
 
-void Window::Init(const std::string& title, const int width, const int height)
+Window::Window(const WindowProperties& props)
+    : _props { props }
+{
+    Init();
+}
+
+void Window::Init()
 {
     glfwSetErrorCallback(glfwError);
     if (!glfwInit())
@@ -22,15 +28,15 @@ void Window::Init(const std::string& title, const int width, const int height)
 
     _context = GraphicsContext::Create();
 
-    CreateWindow(title.c_str(), width, height);
+    CreateWindow();
 
     _context->Init(_window);
 }
 
-void Window::CreateWindow(const char* title, int width, int height)
+void Window::CreateWindow()
 {
     // Create window and init glfw with context
-    _window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    _window = glfwCreateWindow(static_cast<int>(_props.width), static_cast<int>(_props.height), _props.title.c_str(), nullptr, nullptr);
     if (!_window)
     {
         glfwTerminate();

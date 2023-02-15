@@ -27,8 +27,8 @@ struct ApplicationArgs
 struct ApplicationConfig
 {
     std::string title { };
-    int width { 640 };
-    int height { 480 };
+    unsigned width { 640 };
+    unsigned height { 480 };
     RendererAPI::API api { RendererAPI::API::OpenGL };
     std::string initLab { };
     ApplicationArgs args { };

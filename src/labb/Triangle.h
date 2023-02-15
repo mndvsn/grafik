@@ -19,7 +19,7 @@ namespace labb
         glm::vec3 _rotation { 0.0f, 0.0f, 0.0f };
         
     public:
-        LTriangle(Renderer& rr);
+        LTriangle();
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;

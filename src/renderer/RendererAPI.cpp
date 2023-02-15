@@ -6,6 +6,7 @@
 #include "RendererAPI.h"
 
 #include "renderer/opengl/OpenGLRendererAPI.h"
+#include "renderer/vulkan/VulkanRendererAPI.h"
 
 
 std::unique_ptr<RendererAPI> RendererAPI::Create(API api)
@@ -15,7 +16,7 @@ std::unique_ptr<RendererAPI> RendererAPI::Create(API api)
     {
         case API::None:             return nullptr;
         case API::OpenGL:           return std::make_unique<OpenGLRendererAPI>();
-        case API::Vulkan:           return nullptr;
+        case API::Vulkan:           return std::make_unique<VulkanRendererAPI>();
     }
     return nullptr;
 }

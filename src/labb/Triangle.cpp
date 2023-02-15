@@ -5,6 +5,8 @@
  */
 #include "Triangle.h"
 
+#include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ElementBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
@@ -15,10 +17,13 @@
 
 namespace labb
 {
-    LTriangle::LTriangle(Renderer& rr) : LLab { rr }
+    LTriangle::LTriangle()
     {
         int width, height;
-        (void)GetRenderer().GetFramebufferSize(width, height);
+        if (!Renderer::GetFramebufferSize(width, height))
+        {
+            std::cout << "Error reading framebuffer size" << std::endl;
+        }
         
         // Data for triangle
         constexpr float vertices[]
@@ -83,14 +88,14 @@ namespace labb
 
     void LTriangle::BeginRender()
     {
-        GetRenderer().SetClearColor({ 0.6f, 0.6f, 0.6f });
-        GetRenderer().Clear();
+        RenderCommand::SetClearColor({ 0.6f, 0.6f, 0.6f });
+        RenderCommand::ClearBuffer();
 
         // Draw the triangle
         if (_triangleShader->Bind())
         {
             _triangleShader->SetUniformMat4f("u_MVP", _mvp);
-            GetRenderer().Render(*_vao, *_triangleShader);
+            Renderer::Render(*_vao, *_triangleShader);
         }
     }
 

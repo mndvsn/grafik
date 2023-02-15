@@ -26,7 +26,7 @@ namespace labb
         bool        _bCycleColor  { true };
     
     public:
-        LStacks(Renderer& rr);
+        LStacks();
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;

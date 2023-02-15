@@ -33,7 +33,7 @@ namespace labb
         int         _draws          { 0 };
     
     public:
-        LBatch(Renderer& rr);
+        LBatch();
         ~LBatch() override;
 
         void BeginUpdate(double DeltaTime) override;

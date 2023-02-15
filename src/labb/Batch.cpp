@@ -5,6 +5,8 @@
  */
 #include "Batch.h"
 
+#include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ElementBuffer.h"
 #include "VertexBufferLayout.h"
 
@@ -18,12 +20,15 @@
 
 namespace labb
 {
-    LBatch::LBatch(Renderer& rr) : LLab { rr }
+    LBatch::LBatch()
     {
         int width, height;
-        (void)GetRenderer().GetFramebufferSize(width, height);
+        if (!Renderer::GetFramebufferSize(width, height))
+        {
+            std::cout << "Error reading framebuffer size" << std::endl;
+        }
 
-        GetRenderer().SetClearColor({ 1.0f, 1.0f, 1.0f });
+        RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f });
 
         RandomizeSeed();
 
@@ -100,7 +105,7 @@ namespace labb
 
     void LBatch::BeginRender()
     {
-        GetRenderer().Clear();
+        RenderCommand::ClearBuffer();
 
         _draws = 0;
         
@@ -163,7 +168,7 @@ namespace labb
         _shader.SetUniformMat4f("u_MVP", _mvp);
 
         _vao.Bind();
-        GetRenderer().Render(_vao, _shader, 0, _quads * 6 - 1);
+        Renderer::Render(_vao, _shader, 0, _quads * 6 - 1);
         _draws++;
     }
 

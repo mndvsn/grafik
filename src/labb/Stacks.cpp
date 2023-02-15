@@ -5,6 +5,8 @@
  */
 #include "Stacks.h"
 
+#include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ElementBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
@@ -17,10 +19,13 @@
 
 namespace labb
 {
-    LStacks::LStacks(Renderer& rr) : LLab { rr }
+    LStacks::LStacks()
     {
         int width, height;
-        (void)GetRenderer().GetFramebufferSize(width, height);
+        if (!Renderer::GetFramebufferSize(width, height))
+        {
+            std::cout << "Error reading framebuffer size" << std::endl;
+        }
 
         // Data for triangle
         constexpr float vertices[]
@@ -89,8 +94,8 @@ namespace labb
 
     void LStacks::BeginRender()
     {
-        GetRenderer().SetClearColor({ 0.0f, 0.0f, 0.0f });
-        GetRenderer().Clear();
+        RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f });
+        RenderCommand::ClearBuffer();
 
         // Looks nicer without intersecting triangles 
         glDisable(GL_DEPTH_TEST);
@@ -132,7 +137,7 @@ namespace labb
             _mvp = _projection * _view * _model;
             _shader->SetUniformMat4f("u_MVP", _mvp);
             _shader->SetUniformVec4f("u_Color", _color);
-            GetRenderer().Render(*_vao, *_shader);
+            Renderer::Render(*_vao, *_shader);
         }
     }
 

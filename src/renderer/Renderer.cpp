@@ -12,13 +12,16 @@
 
 #include <glm/glm.hpp>
 
+#include "core/Application.h"
+#include "core/Window.h"
+
 
 Renderer::Renderer(GLFWwindow* window)
 {
     _context = window;
 }
 
-void Renderer::Render(const VertexArray& vao, const Shader& shader, const int elementStart, int elementEnd) const
+void Renderer::Render(const VertexArray& vao, const Shader& shader, const int elementStart, int elementEnd)
 {
     if (shader.Bind())
     {
@@ -76,13 +79,15 @@ void Renderer::SetWireframeMode(bool bUseLineDraw)
     glPolygonMode(GL_FRONT_AND_BACK, bUseLineDraw ? GL_LINE : GL_FILL);
 }
 
-bool Renderer::GetFramebufferSize(int& width, int& height) const
+bool Renderer::GetFramebufferSize(int& width, int& height)
 {
-    if (!_context)
+    GLFWwindow* _window = Application::Get().GetWindow()->GetSysWindow();
+    
+    if (!_window)
     {
         return false;
     }
-    glfwGetFramebufferSize(_context, &width, &height);
+    glfwGetFramebufferSize(_window, &width, &height);
     return true;
 }
 

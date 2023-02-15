@@ -31,7 +31,7 @@ namespace labb
         int         _texId          { 0 };
 
     public:
-        LLoop(Renderer& rr);
+        LLoop();
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;
