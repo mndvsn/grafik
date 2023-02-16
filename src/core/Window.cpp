@@ -3,11 +3,10 @@
  * Window
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "Window.h"
 
 #include <GLFW/glfw3.h>
-
-#include <iostream>
 
 
 Window::Window(const WindowProperties& props)
@@ -28,12 +27,12 @@ void Window::Init()
 
     _context = GraphicsContext::Create();
 
-    CreateWindow();
+    CreateNativeWindow();
 
     _context->Init(_window);
 }
 
-void Window::CreateWindow()
+void Window::CreateNativeWindow()
 {
     // Create window and init glfw with context
     _window = glfwCreateWindow(static_cast<int>(_props.width), static_cast<int>(_props.height), _props.title.c_str(), nullptr, nullptr);

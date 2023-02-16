@@ -3,6 +3,7 @@
  * Vulkan RendererAPI
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "VulkanRendererAPI.h"
 
 

@@ -6,11 +6,10 @@
 #pragma once
 #include "renderer/RendererAPI.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/fwd.hpp>
 
 
+struct GLFWwindow;
 class VertexArray;
 class Shader;
 

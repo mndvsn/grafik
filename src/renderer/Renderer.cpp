@@ -3,17 +3,19 @@
  * Renderer
  * Copyright Martin Furuberg 
  */
+#include "gpch.h"
 #include "Renderer.h"
-
-#include "renderer/RenderCommand.h"
-
-#include "VertexArray.h"
-#include "Shader.h"
-
-#include <glm/glm.hpp>
 
 #include "core/Application.h"
 #include "core/Window.h"
+#include "renderer/RenderCommand.h"
+#include "renderer/Shader.h"
+
+#include "VertexArray.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 
 
 Renderer::Renderer(GLFWwindow* window)

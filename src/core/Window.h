@@ -6,9 +6,6 @@
 #pragma once
 #include "renderer/GraphicsContext.h"
 
-#include <memory>
-#include <string>
-
 
 struct GLFWwindow;
 
@@ -33,7 +30,7 @@ public:
     Window &operator=(const Window &) = delete;
 
     void Init();
-    void CreateWindow();
+    void CreateNativeWindow();
 
     void Update();
 

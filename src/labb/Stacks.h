@@ -10,8 +10,6 @@
 #include "renderer/Shader.h"
 #include "Texture.h"
 
-#include <optional>
-
 
 namespace labb
 {

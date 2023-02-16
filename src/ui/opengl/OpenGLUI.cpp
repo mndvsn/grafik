@@ -3,17 +3,15 @@
  * OpenGL UI
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "OpenGLUI.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 // ImGUI
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
-
-#include <sstream>
 
 
 void OpenGLUI::Init(GLFWwindow* window)

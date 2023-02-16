@@ -3,14 +3,14 @@
  * Texture
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "Texture.h"
+
+#include <glad/glad.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
 #include <stb/stb_image.h>
-
-#include <glad/glad.h>
-#include <iostream>
 
 
 Texture::Texture(const std::string& filePath) : _filePath { filePath }

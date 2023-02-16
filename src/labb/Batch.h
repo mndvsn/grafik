@@ -12,7 +12,6 @@
 #include "renderer/Shader.h"
 #include "Texture.h"
 
-#include <optional>
 #include <random>
 
 

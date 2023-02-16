@@ -3,6 +3,7 @@
  * RendererAPI
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "RendererAPI.h"
 
 #include "renderer/opengl/OpenGLRendererAPI.h"

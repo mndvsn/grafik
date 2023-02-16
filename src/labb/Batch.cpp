@@ -3,6 +3,7 @@
  * Lab: Batch
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "Batch.h"
 
 #include "renderer/Renderer.h"
@@ -14,7 +15,6 @@
 #include <glm/ext/matrix_clip_space.hpp>
 
 #include <chrono>
-#include <random>
 
 
 namespace labb

@@ -3,13 +3,15 @@
  * OpenGLContext
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "OpenGLContext.h"
 
 #ifdef _DEBUG
 #include "utils/GLDebug.h"
 #endif
 
-#include <iostream>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 
 OpenGLContext::OpenGLContext()

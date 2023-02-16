@@ -6,9 +6,6 @@
 #pragma once
 #include "renderer/RendererAPI.h"
 
-#include <memory>
-#include <string>
-
 
 class Window;
 class UI;

@@ -3,6 +3,7 @@
  * RenderCommand
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "RenderCommand.h"
 
 #include <glm/glm.hpp>

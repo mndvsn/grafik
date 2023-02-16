@@ -3,11 +3,11 @@
  * Pipeline
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "Pipeline.h"
 #include "utils/File.h"
 
 #include <filesystem>
-#include <iostream>
 
 
 Pipeline::Pipeline(const std::string& vertexFile, const std::string& fragmentFile)

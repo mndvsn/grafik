@@ -4,7 +4,6 @@
  * Copyright 2023 Martin Furuberg 
  */
 #pragma once
-#include <memory>
 
 
 class RendererAPI

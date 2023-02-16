@@ -3,6 +3,7 @@
  * OpenGL Shader
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "OpenGLShader.h"
 #include "utils/File.h"
 
@@ -10,7 +11,6 @@
 #include <glad/glad.h>
 
 #include <filesystem>
-#include <iostream>
 
 
 OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexFile, const std::string& fragmentFile)

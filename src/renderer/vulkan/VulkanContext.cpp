@@ -3,11 +3,10 @@
  * VulkanContext
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "VulkanContext.h"
 
 #include <GLFW/glfw3.h>
-
-#include <iostream>
 
 
 VulkanContext::VulkanContext()

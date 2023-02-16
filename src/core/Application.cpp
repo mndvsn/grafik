@@ -3,11 +3,11 @@
  * Application
  * Copyright 2023 Martin Furuberg
  */
+#include "gpch.h"
 #include "Application.h"
 
 #include "core/Window.h"
 #include "renderer/Renderer.h"
-#include "renderer/RenderCommand.h"
 #include "ui/UI.h"
 
 // Labb
@@ -19,9 +19,8 @@
 #include "labb/Stacks.h"
 #include "labb/Triangle.h"
 
+#include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
-
-#include <iostream>
 
 
 extern bool appShouldExit;

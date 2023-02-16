@@ -3,6 +3,7 @@
  * Lab: Stacks
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "Stacks.h"
 
 #include "renderer/Renderer.h"
@@ -13,8 +14,6 @@
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
-
-#include <numbers>
 
 
 namespace labb

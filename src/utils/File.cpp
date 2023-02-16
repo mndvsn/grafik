@@ -3,13 +3,12 @@
  * File
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "File.h"
 
-
-#include <iostream>
+#include <format>
 #include <mutex>
 #include <stdexcept>
-#include <sstream>
 
 
 std::optional<std::string> File::Read()

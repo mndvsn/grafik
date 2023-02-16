@@ -3,6 +3,7 @@
  * Lab: Mirror
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "Mirror.h"
 
 #include "renderer/Renderer.h"

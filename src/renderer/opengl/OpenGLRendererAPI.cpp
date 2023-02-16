@@ -3,6 +3,7 @@
  * OpenGL RendererAPI
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "OpenGLRendererAPI.h"
 
 #include <glad/glad.h>

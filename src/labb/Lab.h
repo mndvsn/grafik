@@ -7,12 +7,6 @@
 #include <glm/glm.hpp>
 #include <imgui/imgui.h>
 
-#include <functional>
-#include <iostream>
-#include <optional>
-#include <string>
-#include <vector>
-
 
 namespace labb
 {

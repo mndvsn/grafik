@@ -3,6 +3,7 @@
  * GraphicsContext
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "GraphicsContext.h"
 
 #include "renderer/RendererAPI.h"

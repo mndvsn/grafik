@@ -10,8 +10,6 @@
 #include "renderer/Shader.h"
 #include "VertexArray.h"
 
-#include <array>
-
 
 namespace labb
 {

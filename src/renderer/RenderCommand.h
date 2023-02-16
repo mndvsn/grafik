@@ -8,8 +8,6 @@
 
 #include <glm/fwd.hpp>
 
-#include <memory>
-
 
 class RenderCommand
 {

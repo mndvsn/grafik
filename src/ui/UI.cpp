@@ -3,6 +3,7 @@
  * UI
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "UI.h"
 
 #include "renderer/RendererAPI.h"
