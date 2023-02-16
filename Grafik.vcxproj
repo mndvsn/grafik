@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Dist|x64">
+      <Configuration>Dist</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -18,9 +22,10 @@
     <ClCompile Include="include\imgui\imgui_draw.cpp" />
     <ClCompile Include="include\imgui\imgui_tables.cpp" />
     <ClCompile Include="include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\core\Application.cpp" />
+    <ClCompile Include="src\core\Window.cpp" />
     <ClCompile Include="src\DataTexture.cpp" />
     <ClCompile Include="src\glad.c" />
-    <ClCompile Include="src\GLRender.cpp" />
     <ClCompile Include="src\Grafik.cpp" />
     <ClCompile Include="src\ElementBuffer.cpp" />
     <ClCompile Include="src\labb\Batch.cpp" />
@@ -30,9 +35,21 @@
     <ClCompile Include="src\labb\Mirror.cpp" />
     <ClCompile Include="src\labb\Stacks.cpp" />
     <ClCompile Include="src\labb\Triangle.cpp" />
-    <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\Pipeline.cpp" />
+    <ClCompile Include="src\renderer\GraphicsContext.cpp" />
+    <ClCompile Include="src\renderer\opengl\OpenGLContext.cpp" />
+    <ClCompile Include="src\renderer\opengl\OpenGLRendererAPI.cpp" />
+    <ClCompile Include="src\renderer\opengl\OpenGLShader.cpp" />
+    <ClCompile Include="src\renderer\RenderCommand.cpp" />
+    <ClCompile Include="src\renderer\Renderer.cpp" />
+    <ClCompile Include="src\renderer\RendererAPI.cpp" />
+    <ClCompile Include="src\renderer\Shader.cpp" />
+    <ClCompile Include="src\renderer\vulkan\VulkanContext.cpp" />
+    <ClCompile Include="src\renderer\vulkan\VulkanRendererAPI.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\ui\opengl\OpenGLUI.cpp" />
+    <ClCompile Include="src\ui\UI.cpp" />
+    <ClCompile Include="src\ui\vulkan\VulkanUI.cpp" />
     <ClCompile Include="src\utils\File.cpp" />
     <ClCompile Include="src\utils\GLDebug.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
@@ -50,6 +67,8 @@
     <Content Include="data\shaders\loop.vert" />
     <Content Include="data\shaders\mirror.frag" />
     <Content Include="data\shaders\mirror.vert" />
+    <Content Include="data\shaders\vktest.frag.spv" />
+    <Content Include="data\shaders\vktest.vert.spv" />
     <Content Include="data\textures\ground_base.jpg" />
     <Content Include="data\textures\loop.png" />
     <Content Include="data\textures\loop_alpha.png" />
@@ -66,9 +85,10 @@
     <ClInclude Include="include\imgui\imstb_rectpack.h" />
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\core\Application.h" />
+    <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\DataTexture.h" />
     <ClInclude Include="src\ElementBuffer.h" />
-    <ClInclude Include="src\GLRender.h" />
     <ClInclude Include="src\labb\Batch.h" />
     <ClInclude Include="src\labb\ClearColor.h" />
     <ClInclude Include="src\labb\Lab.h" />
@@ -76,9 +96,21 @@
     <ClInclude Include="src\labb\Mirror.h" />
     <ClInclude Include="src\labb\Stacks.h" />
     <ClInclude Include="src\labb\Triangle.h" />
-    <ClInclude Include="src\Renderer.h" />
-    <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\Pipeline.h" />
+    <ClInclude Include="src\renderer\GraphicsContext.h" />
+    <ClInclude Include="src\renderer\opengl\OpenGLContext.h" />
+    <ClInclude Include="src\renderer\opengl\OpenGLRendererAPI.h" />
+    <ClInclude Include="src\renderer\opengl\OpenGLShader.h" />
+    <ClInclude Include="src\renderer\RenderCommand.h" />
+    <ClInclude Include="src\renderer\Renderer.h" />
+    <ClInclude Include="src\renderer\RendererAPI.h" />
+    <ClInclude Include="src\renderer\Shader.h" />
+    <ClInclude Include="src\renderer\vulkan\VulkanContext.h" />
+    <ClInclude Include="src\renderer\vulkan\VulkanRendererAPI.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\ui\opengl\OpenGLUI.h" />
+    <ClInclude Include="src\ui\UI.h" />
+    <ClInclude Include="src\ui\vulkan\VulkanUI.h" />
     <ClInclude Include="src\utils\File.h" />
     <ClInclude Include="src\utils\GLDebug.h" />
     <ClInclude Include="src\VertexArray.h" />
@@ -109,6 +141,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -118,6 +157,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -131,25 +173,30 @@
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectDir)intermediate\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)intermediate\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GK_WIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;$(ProjectDir)include\vulkan\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\GLFW\$(Configuration)\;$(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\VulkanSDK\1.3.239.0\;$(ProjectDir)lib\GLFW\$(Configuration)\;$(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,12 +207,12 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;GK_WIN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;$(ProjectDir)include\vulkan\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -173,8 +220,33 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\GLFW\$(Configuration)\;$(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\VulkanSDK\1.3.239.0\;$(ProjectDir)lib\GLFW\$(Configuration)\;$(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;GK_WIN;GK_DISTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;$(ProjectDir)include\vulkan\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\VulkanSDK\1.3.239.0\;$(ProjectDir)lib\GLFW\Release\;$(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

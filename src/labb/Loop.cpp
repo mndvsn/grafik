@@ -5,6 +5,8 @@
  */
 #include "Loop.h"
 
+#include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ElementBuffer.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
@@ -17,12 +19,15 @@
 
 namespace labb
 {
-    LLoop::LLoop(Renderer& rr) : LLab { rr }
+    LLoop::LLoop()
     {
         int width, height;
-        (void)GetRenderer().GetFramebufferSize(width, height);
+        if (!Renderer::GetFramebufferSize(width, height))
+        {
+            std::cout << "Error reading framebuffer size" << std::endl;
+        }
 
-        GetRenderer().SetClearColor(_bgColor);
+        RenderCommand::SetClearColor(_bgColor);
 
         // Make array of vertices
         auto vertices = MakeCylinder({ 0.0f, 0.0f }, 2.0f, 1.0f, loopSegments);
@@ -66,12 +71,12 @@ namespace labb
         _view = glm::translate(_view, _cameraPosition);
 
         // Check shader
-        if (_shader.Bind())
+        if (_shader->Bind())
         {
             // Bind texture units
             if (_texture0.Bind(0) && _texture1.Bind(1) && _texture2.Bind(2))
             {
-                _shader.SetUniform1iv("u_Textures", { 0, 1, 2 });
+                _shader->SetUniform1iv("u_Textures", { 0, 1, 2 });
             }
         }
 
@@ -101,10 +106,10 @@ namespace labb
 
     void LLoop::BeginRender()
     {
-        GetRenderer().SetClearColor(_bgColor);
-        GetRenderer().Clear();
+        RenderCommand::SetClearColor(_bgColor);
+        RenderCommand::ClearBuffer();
 
-        if (!_shader.Bind())
+        if (!_shader->Bind())
         {
             RenderError("Shader error!");
             return;
@@ -116,18 +121,18 @@ namespace labb
             return;
         }
 
-        _shader.SetUniformMat4f("u_MVP", _mvp);
-        _shader.SetUniform1i("u_TexId", _texId);
-        _shader.SetUniformVec4f("u_Color", _fgColor);
+        _shader->SetUniformMat4f("u_MVP", _mvp);
+        _shader->SetUniform1i("u_TexId", _texId);
+        _shader->SetUniformVec4f("u_Color", _fgColor);
 
         _vao.Bind();
         // Z-sorting fix: Use either culling + draw 2x or disable depth test
         glEnable(GL_CULL_FACE);
         // glDepthMask(GL_FALSE);
         glCullFace(GL_BACK);
-        GetRenderer().Render(_vao, _shader);
+        Renderer::Render(_vao, _shader);
         glCullFace(GL_FRONT);
-        GetRenderer().Render(_vao, _shader);
+        Renderer::Render(_vao, _shader);
         glDisable(GL_CULL_FACE);
         // glDepthMask(GL_TRUE);
     }

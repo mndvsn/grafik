@@ -1,14 +1,19 @@
 ﻿/**
  * Grafik
  * Renderer
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright Martin Furuberg 
  */
 #include "Renderer.h"
+
+#include "renderer/RenderCommand.h"
 
 #include "VertexArray.h"
 #include "Shader.h"
 
 #include <glm/glm.hpp>
+
+#include "core/Application.h"
+#include "core/Window.h"
 
 
 Renderer::Renderer(GLFWwindow* window)
@@ -16,9 +21,9 @@ Renderer::Renderer(GLFWwindow* window)
     _context = window;
 }
 
-void Renderer::Render(const VertexArray& vao, const Shader& shader, const int elementStart, int elementEnd) const
+void Renderer::Render(const VertexArray& vao, const std::shared_ptr<Shader>& shader, const int elementStart, int elementEnd)
 {
-    if (shader.Bind())
+    if (shader->Bind())
     {
         vao.Bind();
 
@@ -30,6 +35,28 @@ void Renderer::Render(const VertexArray& vao, const Shader& shader, const int el
         const void* offset = reinterpret_cast<const void*>(static_cast<intptr_t>(sizeof(unsigned)*elementStart)); // NOLINT(performance-no-int-to-ptr)
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, offset);
     }
+}
+
+void Renderer::Init(RendererAPI::API api)
+{
+    RenderCommand::Init(api);
+}
+
+void Renderer::BeginFrame()
+{
+    RenderCommand::ResetState();
+}
+
+void Renderer::EndFrame()
+{
+}
+
+void Renderer::BeginScene()
+{
+}
+
+void Renderer::EndScene()
+{
 }
 
 void Renderer::Clear() const
@@ -52,13 +79,15 @@ void Renderer::SetWireframeMode(bool bUseLineDraw)
     glPolygonMode(GL_FRONT_AND_BACK, bUseLineDraw ? GL_LINE : GL_FILL);
 }
 
-bool Renderer::GetFramebufferSize(int& width, int& height) const
+bool Renderer::GetFramebufferSize(int& width, int& height)
 {
-    if (!_context)
+    GLFWwindow* _window = Application::Get().GetWindow()->GetSysWindow();
+    
+    if (!_window)
     {
         return false;
     }
-    glfwGetFramebufferSize(_context, &width, &height);
+    glfwGetFramebufferSize(_window, &width, &height);
     return true;
 }
 

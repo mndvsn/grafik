@@ -5,32 +5,25 @@
  */
 #include "Lab.h"
 
+#include "core/Application.h"
+#include "core/Window.h"
+#include "renderer/RenderCommand.h"
+#include "renderer/Shader.h"
+
 #include "VertexArray.h"
 #include "VertexBuffer.h"
-#include "Shader.h"
+
+#include <GLFW/glfw3.h>
 
 #include <ranges>
 
 
 namespace labb
 {
-    LLab::LLab(Renderer& renderer)
-        : _renderer { renderer }
-    {
-        
-    }
-
-    LLab::~LLab()
-    {
-        Shader::Unbind();
-        VertexArray::Unbind();
-        VertexBuffer::Unbind();
-    }
-
     void LLab::BeginRender()
     {
-        _renderer.SetClearColor({ 0.08f, 0.08f, 0.08f });
-        _renderer.Clear();
+        RenderCommand::SetClearColor({ 0.08f, 0.08f, 0.08f });
+        RenderCommand::ClearBuffer();
     }
 
     void LLab::BeginGUI(bool* bKeep)
@@ -66,9 +59,8 @@ namespace labb
         }
     }
 
-    LLabMenu::LLabMenu(Renderer& renderer, std::unique_ptr<LLab>& activeLabPtr)
-        : LLab { renderer },
-        _activeLab { activeLabPtr }
+    LLabMenu::LLabMenu(std::unique_ptr<LLab>& activeLabPtr)
+        : _activeLab { activeLabPtr }
     {
         
     }
@@ -106,7 +98,7 @@ namespace labb
             }
             ImGui::EndMenu();
         }
-        if (GLFWwindow* window = _renderer.GetContext())
+        if (GLFWwindow* window = Application::Get().GetWindow()->GetSysWindow())
         {
             ImGui::Separator();
             if (ImGui::MenuItem("Exit", "ESC"))
@@ -164,5 +156,15 @@ namespace labb
             return labItem->second.createInstance();
         }
         return {};
+    }
+
+    LLab::~LLab()
+    {
+        Shader::Unbind();
+        if (RendererAPI::GetAPI() == RendererAPI::API::OpenGL)
+        {
+            VertexArray::Unbind();
+            VertexBuffer::Unbind();
+        }
     }
 }

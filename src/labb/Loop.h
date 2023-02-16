@@ -7,7 +7,7 @@
 #include "Lab.h"
 
 #include "DataTexture.h"
-#include "Shader.h"
+#include "renderer/Shader.h"
 #include "VertexArray.h"
 
 #include <array>
@@ -31,7 +31,7 @@ namespace labb
         int         _texId          { 0 };
 
     public:
-        LLoop(Renderer& rr);
+        LLoop();
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;
@@ -42,7 +42,7 @@ namespace labb
 
     private:
         VertexArray _vao {};
-        Shader _shader { "data/shaders/loop.vert", "data/shaders/loop.frag" };
+        std::shared_ptr<Shader> _shader { Shader::Create( "data/shaders/loop.vert", "data/shaders/loop.frag" ) };
         Texture _texture0 { "data/textures/loop_alpha_inv.png" };
         Texture _texture1 { "data/textures/loop_alpha.png" };
         Texture _texture2 { "data/textures/loop.png" };

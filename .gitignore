@@ -1,6 +1,13 @@
 # Visual Studio
 .vs/
 
+# User files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
 # Visual Studio Code
 .vscode/
 

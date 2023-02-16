@@ -1,9 +1,9 @@
 ﻿/**
  * Grafik
- * Shader
+ * OpenGL Shader
  * Copyright 2012-2022 Martin Furuberg 
  */
-#include "Shader.h"
+#include "OpenGLShader.h"
 #include "utils/File.h"
 
 #include <glm/glm.hpp>
@@ -13,11 +13,11 @@
 #include <iostream>
 
 
-Shader::Shader(const std::string& vertexFile, const std::string& fragmentFile)
-    : _vertexFilePath { vertexFile }, _fragmentFilePath { fragmentFile }
+OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexFile, const std::string& fragmentFile)
+    : _shaderName { name }
+    , _vertexFilePath { vertexFile }
+    , _fragmentFilePath { fragmentFile }
 {
-    _shaderName = ExtractName(vertexFile);
-    
     // Read vertex shader from file
     File vsFile(vertexFile.c_str());
     const auto vertexSource = vsFile.Read();
@@ -36,7 +36,7 @@ Shader::Shader(const std::string& vertexFile, const std::string& fragmentFile)
     _id = CreateShaderProgram(*vertexSource, *fragmentSource);
 }
 
-unsigned Shader::CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
+unsigned OpenGLShader::CreateShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
 {
     const unsigned program = glCreateProgram();
     const unsigned vs = CompileShaderSource(GL_VERTEX_SHADER, vertexShader);
@@ -64,7 +64,7 @@ unsigned Shader::CreateShaderProgram(const std::string& vertexShader, const std:
     return program;
 }
 
-unsigned Shader::CompileShaderSource(unsigned type, const std::string& source) const
+unsigned OpenGLShader::CompileShaderSource(unsigned type, const std::string& source) const
 {
     const unsigned id = glCreateShader(type);
     const char* src = source.c_str();
@@ -89,13 +89,7 @@ unsigned Shader::CompileShaderSource(unsigned type, const std::string& source) c
     return id;
 }
 
-std::string Shader::ExtractName(const std::string& filePath) const
-{
-    const std::filesystem::path path(filePath);
-    return path.stem().string();
-}
-
-bool Shader::Bind() const
+bool OpenGLShader::Bind() const
 {
     if (IsOK())
     {
@@ -105,47 +99,47 @@ bool Shader::Bind() const
     return false;
 }
 
-void Shader::Unbind()
+void OpenGLShader::Unbind()
 {
     glUseProgram(0);
 }
 
-void Shader::SetUniform1i(const std::string& name, int value) const
+void OpenGLShader::SetUniform1i(const std::string& name, int value) const
 {
     glUniform1i(GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform1iv(const std::string& name, const std::vector<int>& values) const
+void OpenGLShader::SetUniform1iv(const std::string& name, const std::vector<int>& values) const
 {
     glUniform1iv(GetUniformLocation(name), static_cast<int>(values.size()), values.data());
 }
 
-void Shader::SetUniform1f(const std::string& name, float value) const
+void OpenGLShader::SetUniform1f(const std::string& name, float value) const
 {
     glUniform1f(GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3) const
+void OpenGLShader::SetUniform4f(const std::string& name, float f0, float f1, float f2, float f3) const
 {
     glUniform4f(GetUniformLocation(name), f0, f1, f2, f3);
 }
 
-void Shader::SetUniformVec3f(const std::string& name, const glm::vec3& value) const
+void OpenGLShader::SetUniformVec3f(const std::string& name, const glm::vec3& value) const
 {
     glUniform3fv(GetUniformLocation(name), 1, &value.x);
 }
 
-void Shader::SetUniformVec4f(const std::string& name, const glm::vec4& value) const
+void OpenGLShader::SetUniformVec4f(const std::string& name, const glm::vec4& value) const
 {
     glUniform4fv(GetUniformLocation(name), 1, &value.x);
 }
 
-void Shader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix) const
+void OpenGLShader::SetUniformMat4f(const std::string& name, const glm::mat4& matrix) const
 {
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0].x);
 }
 
-int Shader::GetUniformLocation(const std::string& name) const
+int OpenGLShader::GetUniformLocation(const std::string& name) const
 {
     if (_uniformLocations.contains(name))
     {
@@ -162,7 +156,7 @@ int Shader::GetUniformLocation(const std::string& name) const
     return location;
 }
 
-Shader::~Shader()
+OpenGLShader::~OpenGLShader()
 {
     glDeleteProgram(_id);
 }

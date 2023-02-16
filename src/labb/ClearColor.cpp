@@ -5,12 +5,13 @@
  */
 #include "ClearColor.h"
 
+#include "renderer/RenderCommand.h"
+
 
 namespace labb
 {
-    LClearColor::LClearColor(Renderer& rr)
-        : LLab { rr }
-        , _color { 0.706f, 0.671f, 0.557f, 1.000f }
+    LClearColor::LClearColor()
+        : _color { 0.706f, 0.671f, 0.557f, 1.000f }
     {
         
     }
@@ -22,8 +23,8 @@ namespace labb
 
     void LClearColor::BeginRender()
     {
-        GetRenderer().SetClearColor(_color);
-        GetRenderer().Clear();
+        RenderCommand::SetClearColor(_color);
+        RenderCommand::ClearBuffer();
     }
 
     void LClearColor::BeginGUI(bool* bKeep)

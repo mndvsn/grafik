@@ -3,43 +3,55 @@
  * Grafik
  * Copyright 2012-2022 Martin Furuberg 
  */
-#include "GLRender.h"
+#ifdef GK_WIN
+#include "core/Application.h"
 
 #include <iostream>
 
 
-const char* findInitialLab(int n, char* args[]);
+bool appShouldExit { false };
 
-int main(const int argc, char *argv[])
+int Grafik(const int argc, char** argv)
 {
-    const char* lab = findInitialLab(argc, argv);
-    GLRender render("Grafik", 1100, 750, lab);
+    while (!appShouldExit)
+    {
+        ApplicationConfig config("Grafik", 1100, 750);
+        config.args = { argc, argv };
 
-    try
-    {
-        render.Init();
-        render.Setup();
-    }
-    catch (const std::runtime_error& ex)
-    {
-        std::cout << "Error: " << ex.what() << std::endl;
-        return 1;
-    }
-    
-    render.Run();
-    
-    return 0;
-}
+        const auto app = new Application(config);
 
-const char* findInitialLab(const int n, char* args[])
-{
-    const char* finding { "" };
-    for (int i=0; i<n; i++)
-    {
-        if (strcmp(args[i], "-l") == 0 && n > i)
+        try
         {
-            finding = args[i+1];
+            app->Init();
         }
+        catch (const std::runtime_error& ex)
+        {
+            std::cerr << "Error: " << ex.what() << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        app->Run();
+
+        delete app;
     }
-    return finding;
+    return EXIT_SUCCESS;
 }
+
+#ifdef GK_DISTR
+
+#include <Windows.h>
+
+int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
+{
+    return Grafik(__argc, __argv);
+}
+
+#else
+
+int main(const int argc, char** argv)
+{
+    return Grafik(argc, argv);
+}
+
+#endif
+#endif

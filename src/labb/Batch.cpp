@@ -5,6 +5,8 @@
  */
 #include "Batch.h"
 
+#include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ElementBuffer.h"
 #include "VertexBufferLayout.h"
 
@@ -13,17 +15,19 @@
 
 #include <chrono>
 #include <random>
-#include <vector>
 
 
 namespace labb
 {
-    LBatch::LBatch(Renderer& rr) : LLab { rr }
+    LBatch::LBatch()
     {
         int width, height;
-        (void)GetRenderer().GetFramebufferSize(width, height);
+        if (!Renderer::GetFramebufferSize(width, height))
+        {
+            std::cout << "Error reading framebuffer size" << std::endl;
+        }
 
-        GetRenderer().SetClearColor({ 1.0f, 1.0f, 1.0f });
+        RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f });
 
         RandomizeSeed();
 
@@ -64,7 +68,7 @@ namespace labb
         _view = glm::translate(_view, _cameraPosition);
 
         // Check shader
-        if (_shader.Bind())
+        if (_shader->Bind())
         {
             // Load textures and bind to texture unit
             _texture0.emplace(true);
@@ -72,7 +76,7 @@ namespace labb
             _texture2.emplace("data/textures/ground_base.jpg");
             if (_texture0->Bind(0) && _texture1->Bind(1) && _texture2->Bind(2))
             {
-                _shader.SetUniform1iv("u_Textures", { 0, 1, 2 });
+                _shader->SetUniform1iv("u_Textures", { 0, 1, 2 });
             }
         }
 
@@ -100,11 +104,11 @@ namespace labb
 
     void LBatch::BeginRender()
     {
-        GetRenderer().Clear();
+        RenderCommand::ClearBuffer();
 
         _draws = 0;
         
-        if (!_shader.Bind())
+        if (!_shader->Bind())
         {
             RenderError("Shader error!");
             return;
@@ -160,10 +164,10 @@ namespace labb
         _vbo.Bind();
         glBufferSubData(GL_ARRAY_BUFFER, 0, batchVerticesCount * sizeof(Vertex), _vertices);
 
-        _shader.SetUniformMat4f("u_MVP", _mvp);
+        _shader->SetUniformMat4f("u_MVP", _mvp);
 
         _vao.Bind();
-        GetRenderer().Render(_vao, _shader, 0, _quads * 6 - 1);
+        Renderer::Render(_vao, _shader, 0, _quads * 6 - 1);
         _draws++;
     }
 

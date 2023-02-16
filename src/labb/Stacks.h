@@ -7,7 +7,7 @@
 #include "Lab.h"
 
 #include "VertexArray.h"
-#include "Shader.h"
+#include "renderer/Shader.h"
 #include "Texture.h"
 
 #include <optional>
@@ -26,7 +26,7 @@ namespace labb
         bool        _bCycleColor  { true };
     
     public:
-        LStacks(Renderer& rr);
+        LStacks();
 
         void BeginUpdate(double DeltaTime) override;
         void BeginRender() override;
@@ -34,7 +34,7 @@ namespace labb
 
     private:
         std::optional<VertexArray> _vao;
-        std::optional<Shader> _shader;
+        std::shared_ptr<Shader> _shader { nullptr };
         std::optional<Texture> _texture;
 
         // Matrices
