@@ -6,6 +6,8 @@
 #include "gpch.h"
 #include "Window.h"
 
+#include "events/ApplicationEvent.h"
+
 #include <GLFW/glfw3.h>
 
 
@@ -26,10 +28,18 @@ void Window::Init()
     }
 
     _context = GraphicsContext::Create();
-
     CreateNativeWindow();
-
     _context->Init(_window);
+
+    glfwSetWindowSizeCallback(_window, [](GLFWwindow* window, const int width, const int height)
+    {
+        WindowProperties& props = *static_cast<WindowProperties*>(glfwGetWindowUserPointer(window));
+        props.width = width;
+        props.height = height;
+
+        WindowSizeEvent event(width, height);
+        props.eventCallback(event);
+    });
 }
 
 void Window::CreateNativeWindow()
@@ -43,6 +53,7 @@ void Window::CreateNativeWindow()
             throw std::runtime_error("Window context initialization failed!");
         }
     }
+    glfwSetWindowUserPointer(_window, &_props);
 }
 
 void Window::Update()

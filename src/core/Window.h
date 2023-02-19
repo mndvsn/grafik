@@ -8,12 +8,16 @@
 
 
 struct GLFWwindow;
+class Event;
+
+using EventCallbackFunc = std::function<void(Event&)>;
 
 struct WindowProperties
 {
     unsigned width { 640 };
     unsigned height { 480 };
     std::string title { };
+    EventCallbackFunc eventCallback { };
 };
 
 class Window
@@ -26,13 +30,15 @@ public:
     Window(const WindowProperties& prop = WindowProperties());
     virtual ~Window();
 
-    Window(const Window &) = delete;
-    Window &operator=(const Window &) = delete;
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
 
     void Init();
     void CreateNativeWindow();
 
     void Update();
+
+    void SetEventCallback(const EventCallbackFunc& func) { _props.eventCallback = func; }
 
     [[nodiscard]] bool IsRunning() const;
     [[nodiscard]] GLFWwindow* GetSysWindow() const { return _window; }

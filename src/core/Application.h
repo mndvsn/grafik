@@ -4,6 +4,7 @@
  * Copyright 2023 Martin Furuberg 
  */
 #pragma once
+#include "events/Event.h"
 #include "renderer/RendererAPI.h"
 
 
@@ -47,6 +48,8 @@ public:
 
     void Init();
     void Run() const;
+
+    void OnEvent(Event& event) const;
 
     static Application& Get() { return *_application; }
 

@@ -42,6 +42,7 @@ void Application::Init()
 
     WindowProperties props { _config.width, _config.height, _config.title };
     _window = std::make_unique<Window>(props);
+    _window->SetEventCallback([this](auto&& e) { OnEvent(std::forward<Event&>(e)); });
 
     // Init ImGUI
     InitUI();
@@ -160,6 +161,11 @@ void Application::Run() const
     }
 
     appShouldExit = true;
+}
+
+void Application::OnEvent(Event& e) const
+{
+    std::cout << "OnEvent: " << e << std::endl;
 }
 
 Application::~Application()

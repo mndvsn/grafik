@@ -53,6 +53,8 @@
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\core\Window.cpp" />
     <ClCompile Include="src\DataTexture.cpp" />
+    <ClCompile Include="src\events\ApplicationEvent.cpp" />
+    <ClCompile Include="src\events\Event.cpp" />
     <ClCompile Include="src\glad.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">NotUsing</PrecompiledHeader>
@@ -128,6 +130,8 @@
     <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\DataTexture.h" />
     <ClInclude Include="src\ElementBuffer.h" />
+    <ClInclude Include="src\events\ApplicationEvent.h" />
+    <ClInclude Include="src\events\Event.h" />
     <ClInclude Include="src\gpch.h" />
     <ClInclude Include="src\labb\Batch.h" />
     <ClInclude Include="src\labb\ClearColor.h" />
