@@ -124,7 +124,7 @@ void Application::Run() const
             menu->BeginRender();
         }
 
-        if (_ui)
+        if (_ui && !_window->IsMinimized())
         {
             _ui->Begin();
 
@@ -150,7 +150,7 @@ void Application::Run() const
             // Render UI
             _ui->End();
         }
-        
+
         Renderer::EndFrame();
         _window->Update();
     }
@@ -162,12 +162,21 @@ void Application::OnEvent(Event& e) const
 {
     EventDispatcher dispatcher { e };
     dispatcher.Dispatch<WindowCloseEvent>(GK_BIND_EVENT_HANDLER(OnWindowClose));
+    dispatcher.Dispatch<WindowSizeEvent>(GK_BIND_EVENT_HANDLER(OnWindowResize));
 }
 
 void Application::OnWindowClose(WindowCloseEvent& e) const
 {
     _window->Close();
     e.Handled();
+}
+
+void Application::OnWindowResize(const WindowSizeEvent& e) const
+{
+    if (_window->IsMinimized()) return;
+
+    //TODO: Fix perspective
+    Renderer::SetViewport(static_cast<int>(e.GetWidth()), static_cast<int>(e.GetHeight()));
 }
 
 Application::~Application() = default;

@@ -7,10 +7,9 @@
 #include "Window.h"
 
 #include "events/ApplicationEvent.h"
+#include "renderer/RendererAPI.h"
 
 #include <GLFW/glfw3.h>
-
-#include "renderer/RendererAPI.h"
 
 
 Window::Window(const WindowProperties& props)

@@ -25,6 +25,8 @@ public:
     virtual void SetClearColor(float r, float g, float b, float alpha = 1.0f) = 0;
     virtual void SetWireframeMode(bool bUseLineDraw) = 0;
 
+    virtual void SetViewport(int width, int height) = 0;
+
     static std::unique_ptr<RendererAPI> Create(API api);
     static API GetAPI() { return _api; }
     static std::string_view GetAPIString();

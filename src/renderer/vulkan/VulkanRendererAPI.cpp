@@ -24,3 +24,7 @@ void VulkanRendererAPI::SetWireframeMode(bool bUseLineDraw)
 {
     (void)bUseLineDraw;
 }
+
+void VulkanRendererAPI::SetViewport(int, int)
+{
+}

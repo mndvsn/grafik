@@ -30,3 +30,8 @@ void OpenGLRendererAPI::SetWireframeMode(bool bUseLineDraw)
 {
     glPolygonMode(GL_FRONT_AND_BACK, bUseLineDraw ? GL_LINE : GL_FILL);
 }
+
+void OpenGLRendererAPI::SetViewport(int width, int height)
+{
+    glViewport(0, 0, width, height);
+}

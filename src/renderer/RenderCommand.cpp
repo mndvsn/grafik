@@ -38,3 +38,8 @@ void RenderCommand::SetWireframeMode(bool bUseLineDraw)
 {
     _renderAPI->SetWireframeMode(bUseLineDraw);
 }
+
+void RenderCommand::SetViewport(int width, int height)
+{
+    _renderAPI->SetViewport(width, height);
+}

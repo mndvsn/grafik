@@ -81,6 +81,11 @@ void Renderer::SetWireframeMode(bool bUseLineDraw)
     glPolygonMode(GL_FRONT_AND_BACK, bUseLineDraw ? GL_LINE : GL_FILL);
 }
 
+void Renderer::SetViewport(int width, int height)
+{
+    RenderCommand::SetViewport(width, height);
+}
+
 bool Renderer::GetFramebufferSize(int& width, int& height)
 {
     GLFWwindow* _window = Application::Get().GetWindow()->GetSysWindow();

@@ -11,6 +11,7 @@
 class UI;
 class Window;
 class WindowCloseEvent;
+class WindowSizeEvent;
 
 struct ApplicationArgs
 {
@@ -61,6 +62,7 @@ private:
     void InitUI();
 
     void OnWindowClose(WindowCloseEvent& e) const;
+    void OnWindowResize(const WindowSizeEvent& e) const;
     
     static void CheckArgs(ApplicationConfig& config);
 };

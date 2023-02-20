@@ -40,6 +40,7 @@ public:
     void Close();
 
     [[nodiscard]] bool IsRunning() const { return _state.running; }
+    [[nodiscard]] bool IsMinimized() const { return _state.minimized; }
     [[nodiscard]] GLFWwindow* GetSysWindow() const { return _window; }
 
 protected:
@@ -52,12 +53,19 @@ protected:
         unsigned width { 640 };
         unsigned height { 480 };
         bool running { false };
+        bool minimized { false };
         EventCallbackFunc eventCallback { };
 
         void SetSize(unsigned _width, unsigned _height)
         {
             width = _width;
             height = _height;
+            if (_width == 0 && _height == 0)
+            {
+                minimized = true;
+                return;
+            }
+            minimized = false;
         }
     } _state;
 };
