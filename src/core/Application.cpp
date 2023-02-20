@@ -8,6 +8,7 @@
 
 #include "core/Window.h"
 #include "renderer/Renderer.h"
+#include "renderer/RenderCommand.h"
 #include "ui/UI.h"
 
 // Labb
@@ -24,8 +25,6 @@
 
 
 extern bool appShouldExit;
-
-//#define DRAW_WIREFRAME
 
 Application::Application(ApplicationConfig config)
     : _config { std::move(config) }
@@ -46,6 +45,8 @@ void Application::Init()
 
     // Init ImGUI
     InitUI();
+
+    if (_config.wireFrameMode) RenderCommand::SetWireframeMode();
 }
 
 void Application::InitUI()
@@ -72,13 +73,6 @@ void Application::InitUI()
 
 void Application::Run() const
 {
-    std::cout << "Application::Run()" << std::endl;
-
-#ifdef DRAW_WIREFRAME
-    // Draw in wireframe mode
-    RenderCommand::SetWireframeMode(true);
-#endif
-
     double totalTimeElapsed { 0 },
         timeElapsedNow { 0 },
         deltaTime { 0 };

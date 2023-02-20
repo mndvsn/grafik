@@ -29,6 +29,7 @@ struct ApplicationConfig
     unsigned height { 480 };
     RendererAPI::API api { RendererAPI::API::OpenGL };
     std::string initLab { };
+    bool wireFrameMode { false };
     ApplicationArgs args { };
 };
 
