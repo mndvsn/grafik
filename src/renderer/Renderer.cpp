@@ -88,7 +88,7 @@ void Renderer::SetViewport(int width, int height)
 
 bool Renderer::GetFramebufferSize(int& width, int& height)
 {
-    GLFWwindow* _window = Application::Get().GetWindow()->GetSysWindow();
+    GLFWwindow* _window = Application::Get().GetWindow()->GetNativeWindow();
     
     if (!_window)
     {

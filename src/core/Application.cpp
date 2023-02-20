@@ -65,7 +65,7 @@ void Application::InitUI()
 
     if ((_ui = UI::Create()))
     {
-        _ui->Init(_window->GetSysWindow());
+        _ui->Init(_window->GetNativeWindow());
     }
 
     const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);

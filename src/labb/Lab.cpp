@@ -99,7 +99,7 @@ namespace labb
             }
             ImGui::EndMenu();
         }
-        if (GLFWwindow* window = Application::Get().GetWindow()->GetSysWindow())
+        if (GLFWwindow* window = Application::Get().GetWindow()->GetNativeWindow())
         {
             ImGui::Separator();
             if (ImGui::MenuItem("Exit", "ESC"))

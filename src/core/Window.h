@@ -41,7 +41,7 @@ public:
 
     [[nodiscard]] bool IsRunning() const { return _state.running; }
     [[nodiscard]] bool IsMinimized() const { return _state.minimized; }
-    [[nodiscard]] GLFWwindow* GetSysWindow() const { return _window; }
+    [[nodiscard]] GLFWwindow* GetNativeWindow() const { return _window; }
 
 protected:
     [[nodiscard]] std::string GetDetailedWindowTitle() const;
