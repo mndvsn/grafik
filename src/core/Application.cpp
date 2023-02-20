@@ -7,6 +7,7 @@
 #include "Application.h"
 
 #include "core/Window.h"
+#include "events/ApplicationEvent.h"
 #include "renderer/Renderer.h"
 #include "renderer/RenderCommand.h"
 #include "ui/UI.h"
@@ -39,9 +40,9 @@ void Application::Init()
 {
     Renderer::Init(_config.api);
 
-    WindowProperties props { _config.width, _config.height, _config.title };
+    WindowProperties props { _config.title, _config.width, _config.height };
     _window = std::make_unique<Window>(props);
-    _window->SetEventCallback([this](auto&& e) { OnEvent(std::forward<Event&>(e)); });
+    _window->SetEventCallback(GK_BIND_EVENT_HANDLER(OnEvent));
 
     // Init ImGUI
     InitUI();
@@ -159,13 +160,17 @@ void Application::Run() const
 
 void Application::OnEvent(Event& e) const
 {
-    std::cout << "OnEvent: " << e << std::endl;
+    EventDispatcher dispatcher { e };
+    dispatcher.Dispatch<WindowCloseEvent>(GK_BIND_EVENT_HANDLER(OnWindowClose));
 }
 
-Application::~Application()
+void Application::OnWindowClose(WindowCloseEvent& e) const
 {
-    _window->Shutdown();
+    _window->Close();
+    e.Handled();
 }
+
+Application::~Application() = default;
 
 void Application::CheckArgs(ApplicationConfig& config)
 {

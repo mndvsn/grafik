@@ -8,8 +8,9 @@
 #include "renderer/RendererAPI.h"
 
 
-class Window;
 class UI;
+class Window;
+class WindowCloseEvent;
 
 struct ApplicationArgs
 {
@@ -58,5 +59,8 @@ public:
 
 private:
     void InitUI();
+
+    void OnWindowClose(WindowCloseEvent& e) const;
+    
     static void CheckArgs(ApplicationConfig& config);
 };

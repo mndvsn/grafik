@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * Event: Application
- * Copyright 2023 Martin Furuberg 
+ * Copyright 2023 Martin Furuberg
  */
 #pragma once
 #include "events/Event.h"
@@ -27,4 +27,12 @@ public:
 
 private:
     unsigned _width { 0 }, _height { 0 };
+};
+
+class WindowCloseEvent : public Event
+{
+public:
+    WindowCloseEvent() = default;
+
+    GK_EVENT_CLASS_TYPE(WindowClose)
 };

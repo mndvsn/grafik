@@ -10,19 +10,17 @@
 struct GLFWwindow;
 class Event;
 
-using EventCallbackFunc = std::function<void(Event&)>;
-
 struct WindowProperties
 {
+    std::string title { };
     unsigned width { 640 };
     unsigned height { 480 };
-    std::string title { };
-    EventCallbackFunc eventCallback { };
 };
+
+using EventCallbackFunc = std::function<void(Event&)>;
 
 class Window
 {
-    WindowProperties _props;
     GLFWwindow* _window { nullptr };
     std::unique_ptr<GraphicsContext> _context { nullptr };
 
@@ -38,14 +36,27 @@ public:
 
     void Update();
 
-    void SetEventCallback(const EventCallbackFunc& func) { _props.eventCallback = func; }
+    void SetEventCallback(const EventCallbackFunc& func) { _state.eventCallback = func; }
+    void Close();
 
-    [[nodiscard]] bool IsRunning() const;
+    [[nodiscard]] bool IsRunning() const { return _state.running; }
     [[nodiscard]] GLFWwindow* GetSysWindow() const { return _window; }
-    [[nodiscard]] const WindowProperties* GetProps() const { return &_props; }
-    
-    void Shutdown();
 
 protected:
     static void glfwError(int error, const char* description);
+
+    struct WindowState
+    {
+        std::string title { };
+        unsigned width { 640 };
+        unsigned height { 480 };
+        bool running { false };
+        EventCallbackFunc eventCallback { };
+
+        void SetSize(unsigned _width, unsigned _height)
+        {
+            width = _width;
+            height = _height;
+        }
+    } _state;
 };
