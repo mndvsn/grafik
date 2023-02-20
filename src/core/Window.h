@@ -43,6 +43,7 @@ public:
     [[nodiscard]] GLFWwindow* GetSysWindow() const { return _window; }
 
 protected:
+    [[nodiscard]] std::string GetDetailedWindowTitle() const;
     static void glfwError(int error, const char* description);
 
     struct WindowState

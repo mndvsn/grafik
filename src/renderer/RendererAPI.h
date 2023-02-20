@@ -27,6 +27,7 @@ public:
 
     static std::unique_ptr<RendererAPI> Create(API api);
     static API GetAPI() { return _api; }
+    static std::string_view GetAPIString();
 
 private:
     inline static API _api { API::None };

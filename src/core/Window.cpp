@@ -10,6 +10,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "renderer/RendererAPI.h"
+
 
 Window::Window(const WindowProperties& props)
     : _state { props.title, props.width, props.height }
@@ -52,7 +54,7 @@ void Window::Init()
 void Window::CreateNativeWindow()
 {
     // Create window and init glfw with context
-    _window = glfwCreateWindow(static_cast<int>(_state.width), static_cast<int>(_state.height), _state.title.c_str(), nullptr, nullptr);
+    _window = glfwCreateWindow(static_cast<int>(_state.width), static_cast<int>(_state.height), GetDetailedWindowTitle().c_str(), nullptr, nullptr);
     if (!_window)
     {
         glfwTerminate();
@@ -68,6 +70,13 @@ void Window::Update()
 {
     _context->SwapBuffers();
     glfwPollEvents();
+}
+
+std::string Window::GetDetailedWindowTitle() const
+{
+    std::stringstream title;
+    title << _state.title << " - " << RendererAPI::GetAPIString();
+    return title.str();
 }
 
 void Window::Close()

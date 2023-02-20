@@ -21,3 +21,14 @@ std::unique_ptr<RendererAPI> RendererAPI::Create(API api)
     }
     return nullptr;
 }
+
+std::string_view RendererAPI::GetAPIString()
+{
+    switch (_api)
+    {
+        case API::None:       return "None";
+        case API::OpenGL:     return "OpenGL";
+        case API::Vulkan:     return "Vulkan";
+    }
+    return "None";
+}
