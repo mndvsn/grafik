@@ -40,9 +40,12 @@ void Application::Init()
 {
     Renderer::Init(_config.api);
 
+    // Initialize event system
+    EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Category::Application);
+
     WindowProperties props { _config.title, _config.width, _config.height };
     _window = std::make_unique<Window>(props);
-    _window->SetEventCallback(GK_BIND_EVENT_HANDLER(OnEvent));
+    _window->SetEventCallback(GK_BIND_EVENT_HANDLER(Application::OnEvent));
 
     // Init ImGUI
     InitUI();
@@ -72,7 +75,7 @@ void Application::InitUI()
     IM_ASSERT(font != nullptr); (void)font;
 }
 
-void Application::Run() const
+void Application::Run()
 {
     double totalTimeElapsed { 0 },
         timeElapsedNow { 0 },

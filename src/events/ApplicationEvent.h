@@ -14,6 +14,7 @@ public:
         : _width { width }, _height { height } { }
     
     GK_EVENT_CLASS_TYPE(WindowSize)
+    GK_EVENT_CLASS_CATEGORY(Application)
 
     [[nodiscard]] unsigned GetWidth() const { return _width; }
     [[nodiscard]] unsigned GetHeight() const { return _height; }
@@ -35,4 +36,5 @@ public:
     WindowCloseEvent() = default;
 
     GK_EVENT_CLASS_TYPE(WindowClose)
+    GK_EVENT_CLASS_CATEGORY(Application)
 };

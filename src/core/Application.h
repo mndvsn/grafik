@@ -1,10 +1,11 @@
 ﻿/**
  * Grafik
  * Application
- * Copyright 2023 Martin Furuberg 
+ * Copyright 2023 Martin Furuberg
  */
 #pragma once
-#include "events/Event.h"
+#include "core/ComponentManager.h"
+#include "events/EventManager.h"
 #include "renderer/RendererAPI.h"
 
 
@@ -26,18 +27,19 @@ struct ApplicationArgs
 
 struct ApplicationConfig
 {
-    std::string title { };
-    unsigned width { 640 };
-    unsigned height { 480 };
-    RendererAPI::API api { RendererAPI::API::OpenGL };
-    std::string initLab { };
-    bool wireFrameMode { false };
-    ApplicationArgs args { };
+    std::string         title           { };
+    unsigned            width           { 640 };
+    unsigned            height          { 480 };
+    RendererAPI::API    api             { RendererAPI::API::OpenGL };
+    std::string         initLab         { };
+    bool                wireFrameMode   { false };
+    ApplicationArgs     args            { };
 };
 
 class Application
 {
     ApplicationConfig _config;
+    ComponentManager _components { };
     std::unique_ptr<Window> _window { nullptr };
     std::unique_ptr<UI> _ui { nullptr };
     inline static Application* _application { nullptr };
@@ -50,7 +52,7 @@ public:
     Application& operator=(const Application&) = delete;
 
     void Init();
-    void Run() const;
+    void Run();
 
     void OnEvent(Event& event) const;
 

@@ -6,12 +6,16 @@
 #pragma once
 
 
-#define GK_BIND_EVENT_HANDLER(h) [this](auto&& ... args) -> decltype(auto) { this->h(std::forward<decltype(args)>(args)...); }
+#define GK_BIND_EVENT_HANDLER(h) [this](auto&& ... args) -> decltype(auto) { h(std::forward<decltype(args)>(args)...); }
+#define GK_BIND_COMPONENT_EVENT_HANDLER(obj,h) [obj](auto&& ... args) -> decltype(auto) { obj->h(std::forward<decltype(args)>(args)...); }
 
 #define GK_EVENT_CLASS_TYPE(type) \
-    static Type GetStaticType() { return Event::Type::type; } \
-    virtual Type GetEventType() const override { return GetStaticType(); } \
-    virtual const char* GetName() const override { return #type; } \
+    [[nodiscard]] static Type GetStaticType() { return Event::Type::type; } \
+    [[nodiscard]] virtual Type GetEventType() const override { return GetStaticType(); } \
+    [[nodiscard]] virtual const char* GetName() const override { return #type; } \
+
+#define GK_EVENT_CLASS_CATEGORY(category) \
+    [[nodiscard]] virtual int GetCategories() const override { return category; } 
 
 class Event
 {
@@ -28,20 +32,24 @@ public:
     enum Category : int
     {
         None = 0,
-        Application,
-        Input,
-        Keyboard,
-        Mouse,
-        MouseButton
+        Application         = BIT(0),
+        Input               = BIT(1),
+        Keyboard            = BIT(2),
+        Mouse               = BIT(3),
+        MouseButton         = BIT(4)
     };
 
     virtual ~Event() = default;
 
     [[nodiscard]] virtual const char* GetName() const = 0;
     [[nodiscard]] virtual Type GetEventType() const = 0;
+    [[nodiscard]] virtual int GetCategories() const = 0;
     [[nodiscard]] virtual std::string ToString() const { return GetName(); }
 
+    [[nodiscard]] bool IsCategory(Category category) const { return GetCategories() & category; }
+    
     virtual void Handled() { _bHandled = true; }
+    [[nodiscard]] bool IsHandled() const { return _bHandled; }
 
 protected:
     bool _bHandled { false };

@@ -21,3 +21,5 @@
 #ifdef GK_WIN
     #include <Windows.h>
 #endif
+
+#include "core/Common.h"
