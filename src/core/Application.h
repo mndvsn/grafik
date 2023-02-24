@@ -6,13 +6,13 @@
 #pragma once
 #include "core/ComponentManager.h"
 #include "events/EventManager.h"
+#include "events/ApplicationEvent.h"
 #include "renderer/RendererAPI.h"
 
 
 class UI;
 class Window;
-class WindowCloseEvent;
-class WindowSizeEvent;
+namespace labb { class LLabMenu; }
 
 struct ApplicationArgs
 {
@@ -42,6 +42,7 @@ class Application
     ComponentManager _components { };
     std::unique_ptr<Window> _window { nullptr };
     std::unique_ptr<UI> _ui { nullptr };
+    std::shared_ptr<labb::LLabMenu> _menu { nullptr };
     inline static Application* _application { nullptr };
     
 public:
@@ -54,7 +55,7 @@ public:
     void Init();
     void Run();
 
-    void OnEvent(Event& event) const;
+    void OnEvent(Event& event);
 
     static Application& Get() { return *_application; }
 
@@ -62,9 +63,12 @@ public:
 
 private:
     void InitUI();
+    void InitLabs();
 
     void OnWindowClose(WindowCloseEvent& e) const;
     void OnWindowResize(const WindowSizeEvent& e) const;
+    
+    void OnInitLab(InitLabEvent& e);
     
     static void CheckArgs(ApplicationConfig& config);
 };

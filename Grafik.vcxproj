@@ -70,6 +70,7 @@
     <ClCompile Include="src\labb\Batch.cpp" />
     <ClCompile Include="src\labb\ClearColor.cpp" />
     <ClCompile Include="src\labb\Lab.cpp" />
+    <ClCompile Include="src\labb\LabMenu.cpp" />
     <ClCompile Include="src\labb\Loop.cpp" />
     <ClCompile Include="src\labb\Mirror.cpp" />
     <ClCompile Include="src\labb\Stacks.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="src\labb\Batch.h" />
     <ClInclude Include="src\labb\ClearColor.h" />
     <ClInclude Include="src\labb\Lab.h" />
+    <ClInclude Include="src\labb\LabMenu.h" />
     <ClInclude Include="src\labb\Loop.h" />
     <ClInclude Include="src\labb\Mirror.h" />
     <ClInclude Include="src\labb\Stacks.h" />

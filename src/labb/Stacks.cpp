@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * Lab: Stacks
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
 #include "gpch.h"
 #include "Stacks.h"
@@ -12,6 +12,7 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+#include <imgui/imgui.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
@@ -81,17 +82,17 @@ namespace labb
         VertexBuffer::Unbind();
     }
 
-    void LStacks::BeginUpdate(double DeltaTime)
+    void LStacks::OnTick(TickEvent& e)
     {
-        LLab::BeginUpdate(DeltaTime);
+        LLab::OnTick(e);
 
         if (_bDoCycle)
         {
-            _cycle = fmod(_cycle + static_cast<double>(_speed) * 50 * DeltaTime, 360.0);
+            _cycle = fmod(_cycle + static_cast<double>(_speed) * 50 * e.GetDeltaTime(), 360.0);
         }
     }
 
-    void LStacks::BeginRender()
+    void LStacks::OnRender(RenderEvent&)
     {
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f });
         RenderCommand::ClearBuffer();
@@ -140,9 +141,9 @@ namespace labb
         }
     }
 
-    void LStacks::BeginGUI(bool* bKeep)
+    void LStacks::OnUI(UIEvent& e)
     {
-        LLab::BeginGUI(bKeep);
+        LLab::OnUI(e);
 
         // Create Settings window
         constexpr float padding { 15.f };
@@ -156,7 +157,7 @@ namespace labb
         ImGui::SetNextWindowBgAlpha(0.75f);
         ImGui::SetNextWindowPos(position, ImGuiCond_Always, { 1.0f, 0.0f });
         
-        ImGui::Begin("Settings", bKeep, flags);
+        ImGui::Begin("Settings", &_keepAlive, flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Separator();
         ImGui::SliderInt("Count", &_count, 1, 50);

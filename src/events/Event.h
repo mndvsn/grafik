@@ -6,13 +6,13 @@
 #pragma once
 
 
-#define GK_BIND_EVENT_HANDLER(h) [this](auto&& ... args) -> decltype(auto) { h(std::forward<decltype(args)>(args)...); }
-#define GK_BIND_COMPONENT_EVENT_HANDLER(obj,h) [obj](auto&& ... args) -> decltype(auto) { obj->h(std::forward<decltype(args)>(args)...); }
+#define GK_BIND_EVENT_HANDLER_EXTERN(obj,h) [obj](auto&& ... args) -> decltype(auto) { (obj)->h(std::forward<decltype(args)>(args)...); }
+#define GK_BIND_EVENT_HANDLER(h) GK_BIND_EVENT_HANDLER_EXTERN(this,h)
 
 #define GK_EVENT_CLASS_TYPE(type) \
     [[nodiscard]] static Type GetStaticType() { return Event::Type::type; } \
     [[nodiscard]] virtual Type GetEventType() const override { return GetStaticType(); } \
-    [[nodiscard]] virtual const char* GetName() const override { return #type; } \
+    [[nodiscard]] virtual const char* GetName() const override { return #type; }
 
 #define GK_EVENT_CLASS_CATEGORY(category) \
     [[nodiscard]] virtual int GetCategories() const override { return category; } 
@@ -23,6 +23,7 @@ public:
     enum class Type : int
     {
         None = 0,
+        InitLab,
         WindowSize, WindowMinimize, WindowClose,
         Tick, Render, UI,
         Key, KeyChar,

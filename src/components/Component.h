@@ -9,10 +9,9 @@
 
 class Component
 {
+protected:
     bool _keepAlive { true };
     bool _enabled { true };
-
-protected:
     EventManager* events { nullptr };
     
 public:

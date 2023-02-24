@@ -15,7 +15,7 @@ struct EventHandle
 {
     const void* object { nullptr };
     const EventCallbackFunc func { };
-    int categoryMask { };
+    int categoryMask { Event::Category::None };
 
     bool operator==(const EventHandle& handle) const { return object == handle.object; }
 };

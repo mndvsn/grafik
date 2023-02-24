@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * Lab: Mirror
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
 #pragma once
 #include "Lab.h"
@@ -25,9 +25,9 @@ namespace labb
     public:
         LMirror();
 
-        void BeginUpdate(double DeltaTime) override;
-        void BeginRender() override;
-        void BeginGUI(bool* bKeep) override;
+        void OnTick(TickEvent& e) override;
+        void OnRender(RenderEvent& e) override;
+        void OnUI(UIEvent& e) override;
 
     private:
         std::optional<VertexArray> _vao;

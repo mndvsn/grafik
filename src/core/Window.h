@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * Window
- * Copyright 2023 Martin Furuberg 
+ * Copyright 2023 Martin Furuberg
  */
 #pragma once
 #include "renderer/GraphicsContext.h"

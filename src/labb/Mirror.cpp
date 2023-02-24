@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * Lab: Mirror
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
 #include "gpch.h"
 #include "Mirror.h"
@@ -12,6 +12,7 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+#include <imgui/imgui.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
@@ -25,8 +26,6 @@ namespace labb
         {
             std::cout << "Error reading framebuffer size" << std::endl;
         }
-
-        RenderCommand::SetClearColor({ 0.7f, 0.9f, 0.8f });
 
         // Data for triangle
         constexpr float vertices[]
@@ -132,13 +131,11 @@ namespace labb
         VertexBuffer::Unbind();
     }
 
-    void LMirror::BeginUpdate(double DeltaTime)
+    void LMirror::OnTick(TickEvent& e)
     {
-        LLab::BeginUpdate(DeltaTime);
-
         if (_bSpin)
         {
-            _cycle = fmod(_cycle + static_cast<double>(_speed) * DeltaTime, 360.0);
+            _cycle = fmod(_cycle + static_cast<double>(_speed) * e.GetDeltaTime(), 360.0);
         }
         _model = glm::mat4(1.0f);
         _model = rotate(_model, static_cast<float>(_cycle * glm::radians(180.0)), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -148,8 +145,9 @@ namespace labb
         _mvp = _projection * _view * _model;
     }
 
-    void LMirror::BeginRender()
+    void LMirror::OnRender(RenderEvent&)
     {
+        RenderCommand::SetClearColor({ 0.7f, 0.9f, 0.8f });
         RenderCommand::ClearBuffer();
 
         if (!_shader->Bind())
@@ -204,9 +202,9 @@ namespace labb
         glDisable(GL_CULL_FACE);
     }
 
-    void LMirror::BeginGUI(bool* bKeep)
+    void LMirror::OnUI(UIEvent& e)
     {
-        LLab::BeginGUI(bKeep);
+        LLab::OnUI(e);
 
         // Create Settings window
         constexpr float padding { 15.f };
@@ -220,7 +218,7 @@ namespace labb
         ImGui::SetNextWindowBgAlpha(0.75f);
         ImGui::SetNextWindowPos(position, ImGuiCond_Always, { 1.0f, 0.0f });
         
-        ImGui::Begin("Settings", bKeep, flags);
+        ImGui::Begin("Settings", &_keepAlive, flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Separator();
         ImGui::DragFloat("=", &_speed, 0.005f, -2.0f, 2.0f, "%.3f");

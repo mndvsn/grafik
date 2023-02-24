@@ -7,13 +7,12 @@
 #include "Application.h"
 
 #include "core/Window.h"
-#include "events/ApplicationEvent.h"
 #include "renderer/Renderer.h"
 #include "renderer/RenderCommand.h"
 #include "ui/UI.h"
 
 // Labb
-#include "labb/Lab.h"
+#include "labb/LabMenu.h"
 #include "labb/Batch.h"
 #include "labb/ClearColor.h"
 #include "labb/Mirror.h"
@@ -50,6 +49,8 @@ void Application::Init()
     // Init ImGUI
     InitUI();
 
+    InitLabs();
+
     if (_config.wireFrameMode) RenderCommand::SetWireframeMode();
 }
 
@@ -75,37 +76,36 @@ void Application::InitUI()
     IM_ASSERT(font != nullptr); (void)font;
 }
 
+void Application::InitLabs()
+{
+    _menu = std::make_shared<labb::LLabMenu>();
+
+    if (_config.api == RendererAPI::API::OpenGL)
+    {
+        // Add labs to main menu
+        _menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
+        _menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
+        _menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
+        _menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
+        _menu->RegisterLab<labb::LBatch>("Batch", "batch");
+        _menu->RegisterLab<labb::LLoop>("Loop", "loop");
+    }
+    // Add components to manager
+    _components.Attach(_menu);
+
+    // Create an initial lab if requested and matching shortname is found
+    if (!_config.initLab.empty())
+    {
+        _menu->CreateLabIfExists(_config.initLab);
+    }
+}
+
 void Application::Run()
 {
     double totalTimeElapsed { 0 },
         timeElapsedNow { 0 },
         deltaTime { 0 };
 
-    // Set to false to exit active lab
-    static bool bKeep { true };
-    auto lab = std::unique_ptr<labb::LLab> {};
-    const auto menu = std::make_unique<labb::LLabMenu>(lab);
-
-    if (_config.api == RendererAPI::API::OpenGL)
-    {
-        // Add labs to main menu
-        menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
-        menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
-        menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
-        menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
-        menu->RegisterLab<labb::LBatch>("Batch", "batch");
-        menu->RegisterLab<labb::LLoop>("Loop", "loop");
-    }
-
-    // Create an initial lab if requested and matching shortname is found
-    if (!_config.initLab.empty())
-    {
-        if (const auto maybeLab = menu->CreateLabIfExists(_config.initLab))
-        {
-            lab.reset(*maybeLab);
-        }
-    }
-    
     // Keep running until we should close and exit
     while (_window->IsRunning())
     {
@@ -117,38 +117,18 @@ void Application::Run()
         // Reset context state
         Renderer::BeginFrame();
 
-        if (lab)
-        {
-            lab->BeginUpdate(deltaTime);
-            lab->BeginRender();
-        }
-        else
-        {
-            menu->BeginRender();
-        }
+        TickEvent tickEvent { deltaTime };
+        EventManager::Get()->Broadcast(tickEvent);
+
+        RenderEvent renderEvent;
+        EventManager::Get()->Broadcast(renderEvent);
 
         if (_ui && !_window->IsMinimized())
         {
             _ui->Begin();
 
-            // Draw main menu UI
-            menu->BeginGUI(&bKeep);
-
-            if (lab)
-            {
-                // Draw lab specific UI
-                lab->BeginGUI(&bKeep);
-                if (!bKeep)
-                {
-                    lab.reset();
-                    bKeep = true;
-                }
-            }
-            else
-            {
-                // Draw selection window
-                menu->BeginBigMenu();
-            }
+            UIEvent uiEvent;
+            EventManager::Get()->Broadcast(uiEvent);
 
             // Render UI
             _ui->End();
@@ -156,16 +136,22 @@ void Application::Run()
 
         Renderer::EndFrame();
         _window->Update();
+
+        if (_components.Clean() && _components.GetCount() < 2)
+        {
+            _menu->ShowBigMenu();
+        }
     }
 
     appShouldExit = true;
 }
 
-void Application::OnEvent(Event& e) const
+void Application::OnEvent(Event& e)
 {
     EventDispatcher dispatcher { e };
-    dispatcher.Dispatch<WindowCloseEvent>(GK_BIND_EVENT_HANDLER(OnWindowClose));
     dispatcher.Dispatch<WindowSizeEvent>(GK_BIND_EVENT_HANDLER(OnWindowResize));
+    dispatcher.Dispatch<WindowCloseEvent>(GK_BIND_EVENT_HANDLER(OnWindowClose));
+    dispatcher.Dispatch<InitLabEvent>(GK_BIND_EVENT_HANDLER(OnInitLab));
 }
 
 void Application::OnWindowClose(WindowCloseEvent& e) const
@@ -180,6 +166,20 @@ void Application::OnWindowResize(const WindowSizeEvent& e) const
 
     //TODO: Fix perspective
     Renderer::SetViewport(static_cast<int>(e.GetWidth()), static_cast<int>(e.GetHeight()));
+}
+
+void Application::OnInitLab(InitLabEvent& e)
+{
+    if (const auto lab = e.createLab())
+    {
+        _components.Attach(lab);
+        
+        if (_components.GetCount() > 1)
+        {
+            _menu->HideBigMenu();
+        }
+    }
+    e.Handled();
 }
 
 Application::~Application() = default;

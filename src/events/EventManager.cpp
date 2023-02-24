@@ -37,9 +37,12 @@ bool EventManager::removeListener(const void* object)
 
 void EventManager::Broadcast(Event& event) const
 {
-    for (const std::shared_ptr<EventHandle>& listener : _listeners)
+    for (size_t i = 0; i < _listeners.size(); i++)
     {
-        if (!event.IsHandled() && listener->categoryMask & event.GetCategories())
+        if (event.IsHandled()) break;
+
+        const auto& listener = _listeners[i];
+        if (listener && listener->categoryMask & event.GetCategories())
         {
             listener->func(event);
         }

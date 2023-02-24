@@ -7,6 +7,8 @@
 #include "events/Event.h"
 
 
+namespace labb { class LLab; }
+
 class WindowSizeEvent : public Event
 {
 public:
@@ -36,5 +38,59 @@ public:
     WindowCloseEvent() = default;
 
     GK_EVENT_CLASS_TYPE(WindowClose)
+    GK_EVENT_CLASS_CATEGORY(Application)
+};
+
+using LabFactoryFunc = std::function<std::shared_ptr<labb::LLab>()>;
+
+class InitLabEvent : public Event
+{
+public:
+    InitLabEvent(LabFactoryFunc fn)
+        : createLab { std::move(fn) } { }
+    
+    GK_EVENT_CLASS_TYPE(InitLab)
+    GK_EVENT_CLASS_CATEGORY(Application)
+
+    LabFactoryFunc createLab;
+};
+
+class TickEvent : public Event
+{
+public:
+    TickEvent(double dt)
+        : _deltaTime { dt } { }
+
+    [[nodiscard]] double GetDeltaTime() const { return _deltaTime; }
+    
+    GK_EVENT_CLASS_TYPE(Tick)
+    GK_EVENT_CLASS_CATEGORY(Application)
+
+    [[nodiscard]] std::string ToString() const override
+    {
+        std::stringstream stream;
+        stream << GetName() << " (" << _deltaTime << ")";
+        return stream.str();
+    }
+
+private:
+    double _deltaTime { };
+};
+
+class RenderEvent : public Event
+{
+public:
+    RenderEvent() = default;
+
+    GK_EVENT_CLASS_TYPE(Render)
+    GK_EVENT_CLASS_CATEGORY(Application)
+};
+
+class UIEvent : public Event
+{
+public:
+    UIEvent() = default;
+
+    GK_EVENT_CLASS_TYPE(UI)
     GK_EVENT_CLASS_CATEGORY(Application)
 };

@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * Lab: Batch
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
 #pragma once
 #include "Lab.h"
@@ -35,9 +35,9 @@ namespace labb
         LBatch();
         ~LBatch() override;
 
-        void BeginUpdate(double DeltaTime) override;
-        void BeginRender() override;
-        void BeginGUI(bool* bKeep) override;
+        void OnTick(TickEvent& e) override;
+        void OnRender(RenderEvent& e) override;
+        void OnUI(UIEvent& e) override;
 
     protected:
         static Vertex* MakeQuad(Vertex* vertexPtr, float x, float y, float z, float width = 1.0f, float height = 1.0f,

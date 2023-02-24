@@ -9,12 +9,12 @@
 #include "events/EventManager.h"
 
 
-void ComponentManager::Attach(std::shared_ptr<Component> comp)
+void ComponentManager::Attach(const std::shared_ptr<Component> comp)
 {
     _comps.emplace_back(comp);
 
     const auto manager = EventManager::Get();
-    int& categoryMask = manager->addListener(comp.get(), GK_BIND_COMPONENT_EVENT_HANDLER(comp, OnEvent));
+    int& categoryMask = manager->addListener(comp.get(), GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent));
     comp->events = manager;
 
     comp->OnAttach(categoryMask);
@@ -32,15 +32,18 @@ void ComponentManager::Detach(const std::shared_ptr<Component> comp)
     }
 }
 
-void ComponentManager::Clean()
+bool ComponentManager::Clean()
 {
+    bool cleaned { false };
     for (const std::shared_ptr<Component>& component : _comps)
     {
-        if (!component->IsAlive())
+        if (component && !component->IsAlive())
         {
             Detach(component);
+            cleaned = true;
         }
     }
+    return cleaned;
 }
 
 ComponentManager::~ComponentManager()
