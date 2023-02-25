@@ -53,9 +53,14 @@ void OpenGLContext::Init(GLFWwindow* window)
 
 void OpenGLContext::SetState()
 {
+    // Enable depth buffer
+    glEnable(GL_DEPTH_TEST);
+    
     // Set blend function
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_LINE_SMOOTH);
 }
 
 void OpenGLContext::SwapBuffers()

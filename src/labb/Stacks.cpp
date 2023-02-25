@@ -139,6 +139,8 @@ namespace labb
             _shader->SetUniformVec4f("u_Color", _color);
             Renderer::Render(*_vao, _shader);
         }
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     void LStacks::OnUI(UIEvent& e)

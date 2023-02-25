@@ -11,9 +11,6 @@
 
 void OpenGLRendererAPI::ResetState() const
 {
-    // Enable depth buffer
-    glEnable(GL_DEPTH_TEST);
-    glDisable(GL_STENCIL_TEST);
 }
 
 void OpenGLRendererAPI::ClearBuffer() const

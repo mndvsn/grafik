@@ -114,8 +114,7 @@ void Application::Run()
         deltaTime = timeElapsedNow - totalTimeElapsed;
         totalTimeElapsed = timeElapsedNow;
 
-        // Reset context state
-        Renderer::BeginFrame();
+        // Renderer::BeginFrame();
 
         TickEvent tickEvent { deltaTime };
         EventManager::Get()->Broadcast(tickEvent);
@@ -134,7 +133,7 @@ void Application::Run()
             _ui->End();
         }
 
-        Renderer::EndFrame();
+        // Renderer::EndFrame();
         _window->Update();
 
         if (_components.Clean() && _components.GetCount() < 3)
