@@ -1,17 +1,18 @@
 ﻿/**
  * Grafik
  * Application
- * Copyright 2023 Martin Furuberg 
+ * Copyright 2023 Martin Furuberg
  */
 #pragma once
+#include "core/ComponentManager.h"
+#include "events/EventManager.h"
+#include "events/ApplicationEvent.h"
 #include "renderer/RendererAPI.h"
 
-#include <memory>
-#include <string>
 
-
-class Window;
 class UI;
+class Window;
+namespace labb { class LLabMenu; }
 
 struct ApplicationArgs
 {
@@ -26,19 +27,22 @@ struct ApplicationArgs
 
 struct ApplicationConfig
 {
-    std::string title { };
-    unsigned width { 640 };
-    unsigned height { 480 };
-    RendererAPI::API api { RendererAPI::API::OpenGL };
-    std::string initLab { };
-    ApplicationArgs args { };
+    std::string         title           { };
+    unsigned            width           { 640 };
+    unsigned            height          { 480 };
+    RendererAPI::API    api             { RendererAPI::API::OpenGL };
+    std::string         initLab         { };
+    bool                wireFrameMode   { false };
+    ApplicationArgs     args            { };
 };
 
 class Application
 {
     ApplicationConfig _config;
-    std::unique_ptr<Window> _window { nullptr };
+    ComponentManager _components { };
+    std::shared_ptr<Window> _window { nullptr };
     std::unique_ptr<UI> _ui { nullptr };
+    std::shared_ptr<labb::LLabMenu> _menu { nullptr };
     inline static Application* _application { nullptr };
     
 public:
@@ -49,7 +53,9 @@ public:
     Application& operator=(const Application&) = delete;
 
     void Init();
-    void Run() const;
+    void Run();
+
+    void OnEvent(Event& event);
 
     static Application& Get() { return *_application; }
 
@@ -57,5 +63,13 @@ public:
 
 private:
     void InitUI();
+    void InitLabs();
+
+    void OnWindowClose(WindowCloseEvent& e) const;
+    void OnWindowResize(const WindowSizeEvent& e) const;
+    void OnFramebufferSize(const FramebufferSizeEvent& e) const;
+    
+    void OnInitLab(InitLabEvent& e);
+    
     static void CheckArgs(ApplicationConfig& config);
 };

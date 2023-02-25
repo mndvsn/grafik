@@ -3,9 +3,9 @@
  * GLDebug
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "GLDebug.h"
 
-#include <iostream>
 
 #ifdef _DEBUG
 void APIENTRY HandleGLDebugMessage(unsigned int source, unsigned int type, unsigned int id, unsigned int severity, int length, const char* message, const void* userParam)

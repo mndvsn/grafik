@@ -3,6 +3,7 @@
  * Vulkan RendererAPI
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "VulkanRendererAPI.h"
 
 
@@ -22,4 +23,8 @@ void VulkanRendererAPI::SetClearColor(const float r, const float g, const float 
 void VulkanRendererAPI::SetWireframeMode(bool bUseLineDraw)
 {
     (void)bUseLineDraw;
+}
+
+void VulkanRendererAPI::SetViewport(int, int)
+{
 }

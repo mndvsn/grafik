@@ -1,8 +1,9 @@
 ﻿/**
  * Grafik
  * Lab: Triangle
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
+#include "gpch.h"
 #include "Triangle.h"
 
 #include "renderer/Renderer.h"
@@ -11,6 +12,7 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+#include <imgui/imgui.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
@@ -74,10 +76,8 @@ namespace labb
         VertexBuffer::Unbind();
     }
 
-    void LTriangle::BeginUpdate(double DeltaTime)
+    void LTriangle::OnTick(TickEvent&)
     {
-        LLab::BeginUpdate(DeltaTime);
-
         // Update matrices with current rotation
         _model = rotate(glm::mat4(1.0f), _rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
         _model = rotate(_model, _rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -86,7 +86,7 @@ namespace labb
         _mvp = _projection * _view * _model;
     }
 
-    void LTriangle::BeginRender()
+    void LTriangle::OnRender(RenderEvent&)
     {
         RenderCommand::SetClearColor({ 0.6f, 0.6f, 0.6f });
         RenderCommand::ClearBuffer();
@@ -99,9 +99,9 @@ namespace labb
         }
     }
 
-    void LTriangle::BeginGUI(bool* bKeep)
+    void LTriangle::OnUI(UIEvent& e)
     {
-        LLab::BeginGUI(bKeep);
+        LLab::OnUI(e);
 
         // Create Settings window
         constexpr float padding { 15.f };
@@ -117,7 +117,7 @@ namespace labb
         ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
 
         // Add controls for rotation
-        ImGui::Begin("Settings", bKeep, window_flags);
+        ImGui::Begin("Settings", &_keepAlive, window_flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Separator();
         ImGui::SliderAngle("Rot X", &_rotation.x, -180.0f, 180.0f);

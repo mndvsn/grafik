@@ -3,17 +3,19 @@
  * Renderer
  * Copyright Martin Furuberg 
  */
+#include "gpch.h"
 #include "Renderer.h"
 
+#include "core/Application.h"
+#include "components/Window.h"
 #include "renderer/RenderCommand.h"
+#include "renderer/Shader.h"
 
 #include "VertexArray.h"
-#include "Shader.h"
 
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-
-#include "core/Application.h"
-#include "core/Window.h"
 
 
 Renderer::Renderer(GLFWwindow* window)
@@ -79,9 +81,14 @@ void Renderer::SetWireframeMode(bool bUseLineDraw)
     glPolygonMode(GL_FRONT_AND_BACK, bUseLineDraw ? GL_LINE : GL_FILL);
 }
 
+void Renderer::SetViewport(int width, int height)
+{
+    RenderCommand::SetViewport(width, height);
+}
+
 bool Renderer::GetFramebufferSize(int& width, int& height)
 {
-    GLFWwindow* _window = Application::Get().GetWindow()->GetSysWindow();
+    GLFWwindow* _window = Application::Get().GetWindow()->GetNativeWindow();
     
     if (!_window)
     {

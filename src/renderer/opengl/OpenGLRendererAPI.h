@@ -16,4 +16,6 @@ public:
     
     void SetClearColor(float r, float g, float b, float alpha = 1.0f) override;
     void SetWireframeMode(bool bUseLineDraw) override;
+
+    void SetViewport(int width, int height) override;
 };

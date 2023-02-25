@@ -6,11 +6,10 @@
 #pragma once
 #include "renderer/RendererAPI.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/fwd.hpp>
 
 
+struct GLFWwindow;
 class VertexArray;
 class Shader;
 
@@ -38,6 +37,7 @@ public:
     
     void SetWireframeMode(bool bUseLineDraw);
 
+    static void SetViewport(int width, int height);
     static bool GetFramebufferSize(int& width, int& height);
 
     [[nodiscard]] GLFWwindow* GetContext() const { return _context; }

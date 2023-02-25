@@ -3,10 +3,8 @@
  * Grafik
  * Copyright 2012-2022 Martin Furuberg 
  */
-#ifdef GK_WIN
+#include "gpch.h"
 #include "core/Application.h"
-
-#include <iostream>
 
 
 bool appShouldExit { false };
@@ -39,8 +37,6 @@ int Grafik(const int argc, char** argv)
 
 #ifdef GK_DISTR
 
-#include <Windows.h>
-
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
     return Grafik(__argc, __argv);
@@ -53,5 +49,4 @@ int main(const int argc, char** argv)
     return Grafik(argc, argv);
 }
 
-#endif
 #endif

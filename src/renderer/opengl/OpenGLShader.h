@@ -8,10 +8,6 @@
 
 #include <glm/fwd.hpp>
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-
 
 class OpenGLShader : public Shader
 {

@@ -6,9 +6,8 @@
 #pragma once
 #include "renderer/GraphicsContext.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
+struct GLFWwindow;
 
 class OpenGLContext : public GraphicsContext
 {

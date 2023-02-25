@@ -3,6 +3,7 @@
  * RenderCommand
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "RenderCommand.h"
 
 #include <glm/glm.hpp>
@@ -36,4 +37,9 @@ void RenderCommand::ClearBuffer()
 void RenderCommand::SetWireframeMode(bool bUseLineDraw)
 {
     _renderAPI->SetWireframeMode(bUseLineDraw);
+}
+
+void RenderCommand::SetViewport(int width, int height)
+{
+    _renderAPI->SetViewport(width, height);
 }

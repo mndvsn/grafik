@@ -8,8 +8,6 @@
 
 #include <glm/fwd.hpp>
 
-#include <memory>
-
 
 class RenderCommand
 {
@@ -23,6 +21,8 @@ public:
     static void SetClearColor(const glm::vec3& color);
     static void SetClearColor(const glm::vec4& color);
     static void SetWireframeMode(bool bUseLineDraw = true);
+
+    static void SetViewport(int width, int height);
     
 private:
     inline static std::unique_ptr<RendererAPI> _renderAPI { nullptr };

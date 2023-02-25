@@ -3,13 +3,15 @@
  * OpenGLContext
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "OpenGLContext.h"
 
 #ifdef _DEBUG
 #include "utils/GLDebug.h"
 #endif
 
-#include <iostream>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 
 OpenGLContext::OpenGLContext()
@@ -51,9 +53,14 @@ void OpenGLContext::Init(GLFWwindow* window)
 
 void OpenGLContext::SetState()
 {
+    // Enable depth buffer
+    glEnable(GL_DEPTH_TEST);
+    
     // Set blend function
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_LINE_SMOOTH);
 }
 
 void OpenGLContext::SwapBuffers()

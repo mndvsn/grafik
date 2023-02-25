@@ -4,7 +4,7 @@
  * Copyright 2012-2022 Martin Furuberg 
  */
 #pragma once
-#include <string>
+
 
 class Texture
 {

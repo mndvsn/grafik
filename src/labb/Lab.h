@@ -1,17 +1,13 @@
 ﻿/**
  * Grafik
  * Lab
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
 #pragma once
-#include <glm/glm.hpp>
-#include <imgui/imgui.h>
+#include "components/Component.h"
+#include "events/ApplicationEvent.h"
 
-#include <functional>
-#include <iostream>
-#include <optional>
-#include <string>
-#include <vector>
+#include <glm/glm.hpp>
 
 
 namespace labb
@@ -24,54 +20,25 @@ namespace labb
         float       TexId       { 0.0f };
     };
 
-    class LLab
+    class LLab : public Component
     {
     public:
-        virtual ~LLab();
+        ~LLab() override;
 
-        virtual void BeginRender();
-        virtual void BeginGUI(bool* bKeep);
-        virtual void BeginUpdate(double DeltaTime);
+        void OnAttach(int& eventMask) override;
+        void OnDetach() override { }
+        void OnEvent(Event& /*event*/) override;
+
+        virtual void OnTick(TickEvent& e);
+        virtual void OnRender(RenderEvent& e);
+        virtual void OnUI(UIEvent& e);
 
     protected:
-        void RenderError(const std::string& error);
+        void RenderError(const std::string_view& error);
 
     private:
         bool _bHasError { false };
         std::string _errorString { };
-    };
-
-    struct LLabMenuItem
-    {
-        std::string name;
-        std::function<LLab*()> createInstance;
-    };
-
-    class LLabMenu : public LLab
-    {
-        std::unique_ptr<LLab>& _activeLab;
-        std::vector<std::pair<std::string, LLabMenuItem>> _labs;
-    
-    public:
-        LLabMenu(std::unique_ptr<LLab>& activeLabPtr);
-
-        void BeginRender() override;
-        void BeginGUI(bool* bKeep) override;
-        void BeginLabMenu();
-        void BeginBigMenu();
-
-        template<typename T>
-        void RegisterLab(const std::string& name, const std::string& shortName)
-        {
-            std::cout << "Registering lab: " << name << std::endl;
-            _labs.push_back({ shortName,
-                {
-                    name, [this] { return new T(); }
-                }
-            });
-        }
-
-        std::optional<LLab*> CreateLabIfExists(const std::string& labShortName);
     };
 }
 

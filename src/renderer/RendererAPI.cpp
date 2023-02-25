@@ -3,6 +3,7 @@
  * RendererAPI
  * Copyright 2023 Martin Furuberg 
  */
+#include "gpch.h"
 #include "RendererAPI.h"
 
 #include "renderer/opengl/OpenGLRendererAPI.h"
@@ -19,4 +20,15 @@ std::unique_ptr<RendererAPI> RendererAPI::Create(API api)
         case API::Vulkan:           return std::make_unique<VulkanRendererAPI>();
     }
     return nullptr;
+}
+
+std::string_view RendererAPI::GetAPIString()
+{
+    switch (_api)
+    {
+        case API::None:       return "None";
+        case API::OpenGL:     return "OpenGL";
+        case API::Vulkan:     return "Vulkan";
+    }
+    return "None";
 }

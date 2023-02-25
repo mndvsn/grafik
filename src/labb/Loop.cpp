@@ -1,8 +1,9 @@
 ﻿/**
  * Grafik
  * Lab: Loop
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
+#include "gpch.h"
 #include "Loop.h"
 
 #include "renderer/Renderer.h"
@@ -11,6 +12,7 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 
+#include <imgui/imgui.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
@@ -86,13 +88,11 @@ namespace labb
         VertexBuffer::Unbind();
     }
 
-    void LLoop::BeginUpdate(double DeltaTime)
+    void LLoop::OnTick(TickEvent& e)
     {
-        LLab::BeginUpdate(DeltaTime);
-
         if (_bSpin)
         {
-            _cycle = fmod(_cycle + static_cast<double>(_speed) * DeltaTime, 360.0);
+            _cycle = fmod(_cycle + static_cast<double>(_speed) * e.GetDeltaTime(), 360.0);
         }
         _model = glm::mat4(1.0f);
         _model = rotate(_model, glm::radians(_modelRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -104,7 +104,7 @@ namespace labb
         _mvp = _projection * _view * _model;
     }
 
-    void LLoop::BeginRender()
+    void LLoop::OnRender(RenderEvent&)
     {
         RenderCommand::SetClearColor(_bgColor);
         RenderCommand::ClearBuffer();
@@ -137,9 +137,9 @@ namespace labb
         // glDepthMask(GL_TRUE);
     }
 
-    void LLoop::BeginGUI(bool* bKeep)
+    void LLoop::OnUI(UIEvent& e)
     {
-        LLab::BeginGUI(bKeep);
+        LLab::OnUI(e);
 
         // Create Settings window
         constexpr float padding { 15.f };
@@ -153,7 +153,7 @@ namespace labb
         ImGui::SetNextWindowBgAlpha(0.75f);
         ImGui::SetNextWindowPos(position, ImGuiCond_Always, { 1.0f, 0.0f });
         
-        ImGui::Begin("Loop", bKeep, flags);
+        ImGui::Begin("Loop", &_keepAlive, flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0 / static_cast<double>(ImGui::GetIO().Framerate),
             static_cast<double>(ImGui::GetIO().Framerate));
         ImGui::Separator();

@@ -3,6 +3,7 @@
  * VertexBuffer
  * Copyright 2012-2022 Martin Furuberg 
  */
+#include "gpch.h"
 #include "VertexBuffer.h"
 
 #include <glad/glad.h>

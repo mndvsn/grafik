@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * Lab: Loop
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
 #pragma once
 #include "Lab.h"
@@ -10,12 +10,10 @@
 #include "renderer/Shader.h"
 #include "VertexArray.h"
 
-#include <array>
-
 
 namespace labb
 {
-    constexpr unsigned loopSegments { 32 };
+    constexpr size_t loopSegments { 32 };
     constexpr size_t loopVerticesCount { 4 * loopSegments};
     constexpr size_t loopIndicesCount { 6 * loopSegments};
 
@@ -33,9 +31,9 @@ namespace labb
     public:
         LLoop();
 
-        void BeginUpdate(double DeltaTime) override;
-        void BeginRender() override;
-        void BeginGUI(bool* bKeep) override;
+        void OnTick(TickEvent& e) override;
+        void OnRender(RenderEvent& e) override;
+        void OnUI(UIEvent& e) override;
 
     protected:
         static std::array<Vertex, loopVerticesCount> MakeCylinder(glm::vec2 origin = { 0.0f, 0.0f }, float radius = 1.0f, float length = 1.0f, int segments = 10);
