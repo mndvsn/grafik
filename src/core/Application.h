@@ -40,7 +40,7 @@ class Application
 {
     ApplicationConfig _config;
     ComponentManager _components { };
-    std::unique_ptr<Window> _window { nullptr };
+    std::shared_ptr<Window> _window { nullptr };
     std::unique_ptr<UI> _ui { nullptr };
     std::shared_ptr<labb::LLabMenu> _menu { nullptr };
     inline static Application* _application { nullptr };

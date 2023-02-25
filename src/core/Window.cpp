@@ -13,13 +13,12 @@
 
 
 Window::Window(const WindowProperties& props)
-    : _state { props.title, props.width, props.height }
-{
-    Init();
-}
+    : _state { props.title, props.width, props.height } { }
 
-void Window::Init()
+void Window::OnAttach(int& eventMask)
 {
+    eventMask = Event::Category::None;
+
     glfwSetErrorCallback(glfwError);
     if (!glfwInit())
     {
@@ -38,15 +37,15 @@ void Window::Init()
         state.SetSize(width, height);
 
         WindowSizeEvent event(width, height);
-        state.eventCallback(event);
+        EventManager::Get()->Broadcast(event);
     });
 
-    glfwSetWindowCloseCallback(_window, [](GLFWwindow* window)
+    glfwSetWindowCloseCallback(_window, [](GLFWwindow*)
     {
-        const WindowState& state = *static_cast<WindowState*>(glfwGetWindowUserPointer(window));
-        
         WindowCloseEvent event;
-        state.eventCallback(event);
+        EventManager::Get()->Broadcast(event);
+    });
+
     });
 }
 

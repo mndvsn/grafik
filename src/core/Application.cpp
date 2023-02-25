@@ -43,8 +43,8 @@ void Application::Init()
     EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Category::Application);
 
     WindowProperties props { _config.title, _config.width, _config.height };
-    _window = std::make_unique<Window>(props);
-    _window->SetEventCallback(GK_BIND_EVENT_HANDLER(Application::OnEvent));
+    _window = std::make_shared<Window>(props);
+    _components.Attach(_window);
 
     // Init ImGUI
     InitUI();
@@ -137,7 +137,7 @@ void Application::Run()
         Renderer::EndFrame();
         _window->Update();
 
-        if (_components.Clean() && _components.GetCount() < 2)
+        if (_components.Clean() && _components.GetCount() < 3)
         {
             _menu->ShowBigMenu();
         }
@@ -174,7 +174,7 @@ void Application::OnInitLab(InitLabEvent& e)
     {
         _components.Attach(lab);
         
-        if (_components.GetCount() > 1)
+        if (_components.GetCount() > 2)
         {
             _menu->HideBigMenu();
         }

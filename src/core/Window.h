@@ -4,11 +4,11 @@
  * Copyright 2023 Martin Furuberg
  */
 #pragma once
+#include "components/Component.h"
 #include "renderer/GraphicsContext.h"
 
 
 struct GLFWwindow;
-class Event;
 
 struct WindowProperties
 {
@@ -17,26 +17,23 @@ struct WindowProperties
     unsigned height { 480 };
 };
 
-using EventCallbackFunc = std::function<void(Event&)>;
-
-class Window
+class Window : public Component
 {
     GLFWwindow* _window { nullptr };
     std::unique_ptr<GraphicsContext> _context { nullptr };
 
 public:
     Window(const WindowProperties& prop = WindowProperties());
-    virtual ~Window();
+    ~Window() override;
 
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
 
-    void Init();
+    void OnAttach(int& eventMask) override;
     void CreateNativeWindow();
 
     void Update();
 
-    void SetEventCallback(const EventCallbackFunc& func) { _state.eventCallback = func; }
     void Close();
 
     [[nodiscard]] bool IsRunning() const { return _state.running; }
@@ -54,7 +51,6 @@ protected:
         unsigned height { 480 };
         bool running { false };
         bool minimized { false };
-        EventCallbackFunc eventCallback { };
 
         void SetSize(unsigned _width, unsigned _height)
         {
