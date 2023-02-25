@@ -46,6 +46,10 @@ void Window::OnAttach(int& eventMask)
         EventManager::Get()->Broadcast(event);
     });
 
+    glfwSetFramebufferSizeCallback(_window, [](GLFWwindow*, const int width, const int height)
+    {
+        FramebufferSizeEvent event(width, height);
+        EventManager::Get()->Broadcast(event);
     });
 }
 

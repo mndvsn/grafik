@@ -67,6 +67,7 @@ private:
 
     void OnWindowClose(WindowCloseEvent& e) const;
     void OnWindowResize(const WindowSizeEvent& e) const;
+    void OnFramebufferSize(const FramebufferSizeEvent& e) const;
     
     void OnInitLab(InitLabEvent& e);
     

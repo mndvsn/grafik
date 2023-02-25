@@ -25,7 +25,7 @@ public:
         None = 0,
         InitLab,
         WindowSize, WindowMinimize, WindowClose,
-        Tick, Render, UI,
+        Tick, Render, FramebufferSize, UI,
         Key, KeyChar,
         MouseButton, MouseMove, MouseScroll
     };
