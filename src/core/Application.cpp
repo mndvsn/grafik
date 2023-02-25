@@ -6,7 +6,7 @@
 #include "gpch.h"
 #include "Application.h"
 
-#include "core/Window.h"
+#include "components/Window.h"
 #include "renderer/Renderer.h"
 #include "renderer/RenderCommand.h"
 #include "ui/UI.h"
@@ -90,10 +90,10 @@ void Application::InitLabs()
         _menu->RegisterLab<labb::LBatch>("Batch", "batch");
         _menu->RegisterLab<labb::LLoop>("Loop", "loop");
     }
-    // Add components to manager
+    // Add menu to component manager
     _components.Attach(_menu);
 
-    // Create an initial lab if requested and matching shortname is found
+    // Create an initial lab if set to matching shortname
     if (!_config.initLab.empty())
     {
         _menu->CreateLabIfExists(_config.initLab);

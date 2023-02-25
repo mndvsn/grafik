@@ -189,7 +189,7 @@ namespace labb
         glStencilMask(0x00); // No draw in stencil buffer
         glDepthMask(true); // Write to depth buffer
 
-        const glm::mat4 _modelTrans = translate(_model, glm::vec3(0, -1.5, 0));
+        const glm::mat4 _modelTrans = translate(_model, glm::vec3(0, -2.0, 0));
         _model = glm::scale(_modelTrans, glm::vec3(1, -1, 1));
         _mvp = _projection * _view * _model;
         _shader->SetUniformMat4f("u_MVP", _mvp);

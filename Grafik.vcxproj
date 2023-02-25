@@ -50,9 +50,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Dist|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\components\Window.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\core\ComponentManager.cpp" />
-    <ClCompile Include="src\core\Window.cpp" />
     <ClCompile Include="src\DataTexture.cpp" />
     <ClCompile Include="src\events\EventManager.cpp" />
     <ClCompile Include="src\glad.c">
@@ -127,11 +127,11 @@
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="src\components\Component.h" />
+    <ClInclude Include="src\components\Window.h" />
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\Common.h" />
     <ClInclude Include="src\core\ComponentManager.h" />
     <ClInclude Include="src\core\Platform.h" />
-    <ClInclude Include="src\core\Window.h" />
     <ClInclude Include="src\DataTexture.h" />
     <ClInclude Include="src\ElementBuffer.h" />
     <ClInclude Include="src\events\ApplicationEvent.h" />

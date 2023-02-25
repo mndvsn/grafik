@@ -7,7 +7,7 @@
 #include "Renderer.h"
 
 #include "core/Application.h"
-#include "core/Window.h"
+#include "components/Window.h"
 #include "renderer/RenderCommand.h"
 #include "renderer/Shader.h"
 
