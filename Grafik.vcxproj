@@ -75,7 +75,6 @@
     <ClCompile Include="src\labb\Mirror.cpp" />
     <ClCompile Include="src\labb\Stacks.cpp" />
     <ClCompile Include="src\labb\Triangle.cpp" />
-    <ClCompile Include="src\Pipeline.cpp" />
     <ClCompile Include="src\renderer\GraphicsContext.cpp" />
     <ClCompile Include="src\renderer\opengl\OpenGLContext.cpp" />
     <ClCompile Include="src\renderer\opengl\OpenGLRendererAPI.cpp" />
@@ -84,6 +83,7 @@
     <ClCompile Include="src\renderer\Renderer.cpp" />
     <ClCompile Include="src\renderer\RendererAPI.cpp" />
     <ClCompile Include="src\renderer\Shader.cpp" />
+    <ClCompile Include="src\renderer\vulkan\Pipeline.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanContext.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanRendererAPI.cpp" />
     <ClCompile Include="src\Texture.cpp" />
@@ -146,7 +146,6 @@
     <ClInclude Include="src\labb\Mirror.h" />
     <ClInclude Include="src\labb\Stacks.h" />
     <ClInclude Include="src\labb\Triangle.h" />
-    <ClInclude Include="src\Pipeline.h" />
     <ClInclude Include="src\renderer\GraphicsContext.h" />
     <ClInclude Include="src\renderer\opengl\OpenGLContext.h" />
     <ClInclude Include="src\renderer\opengl\OpenGLRendererAPI.h" />
@@ -155,6 +154,7 @@
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\renderer\RendererAPI.h" />
     <ClInclude Include="src\renderer\Shader.h" />
+    <ClInclude Include="src\renderer\vulkan\Pipeline.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanContext.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanRendererAPI.h" />
     <ClInclude Include="src\Texture.h" />

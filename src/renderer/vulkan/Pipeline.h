@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
- * Pipeline
- * Copyright 2023 Martin Furuberg 
+ * Vulkan: Pipeline
+ * Copyright 2023 Martin Furuberg
  */
 #pragma once
 #include <glm/fwd.hpp>
@@ -18,6 +18,8 @@ public:
     Pipeline(const std::string& vertexFile, const std::string& fragmentFile);
     ~Pipeline();
 
+    Pipeline(const Pipeline&) = delete;
+    void operator=(const Pipeline&) = delete;
 private:
-    std::string ExtractName(const std::string& filePath) const;
+    [[nodiscard]] std::string ExtractName(const std::string& filePath) const;
 };
