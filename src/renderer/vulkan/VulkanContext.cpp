@@ -9,6 +9,8 @@
 #include "renderer/vulkan/Pipeline.h"
 #include "renderer/vulkan/SwapChain.h"
 
+#include <GLFW/glfw3.h>
+
 
 VulkanContext::VulkanContext()
 {
@@ -24,9 +26,8 @@ void VulkanContext::Init(GLFWwindow* window)
     glfwGetFramebufferSize(_window, &width, &height);
     Resize(width, height);
     
-    _device = new RenderDevice { _window };
-    const VkExtent2D extent { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
-    _swapChain = std::make_unique<SwapChain>(*_device, extent);
+    _device = std::make_unique<RenderDevice>(_window);
+    _swapChain = std::make_unique<SwapChain>(*_device);
 
 #   ifdef _DEBUG
     InitDebug();
@@ -163,7 +164,6 @@ void VulkanContext::Shutdown()
 VulkanContext::~VulkanContext()
 {
     vkDestroyPipelineLayout(_device->device(), _pipelineLayout, nullptr);
-    delete _device;
 }
 
 #ifdef _DEBUG

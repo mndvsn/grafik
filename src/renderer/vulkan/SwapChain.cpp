@@ -6,12 +6,13 @@
 #include "gpch.h"
 #include "SwapChain.h"
 
+#include "core/Application.h"
+
 #include <limits>
 
 
-SwapChain::SwapChain(RenderDevice& deviceRef, VkExtent2D extent)
+SwapChain::SwapChain(RenderDevice& deviceRef)
     : device { deviceRef }
-    , windowExtent { extent }
 {
     createSwapChain();
     createImageViews();
@@ -426,16 +427,24 @@ VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     }
     else
     {
-        VkExtent2D actualExtent = windowExtent;
-        actualExtent.width = std::max(
+        // Ask application about current window framebuffer size
+        VkExtent2D extent = GetWindowExtent();
+        extent.width = std::max(
             capabilities.minImageExtent.width,
-            std::min(capabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = std::max(
+            std::min(capabilities.maxImageExtent.width, extent.width));
+        extent.height = std::max(
             capabilities.minImageExtent.height,
-            std::min(capabilities.maxImageExtent.height, actualExtent.height));
+            std::min(capabilities.maxImageExtent.height, extent.height));
 
-        return actualExtent;
+        return extent;
     }
+}
+
+VkExtent2D SwapChain::GetWindowExtent() const
+{
+    auto[width, height] = Application::Get().GetWindow()->GetContextSize();
+    const VkExtent2D extent { width, height };
+    return extent;
 }
 
 VkFormat SwapChain::findDepthFormat()

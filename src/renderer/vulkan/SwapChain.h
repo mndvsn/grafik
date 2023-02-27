@@ -12,7 +12,7 @@ class SwapChain
 public:
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-    SwapChain(RenderDevice& deviceRef, VkExtent2D windowExtent);
+    SwapChain(RenderDevice& deviceRef);
     ~SwapChain();
 
     SwapChain(const SwapChain&) = delete;
@@ -49,6 +49,7 @@ private:
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+    [[nodiscard]] VkExtent2D GetWindowExtent() const;
 
     VkFormat swapChainImageFormat { };
     VkExtent2D swapChainExtent { };
@@ -63,7 +64,6 @@ private:
     std::vector<VkImageView> swapChainImageViews { };
 
     RenderDevice& device;
-    VkExtent2D windowExtent { };
 
     VkSwapchainKHR swapChain { nullptr };
 

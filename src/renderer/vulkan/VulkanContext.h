@@ -34,10 +34,10 @@ public:
 #endif
 
 private:
-    RenderDevice* _device { nullptr };
+    std::unique_ptr<RenderDevice> _device { nullptr };
     std::unique_ptr<Pipeline> _pipeline { nullptr };
     std::unique_ptr<SwapChain> _swapChain { nullptr };
-    VkPipelineLayout _pipelineLayout { nullptr };
     std::vector<VkCommandBuffer> _commandBuffers { };
+    VkPipelineLayout _pipelineLayout { nullptr };
     VkExtent2D _extent { 0, 0 };
 };
