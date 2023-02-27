@@ -24,6 +24,9 @@ public:
     void CreatePipeline();
     void CreateCommandBuffer();
 
+    void Resize(unsigned width, unsigned height) override;
+    [[nodiscard]] std::pair<unsigned, unsigned> GetSize() const override { return { _extent.width, _extent.height }; }
+
     void Shutdown() override;
 
 #ifdef _DEBUG
@@ -36,4 +39,5 @@ private:
     std::unique_ptr<SwapChain> _swapChain { nullptr };
     VkPipelineLayout _pipelineLayout { nullptr };
     std::vector<VkCommandBuffer> _commandBuffers { };
+    VkExtent2D _extent { 0, 0 };
 };

@@ -22,6 +22,7 @@ void VulkanContext::Init(GLFWwindow* window)
 
     int width { 0 }, height { 0 };
     glfwGetFramebufferSize(_window, &width, &height);
+    Resize(width, height);
     
     _device = new RenderDevice { _window };
     const VkExtent2D extent { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
@@ -124,6 +125,14 @@ void VulkanContext::CreateCommandBuffer()
         
         i++;
     }
+}
+
+void VulkanContext::Resize(unsigned width, unsigned height)
+{
+    _extent.width = width;
+    _extent.height = height;
+
+    //TODO: invalidate current swapchain
 }
 
 void VulkanContext::SwapBuffers()

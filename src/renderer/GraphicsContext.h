@@ -22,6 +22,9 @@ public:
     
     virtual void Shutdown() = 0;
 
+    virtual void Resize(unsigned width, unsigned height) = 0;
+    [[nodiscard]] virtual std::pair<unsigned, unsigned> GetSize() const = 0;
+
     static std::unique_ptr<GraphicsContext> Create();
 
 protected:
