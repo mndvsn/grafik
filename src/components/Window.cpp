@@ -70,8 +70,8 @@ void Window::CreateNativeWindow()
 
 void Window::Update()
 {
-    _context->SwapBuffers();
     glfwPollEvents();
+    _context->SwapBuffers();
 }
 
 std::string Window::GetDetailedWindowTitle() const
@@ -84,6 +84,7 @@ std::string Window::GetDetailedWindowTitle() const
 void Window::Close()
 {
     _state.running = false;
+    _context->Shutdown();
 }
 
 Window::~Window()

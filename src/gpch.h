@@ -10,6 +10,7 @@
 #include <functional>
 #include <memory>
 #include <numbers>
+#include <stdexcept>
 
 #include <array>
 #include <string>
@@ -19,6 +20,9 @@
 #include <vector>
 
 #ifdef GK_WIN
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
     #include <Windows.h>
 #endif
 

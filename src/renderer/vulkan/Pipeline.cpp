@@ -111,6 +111,11 @@ void Pipeline::createShaderModule(const std::vector<char>& source, VkShaderModul
     }
 }
 
+void Pipeline::Bind(VkCommandBuffer commandBuffer) const
+{
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline); // GRAPHICS, COMPUTE, RAY_TRACING
+}
+
 std::string Pipeline::ExtractName(const std::string& filePath) const
 {
     const std::filesystem::path path(filePath);

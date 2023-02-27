@@ -33,7 +33,6 @@ public:
     void CreateNativeWindow();
 
     void Update();
-
     void Close();
 
     [[nodiscard]] bool IsRunning() const { return _state.running; }

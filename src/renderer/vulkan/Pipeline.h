@@ -76,6 +76,7 @@ struct PipelineConfig
         colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
         colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
         colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_A_BIT;
 
         colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
         colorBlendInfo.logicOpEnable = VK_FALSE;
@@ -125,6 +126,8 @@ public:
     void operator=(const Pipeline&) = delete;
 
     void createShaderModule(const std::vector<char>& source, VkShaderModule* module);
+
+    void Bind(VkCommandBuffer commandBuffer) const;
 
 private:
     [[nodiscard]] std::string ExtractName(const std::string& filePath) const;

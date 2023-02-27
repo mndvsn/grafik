@@ -14,18 +14,18 @@
 
 struct SwapChainSupportDetails
 {
-    VkSurfaceCapabilitiesKHR capabilities;
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
+    VkSurfaceCapabilitiesKHR capabilities { };
+    std::vector<VkSurfaceFormatKHR> formats { };
+    std::vector<VkPresentModeKHR> presentModes { };
 };
 
 struct QueueFamilyIndices
 {
     uint32_t graphicsFamily { 0 };
     uint32_t presentFamily { 0 };
-    bool graphicsFamilyHasValue = false;
-    bool presentFamilyHasValue = false;
-    bool isComplete() const { return graphicsFamilyHasValue && presentFamilyHasValue; }
+    bool graphicsFamilyHasValue { false };
+    bool presentFamilyHasValue { false };
+    [[nodiscard]] bool isComplete() const { return graphicsFamilyHasValue && presentFamilyHasValue; }
 };
 
 class RenderDevice

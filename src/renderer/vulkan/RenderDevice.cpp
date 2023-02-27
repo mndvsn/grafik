@@ -31,17 +31,12 @@ VkResult CreateDebugUtilsMessengerEXT(
     const VkAllocationCallbacks* pAllocator,
     VkDebugUtilsMessengerEXT* pDebugMessenger)
 {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-        instance,
-        "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr)
-    {
-        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    }
-    else
+    const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
+    if (!func)
     {
         return VK_ERROR_EXTENSION_NOT_PRESENT;
     }
+    return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
 }
 
 void DestroyDebugUtilsMessengerEXT(
@@ -49,10 +44,7 @@ void DestroyDebugUtilsMessengerEXT(
     VkDebugUtilsMessengerEXT debugMessenger,
     const VkAllocationCallbacks* pAllocator)
 {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-        instance,
-        "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr)
+    if (const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT")))
     {
         func(instance, debugMessenger, pAllocator);
     }
@@ -91,19 +83,19 @@ void RenderDevice::createInstance()
         throw std::runtime_error("validation layers requested, but not available!");
     }
 
-    VkApplicationInfo appInfo = {};
+    VkApplicationInfo appInfo { };
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "LittleVulkanEngine App";
+    appInfo.pApplicationName = "Grafik";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
+    appInfo.pEngineName = "Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
+    appInfo.apiVersion = VK_API_VERSION_1_1;
 
-    VkInstanceCreateInfo createInfo = {};
+    VkInstanceCreateInfo createInfo { };
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    auto extensions = getRequiredExtensions();
+    const auto extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
@@ -122,9 +114,16 @@ void RenderDevice::createInstance()
         createInfo.pNext = nullptr;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+    const auto result = vkCreateInstance(&createInfo, nullptr, &instance);
+    
+    if (result == VK_ERROR_INCOMPATIBLE_DRIVER)
     {
-        throw std::runtime_error("failed to create instance!");
+        throw std::runtime_error("Driver not compatible with Vulkan!");
+    }
+    
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create Vulkan instance!");
     }
 
     hasGflwRequiredInstanceExtensions();
@@ -132,7 +131,7 @@ void RenderDevice::createInstance()
 
 void RenderDevice::pickPhysicalDevice()
 {
-    uint32_t deviceCount = 0;
+    uint32_t deviceCount { 0 };
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     if (deviceCount == 0)
     {
@@ -167,10 +166,10 @@ void RenderDevice::createLogicalDevice()
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set uniqueQueueFamilies = { indices.graphicsFamily, indices.presentFamily };
 
-    float queuePriority = 1.0f;
+    constexpr float queuePriority = 1.0f;
     for (uint32_t queueFamily : uniqueQueueFamilies)
     {
-        VkDeviceQueueCreateInfo queueCreateInfo = {};
+        VkDeviceQueueCreateInfo queueCreateInfo { };
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         queueCreateInfo.queueFamilyIndex = queueFamily;
         queueCreateInfo.queueCount = 1;
@@ -178,30 +177,16 @@ void RenderDevice::createLogicalDevice()
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
-    VkPhysicalDeviceFeatures deviceFeatures = {};
+    VkPhysicalDeviceFeatures deviceFeatures { };
     deviceFeatures.samplerAnisotropy = VK_TRUE;
 
-    VkDeviceCreateInfo createInfo = {};
+    VkDeviceCreateInfo createInfo { };
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
     createInfo.pEnabledFeatures = &deviceFeatures;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-    // might not really be necessary anymore because device specific validation layers
-    // have been deprecated
-    if (enableValidationLayers)
-    {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
-    }
-    else
-    {
-        createInfo.enabledLayerCount = 0;
-    }
 
     if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS)
     {
@@ -216,11 +201,10 @@ void RenderDevice::createCommandPool()
 {
     QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
 
-    VkCommandPoolCreateInfo poolInfo = {};
+    VkCommandPoolCreateInfo poolInfo { };
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
-    poolInfo.flags =
-        VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
     {
@@ -282,7 +266,7 @@ void RenderDevice::setupDebugMessenger()
 
 bool RenderDevice::checkValidationLayerSupport() const
 {
-    uint32_t layerCount;
+    uint32_t layerCount { 0 };
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -312,11 +296,10 @@ bool RenderDevice::checkValidationLayerSupport() const
 
 std::vector<const char*> RenderDevice::getRequiredExtensions() const
 {
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+    uint32_t glfwExtensionCount { 0 };
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
     if (enableValidationLayers)
     {
@@ -385,26 +368,24 @@ QueueFamilyIndices RenderDevice::findQueueFamilies(VkPhysicalDevice device)
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    int i = 0;
-    for (const auto& queueFamily : queueFamilies)
+    for (int i = 0; const auto& queueFamily : queueFamilies)
     {
         if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
             indices.graphicsFamily = i;
             indices.graphicsFamilyHasValue = true;
         }
+        
         VkBool32 presentSupport = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface_, &presentSupport);
-        if (queueFamily.queueCount > 0 && presentSupport)
+        if (presentSupport && queueFamily.queueCount > 0)
         {
             indices.presentFamily = i;
             indices.presentFamilyHasValue = true;
         }
-        if (indices.isComplete())
-        {
-            break;
-        }
-
+        
+        if (indices.isComplete()) break;
+        
         i++;
     }
 
@@ -442,17 +423,17 @@ SwapChainSupportDetails RenderDevice::querySwapChainSupport(VkPhysicalDevice dev
 
 VkFormat RenderDevice::findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const
 {
-    for (VkFormat format : candidates)
+    for (const VkFormat& format : candidates)
     {
-        VkFormatProperties props;
+        VkFormatProperties props { };
         vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
 
         if (tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
         {
             return format;
         }
-        else if (
-            tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+        
+        if (tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
         {
             return format;
         }

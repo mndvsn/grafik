@@ -19,6 +19,8 @@ public:
 
     void SetState();
 
+    void Shutdown() override { }
+
 #ifdef _DEBUG
     void InitDebug() const;
 #endif
