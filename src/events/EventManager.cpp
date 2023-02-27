@@ -37,7 +37,7 @@ bool EventManager::removeListener(const void* object)
 
 void EventManager::Broadcast(Event& event) const
 {
-    for (size_t i = 0; i < _listeners.size(); i++)
+    for (int i = static_cast<int>(_listeners.size()); i --> 0;)
     {
         if (event.IsHandled()) break;
 

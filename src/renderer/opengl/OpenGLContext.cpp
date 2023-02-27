@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * OpenGLContext
- * Copyright 2023 Martin Furuberg 
+ * Copyright 2023 Martin Furuberg
  */
 #include "gpch.h"
 #include "OpenGLContext.h"
@@ -53,6 +53,10 @@ void OpenGLContext::Init(GLFWwindow* window)
 
 void OpenGLContext::SetState()
 {
+    int width { 0 }, height { 0 };
+    glfwGetFramebufferSize(_window, &width, &height);
+    Resize(width, height);
+    
     // Enable depth buffer
     glEnable(GL_DEPTH_TEST);
     
@@ -65,7 +69,10 @@ void OpenGLContext::SetState()
 
 void OpenGLContext::SwapBuffers()
 {
-    glfwSwapBuffers(_window);
+    if (_width != 0 && _height != 0)
+    {
+        glfwSwapBuffers(_window);
+    }
 }
 
 #ifdef _DEBUG

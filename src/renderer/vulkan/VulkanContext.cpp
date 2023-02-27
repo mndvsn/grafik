@@ -9,6 +9,7 @@
 #include "renderer/vulkan/Pipeline.h"
 #include "renderer/vulkan/SwapChain.h"
 
+// #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
 
@@ -139,6 +140,8 @@ void VulkanContext::Resize(unsigned width, unsigned height)
 void VulkanContext::SwapBuffers()
 {
     //TODO: SwapChain might be outdated if extent is changed, ie window resized/minimized
+    if (_extent.width == 0 || _extent.height == 0) return;
+    
     uint32_t imageIndex { 0 };
     
     const auto queryResult = _swapChain->acquireNextImage(&imageIndex);

@@ -92,7 +92,7 @@ namespace labb
         }
     }
 
-    void LStacks::OnRender(RenderEvent&)
+    void LStacks::OnRender(RenderEvent& e)
     {
         RenderCommand::SetClearColor({ 0.0f, 0.0f, 0.0f });
         RenderCommand::ClearBuffer();
@@ -141,6 +141,7 @@ namespace labb
         }
 
         glEnable(GL_DEPTH_TEST);
+        e.Handled();
     }
 
     void LStacks::OnUI(UIEvent& e)

@@ -104,7 +104,7 @@ namespace labb
         _mvp = _projection * _view * _model;
     }
 
-    void LLoop::OnRender(RenderEvent&)
+    void LLoop::OnRender(RenderEvent& e)
     {
         RenderCommand::SetClearColor(_bgColor);
         RenderCommand::ClearBuffer();
@@ -135,6 +135,8 @@ namespace labb
         Renderer::Render(_vao, _shader);
         glDisable(GL_CULL_FACE);
         // glDepthMask(GL_TRUE);
+        
+        e.Handled();
     }
 
     void LLoop::OnUI(UIEvent& e)

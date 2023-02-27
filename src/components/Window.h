@@ -9,6 +9,7 @@
 
 
 struct GLFWwindow;
+class FramebufferSizeEvent;
 
 struct WindowProperties
 {
@@ -31,6 +32,9 @@ public:
 
     void OnAttach(int& eventMask) override;
     void CreateNativeWindow();
+
+    void OnEvent(Event&) override;
+    void OnFramebufferSize(const FramebufferSizeEvent& e);
 
     void Update();
     void Close();

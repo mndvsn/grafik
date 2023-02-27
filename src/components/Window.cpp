@@ -17,7 +17,7 @@ Window::Window(const WindowProperties& props)
 
 void Window::OnAttach(int& eventMask)
 {
-    eventMask = Event::Category::None;
+    eventMask = Event::Category::Application;
 
     glfwSetErrorCallback(glfwError);
     if (!glfwInit())
@@ -66,6 +66,18 @@ void Window::CreateNativeWindow()
     }
     _state.running = true;
     glfwSetWindowUserPointer(_window, &_state);
+}
+
+void Window::OnEvent(Event& e)
+{
+    EventDispatcher dispatcher(e);
+    dispatcher.Dispatch<FramebufferSizeEvent>(GK_BIND_EVENT_HANDLER(OnFramebufferSize));
+}
+
+void Window::OnFramebufferSize(const FramebufferSizeEvent& e)
+{
+    _context->Resize(e.GetWidth(), e.GetHeight());
+    _context->SwapBuffers();
 }
 
 void Window::Update()

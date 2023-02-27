@@ -148,7 +148,7 @@ void Application::Run()
 void Application::OnEvent(Event& e)
 {
     EventDispatcher dispatcher { e };
-    // dispatcher.Dispatch<WindowSizeEvent>(GK_BIND_EVENT_HANDLER(OnWindowResize));
+    dispatcher.Dispatch<WindowSizeEvent>(GK_BIND_EVENT_HANDLER(OnWindowResize));
     dispatcher.Dispatch<WindowCloseEvent>(GK_BIND_EVENT_HANDLER(OnWindowClose));
     dispatcher.Dispatch<FramebufferSizeEvent>(GK_BIND_EVENT_HANDLER(OnFramebufferSize));
     dispatcher.Dispatch<InitLabEvent>(GK_BIND_EVENT_HANDLER(OnInitLab));
@@ -163,16 +163,15 @@ void Application::OnWindowClose(WindowCloseEvent& e) const
 void Application::OnWindowResize(const WindowSizeEvent&) const
 {
     if (_window->IsMinimized()) return;
+    
+    RenderEvent renderEvent;
+    EventManager::Get()->Broadcast(renderEvent);
 }
 
 void Application::OnFramebufferSize(const FramebufferSizeEvent& e) const
 {
     //TODO: Fix perspective
     Renderer::SetViewport(static_cast<int>(e.GetWidth()), static_cast<int>(e.GetHeight()));
-    
-    RenderEvent renderEvent;
-    EventManager::Get()->Broadcast(renderEvent);
-    _window->Update();
 }
 
 void Application::OnInitLab(InitLabEvent& e)

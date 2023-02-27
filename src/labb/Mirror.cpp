@@ -145,7 +145,7 @@ namespace labb
         _mvp = _projection * _view * _model;
     }
 
-    void LMirror::OnRender(RenderEvent&)
+    void LMirror::OnRender(RenderEvent& e)
     {
         RenderCommand::SetClearColor({ 0.7f, 0.9f, 0.8f });
         RenderCommand::ClearBuffer();
@@ -200,6 +200,7 @@ namespace labb
 
         glDisable(GL_STENCIL_TEST); // End stencil testing
         glDisable(GL_CULL_FACE);
+        e.Handled();
     }
 
     void LMirror::OnUI(UIEvent& e)

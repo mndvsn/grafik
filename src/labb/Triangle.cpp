@@ -86,7 +86,7 @@ namespace labb
         _mvp = _projection * _view * _model;
     }
 
-    void LTriangle::OnRender(RenderEvent&)
+    void LTriangle::OnRender(RenderEvent& e)
     {
         RenderCommand::SetClearColor({ 0.6f, 0.6f, 0.6f });
         RenderCommand::ClearBuffer();
@@ -97,6 +97,7 @@ namespace labb
             _triangleShader->SetUniformMat4f("u_MVP", _mvp);
             Renderer::Render(*_vao, _triangleShader);
         }
+        e.Handled();
     }
 
     void LTriangle::OnUI(UIEvent& e)

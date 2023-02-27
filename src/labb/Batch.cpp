@@ -99,7 +99,7 @@ namespace labb
         _mvp = _projection * _view * _model;
     }
 
-    void LBatch::OnRender(RenderEvent&)
+    void LBatch::OnRender(RenderEvent& e)
     {
         RenderCommand::SetClearColor({ 1.0f, 1.0f, 1.0f });
         RenderCommand::ClearBuffer();
@@ -167,6 +167,8 @@ namespace labb
         _vao.Bind();
         Renderer::Render(_vao, _shader, 0, _quads * 6 - 1);
         _draws++;
+
+        e.Handled();
     }
 
     void LBatch::OnUI(UIEvent& e)
