@@ -7,7 +7,7 @@
 #include "OpenGLContext.h"
 
 #ifdef _DEBUG
-#include "utils/GLDebug.h"
+#include "renderer/opengl/OpenGLDebug.h"
 #endif
 
 #include <glad/glad.h>

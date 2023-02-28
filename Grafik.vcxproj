@@ -77,6 +77,7 @@
     <ClCompile Include="src\labb\Triangle.cpp" />
     <ClCompile Include="src\renderer\GraphicsContext.cpp" />
     <ClCompile Include="src\renderer\opengl\OpenGLContext.cpp" />
+    <ClCompile Include="src\renderer\opengl\OpenGLDebug.cpp" />
     <ClCompile Include="src\renderer\opengl\OpenGLRendererAPI.cpp" />
     <ClCompile Include="src\renderer\opengl\OpenGLShader.cpp" />
     <ClCompile Include="src\renderer\RenderCommand.cpp" />
@@ -93,7 +94,6 @@
     <ClCompile Include="src\ui\UI.cpp" />
     <ClCompile Include="src\ui\vulkan\VulkanUI.cpp" />
     <ClCompile Include="src\utils\File.cpp" />
-    <ClCompile Include="src\utils\GLDebug.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
     <ClCompile Include="src\VertexBufferLayout.cpp" />
@@ -150,6 +150,7 @@
     <ClInclude Include="src\labb\Triangle.h" />
     <ClInclude Include="src\renderer\GraphicsContext.h" />
     <ClInclude Include="src\renderer\opengl\OpenGLContext.h" />
+    <ClInclude Include="src\renderer\opengl\OpenGLDebug.h" />
     <ClInclude Include="src\renderer\opengl\OpenGLRendererAPI.h" />
     <ClInclude Include="src\renderer\opengl\OpenGLShader.h" />
     <ClInclude Include="src\renderer\RenderCommand.h" />
@@ -166,7 +167,6 @@
     <ClInclude Include="src\ui\UI.h" />
     <ClInclude Include="src\ui\vulkan\VulkanUI.h" />
     <ClInclude Include="src\utils\File.h" />
-    <ClInclude Include="src\utils\GLDebug.h" />
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\VertexBufferLayout.h" />

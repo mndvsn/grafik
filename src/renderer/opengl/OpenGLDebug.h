@@ -1,7 +1,7 @@
 ﻿/**
  * Grafik
  * GLDebug
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright 2012-2022 Martin Furuberg
  */
 #pragma once
 
