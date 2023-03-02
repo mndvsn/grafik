@@ -8,6 +8,8 @@
 
 #include "events/EventManager.h"
 
+#include <ranges>
+
 
 void ComponentManager::Attach(const std::shared_ptr<Component> comp)
 {
@@ -48,7 +50,8 @@ bool ComponentManager::Clean()
 
 ComponentManager::~ComponentManager()
 {
-    for (const std::shared_ptr<Component>& component : _comps)
+    // reverse order
+    for (const std::shared_ptr<Component>& component : std::ranges::reverse_view { _comps })
     {
         component->OnDetach();
     }

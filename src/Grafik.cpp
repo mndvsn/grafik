@@ -21,14 +21,13 @@ int Grafik(const int argc, char** argv)
         try
         {
             app->Init();
+            app->Run();
         }
         catch (const std::runtime_error& ex)
         {
             std::cerr << "Error: " << ex.what() << std::endl;
             return EXIT_FAILURE;
         }
-
-        app->Run();
 
         delete app;
     }

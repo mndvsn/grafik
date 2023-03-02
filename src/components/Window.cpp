@@ -97,13 +97,12 @@ void Window::Close()
 {
     _state.running = false;
     _context->Shutdown();
-}
 
-Window::~Window()
-{
     glfwDestroyWindow(_window);
     glfwTerminate();
 }
+
+Window::~Window() = default;
 
 void Window::glfwError(int error, const char* description)
 {
