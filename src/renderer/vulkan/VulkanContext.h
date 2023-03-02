@@ -5,13 +5,18 @@
  */
 #pragma once
 #include "renderer/GraphicsContext.h"
-#include "renderer/vulkan/RenderDevice.h"
 
-// #include <vulkan/vulkan.hpp>
+#define VULKAN_HPP_NO_CONSTRUCTORS
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
+#include <vulkan/vulkan.hpp>
 
 
-class Pipeline;
-class SwapChain;
+class VulkanDevice;
+class VulkanSwapChain;
+class VulkanPipeline;
+
+static std::string ApplicationName  { "Grafik" };
+static std::string EngineName       { "Vulkan" };
 
 class VulkanContext : public GraphicsContext
 {
@@ -31,15 +36,26 @@ public:
 
     void Shutdown() override;
 
+private:
+    void CreateInstance();
+    void CreateSurface();
+
+    static std::vector<const char*> GetRequiredExtensions();
+
 #ifdef _DEBUG
-    void InitDebug() const;
+    void InitDebug();
 #endif
 
-private:
-    std::unique_ptr<RenderDevice> _device { nullptr };
-    std::unique_ptr<Pipeline> _pipeline { nullptr };
-    std::unique_ptr<SwapChain> _swapChain { nullptr };
-    std::vector<VkCommandBuffer> _commandBuffers { };
-    VkPipelineLayout _pipelineLayout { nullptr };
-    VkExtent2D _extent { 0, 0 };
+    vk::Instance _instance { };
+    vk::SurfaceKHR _surface { };
+    
+    std::unique_ptr<VulkanDevice> _device { };
+    std::unique_ptr<VulkanPipeline> _pipeline { };
+    std::unique_ptr<VulkanSwapChain> _swapChain { };
+    std::vector<vk::CommandBuffer> _commandBuffers { };
+    vk::PipelineLayout _pipelineLayout { };
+    vk::Extent2D _extent { 0, 0 };
+    
+    vk::DebugUtilsMessengerEXT _debugMessenger { };
+    std::vector<const char*> _validationLayers { "VK_LAYER_KHRONOS_validation" };
 };

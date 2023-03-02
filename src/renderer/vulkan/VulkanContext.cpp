@@ -6,12 +6,15 @@
 #include "gpch.h"
 #include "VulkanContext.h"
 
-#include "renderer/vulkan/Pipeline.h"
-#include "renderer/vulkan/SwapChain.h"
+#include "renderer/vulkan/VulkanDevice.h"
+#include "renderer/vulkan/VulkanSwapChain.h"
+#include "renderer/vulkan/VulkanPipeline.h"
+#include "renderer/vulkan/VulkanDebug.h"
 
-// #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
+
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 VulkanContext::VulkanContext()
 {
@@ -23,45 +26,112 @@ void VulkanContext::Init(GLFWwindow* window)
 {
     _window = window;
 
+    CreateInstance();
+    CreateSurface();
+    
     int width { 0 }, height { 0 };
     glfwGetFramebufferSize(_window, &width, &height);
     Resize(width, height);
-    
-    _device = std::make_unique<RenderDevice>(_window);
-    _swapChain = std::make_unique<SwapChain>(*_device);
 
-#   ifdef _DEBUG
-    InitDebug();
-#   endif
+    _device = std::make_unique<VulkanDevice>(_instance, _surface, _validationLayers);
+    _swapChain = std::make_unique<VulkanSwapChain>(*_device);
 
     CreatePipelineLayout();
     CreatePipeline();
     CreateCommandBuffer();
 }
 
+void VulkanContext::CreateInstance()
+{
+    std::cout << "Vulkan" << std::endl;
+
+#ifdef _DEBUG
+    if (!CheckDebugSupport(_validationLayers))
+    {
+        throw std::runtime_error { "Validation layers are not supported!" };
+    }
+    const auto debugCreateInfo = GetDebugInfo();
+#endif
+
+    const auto appInfo = vk::ApplicationInfo
+    {
+        .pApplicationName       = ApplicationName.c_str(),
+        .applicationVersion     = 1,
+        .pEngineName            = EngineName.c_str(),
+        .engineVersion          = 1,
+        .apiVersion             = VK_API_VERSION_1_1
+    };
+
+    const auto extensions = GetRequiredExtensions();
+
+    const vk::InstanceCreateInfo createInfo
+    {
+        #ifdef _DEBUG
+        .pNext                   = &debugCreateInfo,
+        #endif
+        .pApplicationInfo        = &appInfo,
+        #ifdef _DEBUG
+        // Add validation layers to check for errors
+        .enabledLayerCount       = static_cast<uint32_t>(_validationLayers.size()),
+        .ppEnabledLayerNames     = _validationLayers.data(),
+        #endif
+        .enabledExtensionCount   = static_cast<uint32_t>(extensions.size()),
+        .ppEnabledExtensionNames = extensions.data(),
+    };
+
+    // Dynamically load extensions
+    const vk::DynamicLoader dl { };
+    const auto vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+    VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
+    
+    try
+    {
+        _instance = vk::createInstance(createInfo, nullptr);
+        VULKAN_HPP_DEFAULT_DISPATCHER.init(_instance);
+    }
+    catch (vk::SystemError& error)
+    {
+        std::cerr << "Failed to create Vulkan instance: " << error.what() << std::endl;
+    }
+}
+
+void VulkanContext::CreateSurface()
+{
+    VkSurfaceKHR surface;
+    const auto result = glfwCreateWindowSurface(_instance, _window, nullptr, &surface);
+    if (result != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create window surface");
+    }
+    _surface = surface;
+}
+
 void VulkanContext::CreatePipelineLayout()
 {
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo { };
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
-    pipelineLayoutInfo.pSetLayouts = nullptr;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
-
-    if (vkCreatePipelineLayout(_device->device(), &pipelineLayoutInfo, nullptr, &_pipelineLayout) != VK_SUCCESS)
+    const vk::PipelineLayoutCreateInfo pipelineLayoutInfo
     {
-        throw std::runtime_error { "Failed to create Vulkan Pipeline Layout!" };
+        .setLayoutCount             = 0,
+        .pushConstantRangeCount     = 0,
+    };
+    
+    try
+    {
+        _pipelineLayout = _device->GetDevice().createPipelineLayout(pipelineLayoutInfo);
+    }
+    catch (vk::SystemError& error)
+    {
+        std::cerr << "Failed to create Vulkan Pipeline Layout: " << error.what() << std::endl;
     }
 }
 
 void VulkanContext::CreatePipeline()
 {
-    auto config = PipelineConfig { _swapChain->width(), _swapChain->height() };
-    config.renderPass = _swapChain->getRenderPass();
+    auto config = PipelineConfig { _extent.width, _extent.height };
+    config.renderPass = _swapChain->GetRenderPass();
     config.pipelineLayout = _pipelineLayout;
 
-    _pipeline = std::make_unique<Pipeline>(
-        *_device, 
+    _pipeline = std::make_unique<VulkanPipeline>(
+        *_device,
         "data/shaders/vktest.vert.spv",
         "data/shaders/vktest.frag.spv",
         config);
@@ -70,61 +140,66 @@ void VulkanContext::CreatePipeline()
 void VulkanContext::CreateCommandBuffer()
 {
     // Set number of command buffers to swapchain images/fb count
-    _commandBuffers.resize(_swapChain->imageCount());
+    _commandBuffers.resize(_swapChain->GetImageCount());
 
-    VkCommandBufferAllocateInfo allocateInfo { };
-    allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocateInfo.commandPool = _device->getCommandPool();
-    allocateInfo.commandBufferCount = static_cast<uint32_t>(_commandBuffers.size());
+    const vk::CommandBufferAllocateInfo allocInfo
+    {
+        .commandPool = _device->GetCommandPool(),
+        .level = vk::CommandBufferLevel::ePrimary,
+        .commandBufferCount = static_cast<uint32_t>(_commandBuffers.size())
+    };
 
-    if (vkAllocateCommandBuffers(_device->device(), &allocateInfo, _commandBuffers.data()) != VK_SUCCESS)
+    if (_device->GetDevice().allocateCommandBuffers(&allocInfo, _commandBuffers.data()) != vk::Result::eSuccess)
     {
         throw std::runtime_error { "Failed to allocate vulkan command buffers!" };
     }
 
-    for (int i = 0; const VkCommandBuffer& buffer : _commandBuffers)
+    for (int i = 0; const vk::CommandBuffer& buffer : _commandBuffers)
     {
-        VkCommandBufferBeginInfo beginInfo { };
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        const auto beginResult = vkBeginCommandBuffer(buffer, &beginInfo);
-        if (beginResult != VK_SUCCESS)
+        constexpr auto beginInfo = vk::CommandBufferBeginInfo
+        {
+            .flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse
+        };
+        
+        if (buffer.begin(&beginInfo) != vk::Result::eSuccess)
         {
             throw std::runtime_error { "Failed to begin recording command buffer!" };
         }
 
-        std::array<VkClearValue, 2> clearValues { };
-        clearValues[0].color = {{ 0.6f, 0.6f, 0.6f, 1.0f }};
-        clearValues[1].depthStencil = { 1.0f, 0 };
-        
-        VkRenderPassBeginInfo renderPassBeginInfo { };
-        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassBeginInfo.renderPass = _swapChain->getRenderPass();
-        renderPassBeginInfo.framebuffer = _swapChain->getFrameBuffer(i);
+        const vk::ClearValue color
+        {
+            .color           = { std::array { 0.6f, 0.6f, 0.6f, 1.0f } }
+        };
+        const vk::ClearValue depthStencil
+        {
+            .depthStencil    = { .depth = 1.0f, .stencil = 0 }
+        };
+        const std::vector clearValues { color, depthStencil };
 
-        renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = _swapChain->getSwapChainExtent();
-        
-        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassBeginInfo.pClearValues = clearValues.data();
+        vk::RenderPassBeginInfo renderPassBeginInfo
+        {
+            .renderPass      = _swapChain->GetRenderPass(),
+            .framebuffer     = _swapChain->GetFramebuffer(i),
+            .renderArea      = {
+                .offset      = { 0, 0 },
+                .extent      = _swapChain->GetExtent()
+            },
+            .clearValueCount = static_cast<uint32_t>(clearValues.size()),
+            .pClearValues    = clearValues.data()
+        };
 
         /* VK_SUBPASS_CONTENTS
          * INLINE = subsequent render pass commands will be embedded in the primary command buffer
          * SECONDARY_COMMAND_BUFFERS = subsequent commands will be embedded in secondary command buffers */
-        vkCmdBeginRenderPass(buffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
         // Bind command buffer to graphics binding point
         _pipeline->Bind(buffer);
-        vkCmdDraw(buffer, 3, 1, 0, 0);
+        buffer.draw(3, 1, 0, 0);
 
-        vkCmdEndRenderPass(buffer);
-        const auto endResult = vkEndCommandBuffer(buffer);
-        if (endResult != VK_SUCCESS)
-        {
-            throw std::runtime_error { "Failed to end recording command buffer!" };
-        }
-        
+        buffer.endRenderPass();
+        buffer.end();
+
         i++;
     }
 }
@@ -141,38 +216,74 @@ void VulkanContext::SwapBuffers()
 {
     //TODO: SwapChain might be outdated if extent is changed, ie window resized/minimized
     if (_extent.width == 0 || _extent.height == 0) return;
-    
-    uint32_t imageIndex { 0 };
-    
-    const auto queryResult = _swapChain->acquireNextImage(&imageIndex);
-    if (queryResult != VK_SUCCESS && queryResult != VK_SUBOPTIMAL_KHR)
-    {
-        throw std::runtime_error { "Failed to query next swapchain image!" };
-    }
 
-    // Submit buffer to device graphics queue, and handle image swap based on present mode
-    const auto submitResult = _swapChain->submitCommandBuffers(&_commandBuffers[imageIndex], &imageIndex);
-    if (submitResult != VK_SUCCESS)
+    try
     {
-        throw std::runtime_error { "Failed to present image in swapchain!" };
+        uint32_t imageIndex;
+        // Wait for an image to become available to render to
+        if (!_swapChain->GetNextImage(imageIndex)) return;
+        
+        // Submit buffer to device graphics queue, and handle image swap based on present mode
+        _swapChain->SubmitCommandBuffers(&_commandBuffers[imageIndex], &imageIndex);
+    }
+    catch (vk::SystemError& err)
+    {
+        std::cerr << "Failed to swap buffers in vulkan swap chain: " << err.what() << std::endl;
     }
 }
 
 void VulkanContext::Shutdown()
 {
     // wait for rendering to complete
-    vkDeviceWaitIdle(_device->device());
+    _device->GetDevice().waitIdle();
+
+    // _device->GetDevice().freeCommandBuffers(_device->GetCommandPool(), static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
+    _device->GetDevice().destroyPipelineLayout(_pipelineLayout);
+    _pipeline->Destroy();
+    
+    _swapChain->Shutdown();
+    _device->Shutdown();
+
+#ifdef _DEBUG
+    _instance.destroyDebugUtilsMessengerEXT(_debugMessenger);
+#endif
+    
+    _instance.destroySurfaceKHR(_surface);
+    _instance.destroy();
+    Resize(0, 0);
 }
 
-VulkanContext::~VulkanContext()
+VulkanContext::~VulkanContext() = default;
+
+std::vector<const char*> VulkanContext::GetRequiredExtensions()
 {
-    vkDestroyPipelineLayout(_device->device(), _pipelineLayout, nullptr);
+    uint32_t glfwExtensionsCount { 0 };
+    const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionsCount);
+    if (glfwExtensionsCount == 0)
+    {
+        throw std::runtime_error { "GLFW required extensions returned an error" };
+    }
+
+    std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
+
+    #ifdef _DEBUG
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    #endif
+    
+    return extensions;
 }
 
 #ifdef _DEBUG
-void VulkanContext::InitDebug() const
+void VulkanContext::InitDebug()
 {
-    // Print adapter info
-    std::cout << "Vulkan" << "\n";
+    const auto debugCreateInfo = GetDebugInfo();
+    try
+    {
+        _debugMessenger = _instance.createDebugUtilsMessengerEXT(debugCreateInfo);
+    }
+    catch (vk::SystemError& err)
+    {
+        std::cerr << "Failed to create Vulkan debug messenger: " << err.what() << std::endl;
+    }
 }
 #endif

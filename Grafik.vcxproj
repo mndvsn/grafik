@@ -84,12 +84,12 @@
     <ClCompile Include="src\renderer\Renderer.cpp" />
     <ClCompile Include="src\renderer\RendererAPI.cpp" />
     <ClCompile Include="src\renderer\Shader.cpp" />
-    <ClCompile Include="src\renderer\vulkan\Pipeline.cpp" />
     <ClCompile Include="src\renderer\vulkan\RenderDevice.cpp" />
     <ClCompile Include="src\renderer\vulkan\SwapChain.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanContext.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanDebug.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanDevice.cpp" />
+    <ClCompile Include="src\renderer\vulkan\VulkanPipeline.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanRendererAPI.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanSwapChain.cpp" />
     <ClCompile Include="src\Texture.cpp" />
@@ -160,12 +160,12 @@
     <ClInclude Include="src\renderer\Renderer.h" />
     <ClInclude Include="src\renderer\RendererAPI.h" />
     <ClInclude Include="src\renderer\Shader.h" />
-    <ClInclude Include="src\renderer\vulkan\Pipeline.h" />
     <ClInclude Include="src\renderer\vulkan\RenderDevice.h" />
     <ClInclude Include="src\renderer\vulkan\SwapChain.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanContext.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanDebug.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanDevice.h" />
+    <ClInclude Include="src\renderer\vulkan\VulkanPipeline.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanRendererAPI.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanSwapChain.h" />
     <ClInclude Include="src\Texture.h" />
