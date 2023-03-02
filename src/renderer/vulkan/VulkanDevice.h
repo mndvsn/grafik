@@ -4,7 +4,8 @@
  * Copyright Martin Furuberg
  */
 #pragma once
-
+#define VULKAN_HPP_NO_CONSTRUCTORS
+#define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 
 
@@ -45,11 +46,30 @@ public:
     VulkanDevice(VulkanDevice&&) = delete;
     VulkanDevice& operator=(VulkanDevice&&) = delete;
 
-    vk::Device& GetDevice() { return _device; }
-    vk::CommandPool& GetCommandPool() { return _commandPool; }
+    [[nodiscard]] vk::Instance& GetInstance() const { return _instance; }
+    [[nodiscard]] vk::Device& GetDevice() { return _device; }
+    [[nodiscard]] vk::SurfaceKHR& GetSurface() const { return _surface; }
+    [[nodiscard]] vk::CommandPool& GetCommandPool() { return _commandPool; }
 
-    void Shutdown() const;
+    [[nodiscard]] vk::Queue GetGraphicsQueue() const { return _graphicsQueue; }
+    [[nodiscard]] vk::Queue GetPresentQueue() const { return _presentQueue; }
+
+    [[nodiscard]] SwapChainSupportDetails GetSwapChainSupport() const { return CheckSwapChainSupport(_physicalDevice); }
+    [[nodiscard]] QueueFamilyIndices FindPhysicalQueueFamilies() const { return FindQueueFamilies(_physicalDevice); }
+    [[nodiscard]] vk::Format FindSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling, vk::FormatFeatureFlagBits features) const;
+    [[nodiscard]] uint32_t FindMemoryType(uint32_t typeFilter, const vk::MemoryPropertyFlags& properties) const;
+
+    void CreateImage(const vk::ImageCreateInfo& imageInfo, vk::MemoryPropertyFlags properties, vk::Image& image, vk::DeviceMemory& memory) const;
+
+    // Buffer helper functions
+    void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer& buffer, vk::DeviceMemory& bufferMemory) const;
+    vk::CommandBuffer BeginSingleTimeCommands() const;
+    void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;
+    void CopyBuffer(vk::Buffer sourceBuffer, vk::Buffer destBuffer, vk::DeviceSize size);
+    void CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height, uint32_t layerCount);
     
+    void Shutdown() const;
+
 private:
     void SelectPhysicalDevice();
     void CreateLogicalDevice();

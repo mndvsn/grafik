@@ -6,8 +6,6 @@
 #include "gpch.h"
 #include "VulkanDebug.h"
 
-#include <vulkan/vulkan.hpp>
-
 
 #ifdef _DEBUG
 vk::Bool32 VulkanDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, VkDebugUtilsMessageTypeFlagsEXT type,
@@ -31,22 +29,21 @@ vk::Bool32 VulkanDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, 
 
 vk::DebugUtilsMessengerCreateInfoEXT GetDebugInfo()
 {
-    auto severityFlags = vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
+    const auto severityFlags = vk::DebugUtilsMessageSeverityFlagBitsEXT::eError
         | vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
         /*| vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo
         | vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose*/;
 
-    auto typeFlags = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
+    const auto typeFlags = vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral
         | vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation
         | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
 
     const auto debugCreateInfo = vk::DebugUtilsMessengerCreateInfoEXT
     {
-        {},
-        severityFlags,
-        typeFlags,
-        VulkanDebugCallback,
-        nullptr
+        .messageSeverity    = severityFlags,
+        .messageType        = typeFlags,
+        .pfnUserCallback    = VulkanDebugCallback,
+        .pUserData          = nullptr
     };
     return debugCreateInfo;
 }

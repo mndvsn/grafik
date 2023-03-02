@@ -58,31 +58,34 @@ void VulkanDevice::CreateLogicalDevice()
     constexpr float queuePriority = 1.0f;
     for (const uint32_t queueFamily : uniqueQueueFamilies)
     {
-        vk::DeviceQueueCreateInfo queueCreateInfo { };
-        queueCreateInfo.queueFamilyIndex = queueFamily;
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
+        vk::DeviceQueueCreateInfo queueCreateInfo
+        {
+            .queueFamilyIndex   = queueFamily,
+            .queueCount         = 1,
+            .pQueuePriorities   = &queuePriority
+        };
         queueCreateInfos.emplace_back(queueCreateInfo);
     }
 
-    auto deviceFeatures = vk::PhysicalDeviceFeatures { };
-    deviceFeatures.samplerAnisotropy = true;
+    auto deviceFeatures = vk::PhysicalDeviceFeatures { .samplerAnisotropy = true };
 
-    auto createInfo = vk::DeviceCreateInfo { };
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-    createInfo.pQueueCreateInfos = queueCreateInfos.data();
-    createInfo.enabledLayerCount = 0;
-    createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(_deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = _deviceExtensions.data();
+    auto createInfo = vk::DeviceCreateInfo
+    {
+        .queueCreateInfoCount       = static_cast<uint32_t>(queueCreateInfos.size()),
+        .pQueueCreateInfos          = queueCreateInfos.data(),
 #ifdef _DEBUG
-    createInfo.enabledLayerCount = static_cast<uint32_t>(_validationLayers.size());
-    createInfo.ppEnabledLayerNames = _validationLayers.data();
+        .enabledLayerCount          = static_cast<uint32_t>(_validationLayers.size()),
+        .ppEnabledLayerNames        = _validationLayers.data(),
 #endif
+        .enabledExtensionCount      = static_cast<uint32_t>(_deviceExtensions.size()),
+        .ppEnabledExtensionNames    = _deviceExtensions.data(),
+        .pEnabledFeatures           = &deviceFeatures
+    };
 
     try
     {
         _device = _physicalDevice.createDevice(createInfo);
+        VULKAN_HPP_DEFAULT_DISPATCHER.init(_device);
     }
     catch (vk::SystemError& error)
     {
@@ -100,10 +103,13 @@ void VulkanDevice::CreateCommandPool()
     {
         throw std::runtime_error { "Physical device queue families error" };
     }
-    
-    vk::CommandPoolCreateInfo poolInfo { };
-    poolInfo.queueFamilyIndex = queueFamilies.graphicsFamily.value();
-    poolInfo.flags = vk::CommandPoolCreateFlagBits::eTransient | vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+
+    const vk::CommandPoolCreateInfo poolInfo
+    {
+        .flags              = vk::CommandPoolCreateFlagBits::eTransient
+                            | vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
+        .queueFamilyIndex   = queueFamilies.graphicsFamily.value()
+    };
 
     try
     {
@@ -112,6 +118,37 @@ void VulkanDevice::CreateCommandPool()
     catch (vk::SystemError& error)
     {
         std::cerr << "Failed to create Vulkan Command Pool: " << error.what() << std::endl;
+    }
+}
+
+void VulkanDevice::CreateImage(const vk::ImageCreateInfo& imageInfo, vk::MemoryPropertyFlags properties,
+    vk::Image& image, vk::DeviceMemory& memory) const
+{
+    try
+    {
+        image = _device.createImage(imageInfo);
+    }
+    catch (vk::SystemError& error)
+    {
+        std::cerr << "Failed to create Vulkan image: " << error.what() << std::endl;
+    }
+
+    const auto requirements = _device.getImageMemoryRequirements(image);
+
+    const vk::MemoryAllocateInfo allocInfo
+    {
+        .allocationSize = requirements.size,
+        .memoryTypeIndex = FindMemoryType(requirements.memoryTypeBits, properties)
+    };
+
+    try
+    {
+        memory = _device.allocateMemory(allocInfo);
+        _device.bindImageMemory(image, memory, 0);
+    }
+    catch (vk::SystemError& err)
+    {
+        std::cerr << "Failed to allocate memory for vulkan image: " << err.what() << std::endl;
     }
 }
 
@@ -174,6 +211,155 @@ SwapChainSupportDetails VulkanDevice::CheckSwapChainSupport(const vk::PhysicalDe
     };
     return details;
 }
+
+vk::Format VulkanDevice::FindSupportedFormat(const std::vector<vk::Format>& candidates, vk::ImageTiling tiling,
+    vk::FormatFeatureFlagBits features) const
+{
+    for (const vk::Format& format : candidates)
+    {
+        vk::FormatProperties props = _physicalDevice.getFormatProperties(format);
+
+        if (tiling == vk::ImageTiling::eLinear && (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        
+        if (tiling == vk::ImageTiling::eOptimal && (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+    throw std::runtime_error("Failed to find supported vulkan format!");
+}
+
+uint32_t VulkanDevice::FindMemoryType(uint32_t typeFilter, const vk::MemoryPropertyFlags& properties) const
+{
+    const auto memoryProperties = _physicalDevice.getMemoryProperties();
+    for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++)
+    {
+        if ((typeFilter & (1 << i)) && (memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+        {
+            return i;
+        }
+    }
+    throw std::runtime_error { "Failed to find suitable memory type for vulkan image!" };
+}
+
+/* -------------------------- */
+
+void VulkanDevice::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties,
+    vk::Buffer& buffer, vk::DeviceMemory& bufferMemory) const
+{
+    vk::BufferCreateInfo bufferInfo
+    {
+        .size           = size,
+        .usage          = usage,
+        .sharingMode    = vk::SharingMode::eExclusive
+    };
+
+    try
+    {
+        buffer = _device.createBuffer(bufferInfo);
+    }
+    catch (vk::SystemError& err)
+    {
+        std::cerr << "Failed to create vulkan buffer: " << err.what() << std::endl;
+    }
+
+    const auto requirements = _device.getBufferMemoryRequirements(buffer);
+
+    const vk::MemoryAllocateInfo allocInfo
+    {
+        .allocationSize     = requirements.size,
+        .memoryTypeIndex    = FindMemoryType(requirements.memoryTypeBits, properties)
+    };
+
+    try
+    {
+        bufferMemory = _device.allocateMemory(allocInfo);
+        _device.bindBufferMemory(buffer, bufferMemory, 0);
+    }
+    catch (vk::SystemError& err)
+    {
+        std::cerr << "Failed to allocate memory for vulkan buffer: " << err.what() << std::endl;
+    }
+}
+
+vk::CommandBuffer VulkanDevice::BeginSingleTimeCommands() const
+{
+    const vk::CommandBufferAllocateInfo allocInfo
+    {
+        .commandPool        = _commandPool,
+        .level              = vk::CommandBufferLevel::ePrimary,
+        .commandBufferCount = 1
+    };
+
+    const auto commandBuffers = _device.allocateCommandBuffers(allocInfo);
+    constexpr vk::CommandBufferBeginInfo beginInfo { .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit };
+
+    for (const auto& buffer : commandBuffers)
+    {
+        buffer.begin(beginInfo);
+    }
+    
+    return commandBuffers.front();
+}
+
+void VulkanDevice::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const
+{
+    commandBuffer.end();
+
+    const vk::SubmitInfo submitInfo
+    {
+        .commandBufferCount = 1,
+        .pCommandBuffers = &commandBuffer
+    };
+
+    _graphicsQueue.submit(submitInfo, nullptr);
+    _graphicsQueue.waitIdle();
+
+    _device.freeCommandBuffers(_commandPool, commandBuffer);
+}
+
+void VulkanDevice::CopyBuffer(vk::Buffer sourceBuffer, vk::Buffer destBuffer, vk::DeviceSize size)
+{
+    const vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
+    const vk::BufferCopy copyRegion
+    {
+        .srcOffset  = 0,
+        .dstOffset  = 0,
+        .size       = size
+    };
+    commandBuffer.copyBuffer(sourceBuffer, destBuffer, 1, &copyRegion);
+    EndSingleTimeCommands(commandBuffer);
+}
+
+void VulkanDevice::CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height, uint32_t layerCount)
+{
+    const vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
+    const vk::BufferImageCopy region
+    {
+        .bufferOffset       = 0,
+        .bufferRowLength    = 0,
+        .bufferImageHeight  = 0,
+        .imageSubresource   = {
+            .aspectMask     = vk::ImageAspectFlagBits::eColor,
+            .mipLevel       = 0,
+            .baseArrayLayer = 0,
+            .layerCount     = layerCount 
+        },
+        .imageOffset        = { 0, 0, 0 },
+        .imageExtent        = {
+            .width          = width,
+            .height         = height,
+            .depth          = 1
+        }
+    };
+    commandBuffer.copyBufferToImage(buffer, image, vk::ImageLayout::eTransferDstOptimal, region);
+    EndSingleTimeCommands(commandBuffer);
+}
+
+/* -------------------------- */
 
 void VulkanDevice::Shutdown() const
 {

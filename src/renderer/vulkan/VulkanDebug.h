@@ -4,7 +4,9 @@
  * Copyright 2023 Martin Furuberg
  */
 #pragma once
+#define VULKAN_HPP_NO_CONSTRUCTORS
 #include <vulkan/vulkan.hpp>
+
 
 static VKAPI_ATTR vk::Bool32 VKAPI_CALL VulkanDebugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT severity,

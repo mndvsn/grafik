@@ -91,6 +91,7 @@
     <ClCompile Include="src\renderer\vulkan\VulkanDebug.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanDevice.cpp" />
     <ClCompile Include="src\renderer\vulkan\VulkanRendererAPI.cpp" />
+    <ClCompile Include="src\renderer\vulkan\VulkanSwapChain.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\ui\opengl\OpenGLUI.cpp" />
     <ClCompile Include="src\ui\UI.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="src\renderer\vulkan\VulkanDebug.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanDevice.h" />
     <ClInclude Include="src\renderer\vulkan\VulkanRendererAPI.h" />
+    <ClInclude Include="src\renderer\vulkan\VulkanSwapChain.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\ui\opengl\OpenGLUI.h" />
     <ClInclude Include="src\ui\UI.h" />
