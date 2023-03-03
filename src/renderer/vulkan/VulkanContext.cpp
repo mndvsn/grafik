@@ -9,6 +9,7 @@
 #include "renderer/vulkan/VulkanDevice.h"
 #include "renderer/vulkan/VulkanSwapChain.h"
 #include "renderer/vulkan/VulkanPipeline.h"
+#include "renderer/vulkan/VulkanModel.h"
 #include "renderer/vulkan/VulkanDebug.h"
 
 #include <GLFW/glfw3.h>
@@ -38,6 +39,7 @@ void VulkanContext::Init(GLFWwindow* window)
 
     CreatePipelineLayout();
     CreatePipeline();
+    CreateModel();
     CreateCommandBuffer();
 }
 
@@ -104,6 +106,18 @@ void VulkanContext::CreateSurface()
         throw std::runtime_error("Failed to create window surface");
     }
     _surface = surface;
+}
+
+void VulkanContext::CreateModel()
+{
+    std::vector<VulkanModel::Vertex> vertices
+    {
+        {{  0.5f, -0.5 }},
+        {{  0.5f,  0.5 }},
+        {{ -0.5f,  0.5 }},
+    };
+    
+    _model = std::make_unique<VulkanModel>(*_device, vertices);
 }
 
 void VulkanContext::CreatePipelineLayout()
@@ -195,7 +209,9 @@ void VulkanContext::CreateCommandBuffer()
 
         // Bind command buffer to graphics binding point
         _pipeline->Bind(buffer);
-        buffer.draw(3, 1, 0, 0);
+
+        _model->Bind(buffer);
+        _model->Draw(buffer);
 
         buffer.endRenderPass();
         buffer.end();
@@ -237,7 +253,8 @@ void VulkanContext::Shutdown()
     // wait for rendering to complete
     _device->GetDevice().waitIdle();
 
-    // _device->GetDevice().freeCommandBuffers(_device->GetCommandPool(), static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
+    _model.reset();
+    
     _device->GetDevice().destroyPipelineLayout(_pipelineLayout);
     _pipeline->Destroy();
     

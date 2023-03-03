@@ -11,6 +11,7 @@
 #include <vulkan/vulkan.hpp>
 
 
+class VulkanModel;
 class VulkanDevice;
 class VulkanSwapChain;
 class VulkanPipeline;
@@ -27,10 +28,6 @@ public:
     void Init(GLFWwindow* window) override;
     void SwapBuffers() override;
     
-    void CreatePipelineLayout();
-    void CreatePipeline();
-    void CreateCommandBuffer();
-
     void Resize(unsigned width, unsigned height) override;
     [[nodiscard]] std::pair<unsigned, unsigned> GetSize() const override { return { _extent.width, _extent.height }; }
 
@@ -40,6 +37,11 @@ private:
     void CreateInstance();
     void CreateSurface();
 
+    void CreatePipelineLayout();
+    void CreatePipeline();
+    void CreateModel();
+    void CreateCommandBuffer();
+    
     static std::vector<const char*> GetRequiredExtensions();
 
 #ifdef _DEBUG
@@ -55,6 +57,8 @@ private:
     std::vector<vk::CommandBuffer> _commandBuffers { };
     vk::PipelineLayout _pipelineLayout { };
     vk::Extent2D _extent { 0, 0 };
+
+    std::unique_ptr<VulkanModel> _model { };
     
     vk::DebugUtilsMessengerEXT _debugMessenger { };
     std::vector<const char*> _validationLayers { "VK_LAYER_KHRONOS_validation" };
