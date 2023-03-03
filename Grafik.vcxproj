@@ -112,7 +112,9 @@
     <Content Include="data\shaders\loop.vert" />
     <Content Include="data\shaders\mirror.frag" />
     <Content Include="data\shaders\mirror.vert" />
+    <Content Include="data\shaders\vktest.frag" />
     <Content Include="data\shaders\vktest.frag.spv" />
+    <Content Include="data\shaders\vktest.vert" />
     <Content Include="data\shaders\vktest.vert.spv" />
     <Content Include="data\textures\ground_base.jpg" />
     <Content Include="data\textures\loop.png" />

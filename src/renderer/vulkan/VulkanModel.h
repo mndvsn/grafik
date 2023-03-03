@@ -14,7 +14,8 @@ class VulkanModel
 public:
     struct Vertex
     {
-        glm::vec2 position { };
+        glm::vec3 position { };
+        glm::vec3 color { 1.0f, 0.0f, 0.0f };
 
         static std::vector<vk::VertexInputBindingDescription> GetBindingDescriptions();
         static std::vector<vk::VertexInputAttributeDescription> GetAttributeDescriptions();

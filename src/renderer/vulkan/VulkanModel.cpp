@@ -69,11 +69,19 @@ std::vector<vk::VertexInputAttributeDescription> VulkanModel::Vertex::GetAttribu
 {
     return std::vector<vk::VertexInputAttributeDescription>
     {
+        // position
         {
             .location = 0,
             .binding = 0,
-            .format = vk::Format::eR32G32Sfloat,
+            .format = vk::Format::eR32G32B32Sfloat,
             .offset = 0,
+        },
+        // color
+        {
+            .location = 1,
+            .binding = 0,
+            .format = vk::Format::eR32G32B32Sfloat,
+            .offset = offsetof(Vertex, color),
         }
     };
 }
