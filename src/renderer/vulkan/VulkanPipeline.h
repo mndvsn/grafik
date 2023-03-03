@@ -144,7 +144,7 @@ public:
     ~VulkanPipeline() = default;
 
     VulkanPipeline(const VulkanPipeline&) = delete;
-    void operator=(const VulkanPipeline&) = delete;
+    VulkanPipeline& operator=(const VulkanPipeline&) = delete;
 
     void CreateShaderModule(const std::vector<char>& source, vk::ShaderModule& module) const;
 

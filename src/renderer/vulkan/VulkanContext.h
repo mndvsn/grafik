@@ -25,6 +25,9 @@ public:
     VulkanContext();
     ~VulkanContext() override;
 
+    VulkanContext(const VulkanContext&) = delete;
+    VulkanContext& operator=(const VulkanContext&) = delete;
+
     void Init(GLFWwindow* window) override;
     void SwapBuffers() override;
     

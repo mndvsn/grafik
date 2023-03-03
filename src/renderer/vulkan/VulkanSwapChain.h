@@ -18,7 +18,7 @@ public:
     ~VulkanSwapChain() = default;
 
     VulkanSwapChain(const VulkanSwapChain&) = delete;
-    void operator=(const VulkanSwapChain&) = delete;
+    VulkanSwapChain& operator=(const VulkanSwapChain&) = delete;
     VulkanSwapChain(VulkanSwapChain&&) = delete;
     VulkanSwapChain& operator=(VulkanSwapChain&&) = delete;
 

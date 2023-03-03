@@ -16,6 +16,8 @@ public:
 
     GraphicsContext(const GraphicsContext&) = delete;
     GraphicsContext& operator=(const GraphicsContext&) = delete;
+    GraphicsContext(GraphicsContext&&) = delete;
+    GraphicsContext& operator=(GraphicsContext&&) = delete;
     
     virtual void Init(GLFWwindow* window) = 0;
     virtual void SwapBuffers() = 0;

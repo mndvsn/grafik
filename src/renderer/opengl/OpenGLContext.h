@@ -14,6 +14,9 @@ class OpenGLContext : public GraphicsContext
 public:
     OpenGLContext();
 
+    OpenGLContext(const OpenGLContext&) = delete;
+    OpenGLContext& operator=(const OpenGLContext&) = delete;
+
     void Init(GLFWwindow* window) override;
     void SwapBuffers() override;
 

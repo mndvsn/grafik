@@ -42,7 +42,7 @@ public:
     ~VulkanDevice();
 
     VulkanDevice(const VulkanDevice&) = delete;
-    void operator=(const VulkanDevice&) = delete;
+    VulkanDevice& operator=(const VulkanDevice&) = delete;
     VulkanDevice(VulkanDevice&&) = delete;
     VulkanDevice& operator=(VulkanDevice&&) = delete;
 

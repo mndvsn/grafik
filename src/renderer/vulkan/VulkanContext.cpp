@@ -184,7 +184,7 @@ void VulkanContext::CreateCommandBuffer()
         {
             .color           = { std::array { 0.6f, 0.6f, 0.6f, 1.0f } }
         };
-        const vk::ClearValue depthStencil
+        constexpr vk::ClearValue depthStencil
         {
             .depthStencil    = { .depth = 1.0f, .stencil = 0 }
         };
