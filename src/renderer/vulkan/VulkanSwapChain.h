@@ -15,13 +15,15 @@ class VulkanSwapChain
 
 public:
     VulkanSwapChain(VulkanDevice& device);
-    ~VulkanSwapChain() = default;
+    VulkanSwapChain(VulkanDevice& device, std::shared_ptr<VulkanSwapChain> previous);
+    ~VulkanSwapChain();
 
     VulkanSwapChain(const VulkanSwapChain&) = delete;
     VulkanSwapChain& operator=(const VulkanSwapChain&) = delete;
     VulkanSwapChain(VulkanSwapChain&&) = delete;
     VulkanSwapChain& operator=(VulkanSwapChain&&) = delete;
 
+    [[nodiscard]] vk::SwapchainKHR GetSwapChain() const { return _swapChain; }
     [[nodiscard]] vk::RenderPass GetRenderPass() const { return _renderPass; }
     [[nodiscard]] vk::Framebuffer GetFramebuffer(int index) const { return _framebuffers[index]; }
     [[nodiscard]] vk::ImageView GetImageView(int index) const { return _imageViews[index]; }
@@ -30,13 +32,14 @@ public:
     [[nodiscard]] vk::Format GetImageFormat() const { return _imageFormat; }
     [[nodiscard]] size_t GetImageCount() const { return _images.size(); }
 
-    bool GetNextImage(uint32_t& imageIndex) const;
-    void SubmitCommandBuffers(const vk::CommandBuffer* buffers, const uint32_t* imageIndex);
+    void GetNextImage(uint32_t& imageIndex) const;
+    vk::Result SubmitCommandBuffers(const vk::CommandBuffer* buffers, uint32_t imageIndex);
     
     void Shutdown();
 
 private:
     void Init();
+    void CreateSwapChain();
     void CreateImageViews();
     void CreateDepthResources();
     void CreateRenderPass();
@@ -56,23 +59,25 @@ private:
     }
     
 private:
-    VulkanDevice&                   _device;
-    vk::SwapchainKHR                _swapChain { };
-    vk::RenderPass                  _renderPass { };
+    VulkanDevice&                     _device;
+    vk::SwapchainKHR                  _swapChain { };
+    vk::RenderPass                    _renderPass { };
 
-    vk::Format                      _imageFormat { vk::Format::eUndefined };
-    vk::Extent2D                    _extent { };
+    vk::Format                        _imageFormat { vk::Format::eUndefined };
+    vk::Extent2D                      _extent { };
 
-    std::vector<vk::Framebuffer>    _framebuffers { };
-    std::vector<vk::Image>          _images { };
-    std::vector<vk::ImageView>      _imageViews { };
-    std::vector<vk::Image>          _depthImages { };
-    std::vector<vk::ImageView>      _depthImageViews { };
-    std::vector<vk::DeviceMemory>   _depthImageMemory { };
+    std::vector<vk::Framebuffer>      _framebuffers { };
+    std::vector<vk::Image>            _images { };
+    std::vector<vk::ImageView>        _imageViews { };
+    std::vector<vk::Image>            _depthImages { };
+    std::vector<vk::ImageView>        _depthImageViews { };
+    std::vector<vk::DeviceMemory>     _depthImageMemory { };
 
-    std::vector<vk::Semaphore>      _imageAvailableSemaphores { };
-    std::vector<vk::Semaphore>      _renderFinishedSemaphores { };
-    std::vector<vk::Fence>          _inFlightFences { };
-    std::vector<vk::Fence>          _imagesInFlight { };
-    size_t _currentFrame            { 0 };
+    std::shared_ptr<VulkanSwapChain>  _reusableSwapChain { };
+
+    std::vector<vk::Semaphore>        _imageAvailableSemaphores { };
+    std::vector<vk::Semaphore>        _renderFinishedSemaphores { };
+    std::vector<vk::Fence>            _inFlightFences { };
+    std::vector<vk::Fence>            _imagesInFlight { };
+    size_t _currentFrame              { 0 };
 };

@@ -40,10 +40,13 @@ private:
     void CreateInstance();
     void CreateSurface();
 
+    void CreateSwapchain();
     void CreatePipelineLayout();
     void CreatePipeline();
     void CreateModel();
-    void CreateCommandBuffer();
+    void CreateCommandBuffers();
+    void FreeCommandBuffers();
+    void RecordCommandBuffer(int imageIndex) const;
     
     static std::vector<const char*> GetRequiredExtensions();
 
@@ -59,7 +62,9 @@ private:
     std::unique_ptr<VulkanSwapChain> _swapChain { };
     std::vector<vk::CommandBuffer> _commandBuffers { };
     vk::PipelineLayout _pipelineLayout { };
+    
     vk::Extent2D _extent { 0, 0 };
+    bool _extentWasResized { false };
 
     std::unique_ptr<VulkanModel> _model { };
     

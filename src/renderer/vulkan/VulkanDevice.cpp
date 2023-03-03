@@ -367,4 +367,7 @@ void VulkanDevice::Shutdown() const
     _device.destroy();
 }
 
-VulkanDevice::~VulkanDevice() = default;
+VulkanDevice::~VulkanDevice()
+{
+    Shutdown();
+}

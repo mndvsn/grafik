@@ -14,6 +14,20 @@ VulkanSwapChain::VulkanSwapChain(VulkanDevice& device)
     : _device { device }
 {
     Init();
+}
+
+VulkanSwapChain::VulkanSwapChain(VulkanDevice& device, std::shared_ptr<VulkanSwapChain> previous)
+    : _device { device }
+    , _reusableSwapChain { previous }
+{
+    Init();
+    
+    _reusableSwapChain.reset();
+}
+
+void VulkanSwapChain::Init()
+{
+    CreateSwapChain();
     CreateImageViews();
     CreateDepthResources();
     CreateRenderPass();
@@ -21,7 +35,7 @@ VulkanSwapChain::VulkanSwapChain(VulkanDevice& device)
     CreateSyncObjects();
 }
 
-void VulkanSwapChain::Init()
+void VulkanSwapChain::CreateSwapChain()
 {
     const SwapChainSupportDetails supported = _device.GetSwapChainSupport();
 
@@ -71,7 +85,7 @@ void VulkanSwapChain::Init()
     swapchainInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
     swapchainInfo.presentMode = presentMode;
     swapchainInfo.clipped = true;
-    swapchainInfo.oldSwapchain = vk::SwapchainKHR(nullptr);
+    swapchainInfo.oldSwapchain = _reusableSwapChain ? _reusableSwapChain->GetSwapChain() : nullptr;
 
     try
     {
@@ -313,38 +327,33 @@ void VulkanSwapChain::CreateSyncObjects()
 
 /* -------------------------- */
 
-bool VulkanSwapChain::GetNextImage(uint32_t& imageIndex) const
+void VulkanSwapChain::GetNextImage(uint32_t& imageIndex) const
 {
     if (_device.GetDevice().waitForFences(1, &_inFlightFences[_currentFrame], true, std::numeric_limits<uint64_t>::max()) != vk::Result::eSuccess)
     {
         throw std::runtime_error { "Error waiting for vulkan swap chain fence!" };
     }
-    try
-    {
-        imageIndex = _device.GetDevice().acquireNextImageKHR(_swapChain, std::numeric_limits<uint64_t>::max(), _imageAvailableSemaphores[_currentFrame], nullptr).value;
-    }
-    catch (vk::OutOfDateKHRError& error)
-    {
-        std::cerr << "Vulkan image out of date: " << error.what() << std::endl;
-        return false;
-    }
-    catch (vk::SystemError&)
+
+    const auto resultValue = _device.GetDevice().acquireNextImageKHR(_swapChain, std::numeric_limits<uint64_t>::max(), _imageAvailableSemaphores[_currentFrame], nullptr);
+    
+    if (resultValue.result != vk::Result::eSuccess && resultValue.result != vk::Result::eSuboptimalKHR)
     {
         throw std::runtime_error { "Failed to get next vulkan swap chain image!" };
     }
-    return true;
+    
+    imageIndex = resultValue.value;
 }
 
-void VulkanSwapChain::SubmitCommandBuffers(const vk::CommandBuffer* buffers, const uint32_t* imageIndex)
+vk::Result VulkanSwapChain::SubmitCommandBuffers(const vk::CommandBuffer* buffers, const uint32_t imageIndex)
 {
-    if (_imagesInFlight[*imageIndex] != vk::Fence(nullptr))
+    if (_imagesInFlight[imageIndex] != vk::Fence(nullptr))
     {
         if (_device.GetDevice().waitForFences(1, &_inFlightFences[_currentFrame], true, std::numeric_limits<uint64_t>::max()) != vk::Result::eSuccess)
         {
             throw std::runtime_error { "Failed to wait on vulkan swap chain" };
         }
     }
-    _imagesInFlight[*imageIndex] = _inFlightFences[_currentFrame];
+    _imagesInFlight[imageIndex] = _inFlightFences[_currentFrame];
 
     const vk::Semaphore waitSemaphores[] { _imageAvailableSemaphores[_currentFrame] };
     const vk::Semaphore signalSemaphores[] { _renderFinishedSemaphores[_currentFrame] };
@@ -384,15 +393,13 @@ void VulkanSwapChain::SubmitCommandBuffers(const vk::CommandBuffer* buffers, con
         .pWaitSemaphores = signalSemaphores,
         .swapchainCount = 1,
         .pSwapchains = swapChains,
-        .pImageIndices = imageIndex
+        .pImageIndices = &imageIndex
     };
 
-    if (_device.GetPresentQueue().presentKHR(presentInfo) != vk::Result::eSuccess)
-    {
-        throw std::runtime_error { "Failed to present vulkan command buffer!" };
-    }
+    auto result = _device.GetPresentQueue().presentKHR(presentInfo);
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    return result;
 }
 
 vk::SurfaceFormatKHR VulkanSwapChain::SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) const
@@ -495,4 +502,9 @@ void VulkanSwapChain::Shutdown()
     }
 
     device.destroyRenderPass(_renderPass);
+}
+
+VulkanSwapChain::~VulkanSwapChain()
+{
+    Shutdown();
 }

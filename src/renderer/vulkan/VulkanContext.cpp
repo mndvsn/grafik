@@ -20,7 +20,7 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 VulkanContext::VulkanContext()
 {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 }
 
 void VulkanContext::Init(GLFWwindow* window)
@@ -35,12 +35,12 @@ void VulkanContext::Init(GLFWwindow* window)
     Resize(width, height);
 
     _device = std::make_unique<VulkanDevice>(_instance, _surface, _validationLayers);
-    _swapChain = std::make_unique<VulkanSwapChain>(*_device);
 
     CreatePipelineLayout();
-    CreatePipeline();
+    CreateSwapchain();
+
     CreateModel();
-    CreateCommandBuffer();
+    CreateCommandBuffers();
 }
 
 void VulkanContext::CreateInstance()
@@ -108,6 +108,31 @@ void VulkanContext::CreateSurface()
     _surface = surface;
 }
 
+void VulkanContext::CreateSwapchain()
+{
+    _device->GetDevice().waitIdle();
+
+    if (!_swapChain)
+    {
+        _swapChain = std::make_unique<VulkanSwapChain>(*_device);
+    }
+    else
+    {
+        _swapChain = std::make_unique<VulkanSwapChain>(*_device, std::move(_swapChain));
+        if (_swapChain->GetImageCount() != _commandBuffers.size())
+        {
+            FreeCommandBuffers();
+            CreateCommandBuffers();
+        }
+    }
+    
+    //TODO: create unless any existing is compatible
+    CreatePipeline();
+    
+    // reset flag
+    _extentWasResized = false;
+}
+
 void VulkanContext::CreateModel()
 {
     std::vector<VulkanModel::Vertex> vertices
@@ -140,18 +165,21 @@ void VulkanContext::CreatePipelineLayout()
 
 void VulkanContext::CreatePipeline()
 {
-    auto config = PipelineConfig { _extent.width, _extent.height };
+    assert(_swapChain && "Needed Swapchain not available");
+    assert(_pipelineLayout && "Needed PipelineLayout not available");
+    
+    auto config = PipelineConfig { };
     config.renderPass = _swapChain->GetRenderPass();
     config.pipelineLayout = _pipelineLayout;
 
-    _pipeline = std::make_unique<VulkanPipeline>(
+    _pipeline.reset(new VulkanPipeline {
         *_device,
         "data/shaders/vktest.vert.spv",
         "data/shaders/vktest.frag.spv",
-        config);
+        config });
 }
 
-void VulkanContext::CreateCommandBuffer()
+void VulkanContext::CreateCommandBuffers()
 {
     // Set number of command buffers to swapchain images/fb count
     _commandBuffers.resize(_swapChain->GetImageCount());
@@ -168,56 +196,83 @@ void VulkanContext::CreateCommandBuffer()
         throw std::runtime_error { "Failed to allocate vulkan command buffers!" };
     }
 
-    for (int i = 0; const vk::CommandBuffer& buffer : _commandBuffers)
-    {
-        constexpr auto beginInfo = vk::CommandBufferBeginInfo
+}
+
+void VulkanContext::FreeCommandBuffers()
+{
+    _device->GetDevice().freeCommandBuffers(_device->GetCommandPool(), static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
+    _commandBuffers.clear();
+}
+
+void VulkanContext::RecordCommandBuffer(int imageIndex) const
+{
+    const vk::CommandBuffer& buffer = _commandBuffers[imageIndex];
+    
+    constexpr auto beginInfo = vk::CommandBufferBeginInfo
         {
             .flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse
         };
         
-        if (buffer.begin(&beginInfo) != vk::Result::eSuccess)
-        {
-            throw std::runtime_error { "Failed to begin recording command buffer!" };
-        }
-
-        const vk::ClearValue color
-        {
-            .color           = { std::array { 0.6f, 0.6f, 0.6f, 1.0f } }
-        };
-        constexpr vk::ClearValue depthStencil
-        {
-            .depthStencil    = { .depth = 1.0f, .stencil = 0 }
-        };
-        const std::vector clearValues { color, depthStencil };
-
-        vk::RenderPassBeginInfo renderPassBeginInfo
-        {
-            .renderPass      = _swapChain->GetRenderPass(),
-            .framebuffer     = _swapChain->GetFramebuffer(i),
-            .renderArea      = {
-                .offset      = { 0, 0 },
-                .extent      = _swapChain->GetExtent()
-            },
-            .clearValueCount = static_cast<uint32_t>(clearValues.size()),
-            .pClearValues    = clearValues.data()
-        };
-
-        /* VK_SUBPASS_CONTENTS
-         * INLINE = subsequent render pass commands will be embedded in the primary command buffer
-         * SECONDARY_COMMAND_BUFFERS = subsequent commands will be embedded in secondary command buffers */
-        buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-
-        // Bind command buffer to graphics binding point
-        _pipeline->Bind(buffer);
-
-        _model->Bind(buffer);
-        _model->Draw(buffer);
-
-        buffer.endRenderPass();
-        buffer.end();
-
-        i++;
+    if (buffer.begin(&beginInfo) != vk::Result::eSuccess)
+    {
+        throw std::runtime_error { "Failed to begin recording command buffer!" };
     }
+
+    const vk::ClearValue color
+    {
+        .color           = { std::array { 0.6f, 0.6f, 0.6f, 1.0f } }
+    };
+    constexpr vk::ClearValue depthStencil
+    {
+        .depthStencil    = { .depth = 1.0f, .stencil = 0 }
+    };
+    const std::vector clearValues { color, depthStencil };
+
+    const vk::RenderPassBeginInfo renderPassBeginInfo
+    {
+        .renderPass      = _swapChain->GetRenderPass(),
+        .framebuffer     = _swapChain->GetFramebuffer(imageIndex),
+        .renderArea      = {
+            .offset      = { 0, 0 },
+            .extent      = _swapChain->GetExtent()
+        },
+        .clearValueCount = static_cast<uint32_t>(clearValues.size()),
+        .pClearValues    = clearValues.data()
+    };
+
+    /* VK_SUBPASS_CONTENTS
+     * INLINE = subsequent render pass commands will be embedded in the primary command buffer
+     * SECONDARY_COMMAND_BUFFERS = subsequent commands will be embedded in secondary command buffers */
+    buffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
+
+    // transformation between pipeline output and target image
+    const vk::Viewport viewport
+    {
+        .x              = 0.0f,
+        .y              = 0.0f,
+        .width          = static_cast<float>(_extent.width),
+        .height         = static_cast<float>(_extent.height),
+        .minDepth       = 0.0f,
+        .maxDepth       = 1.0f
+    };
+
+    // crops image
+    const vk::Rect2D scissor
+    {
+        .offset         = { 0, 0 },
+        .extent         = _extent
+    };
+    buffer.setViewport(0, 1, &viewport);
+    buffer.setScissor(0, 1, &scissor);
+
+    // Bind command buffer to graphics binding point
+    _pipeline->Bind(buffer);
+
+    _model->Bind(buffer);
+    _model->Draw(buffer);
+
+    buffer.endRenderPass();
+    buffer.end();
 }
 
 void VulkanContext::Resize(unsigned width, unsigned height)
@@ -225,22 +280,34 @@ void VulkanContext::Resize(unsigned width, unsigned height)
     _extent.width = width;
     _extent.height = height;
 
-    //TODO: invalidate current swapchain
+    _extentWasResized = true;
 }
 
 void VulkanContext::SwapBuffers()
 {
-    //TODO: SwapChain might be outdated if extent is changed, ie window resized/minimized
     if (_extent.width == 0 || _extent.height == 0) return;
 
     try
     {
         uint32_t imageIndex;
+        
         // Wait for an image to become available to render to
-        if (!_swapChain->GetNextImage(imageIndex)) return;
+        _swapChain->GetNextImage(imageIndex);
+        
+        RecordCommandBuffer(static_cast<int>(imageIndex));
         
         // Submit buffer to device graphics queue, and handle image swap based on present mode
-        _swapChain->SubmitCommandBuffers(&_commandBuffers[imageIndex], &imageIndex);
+        const auto result = _swapChain->SubmitCommandBuffers(&_commandBuffers[imageIndex], imageIndex);
+
+        if (result == vk::Result::eSuboptimalKHR || _extentWasResized)
+        {
+            return CreateSwapchain();
+        }
+    }
+    catch (vk::OutOfDateKHRError&)
+    {
+        // extent has changed, ie window resized/minimized
+        return CreateSwapchain();
     }
     catch (vk::SystemError& err)
     {
@@ -253,13 +320,12 @@ void VulkanContext::Shutdown()
     // wait for rendering to complete
     _device->GetDevice().waitIdle();
 
+    // call destructors
     _model.reset();
-    
     _device->GetDevice().destroyPipelineLayout(_pipelineLayout);
-    _pipeline->Destroy();
-    
-    _swapChain->Shutdown();
-    _device->Shutdown();
+    _pipeline.reset();
+    _swapChain.reset();
+    _device.reset();
 
 #ifdef _DEBUG
     _instance.destroyDebugUtilsMessengerEXT(_debugMessenger);

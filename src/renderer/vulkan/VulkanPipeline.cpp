@@ -38,8 +38,7 @@ VulkanPipeline::VulkanPipeline(VulkanDevice& device, const std::string& vertexFi
         return;
     }
 
-    std::cout << "Size vertex: " << vertexSource->size() << std::endl;
-    std::cout << "Size fragment: " << fragmentSource->size() << std::endl;
+    std::cout << "Pipeline <" << _shaderName << "> created (vertex: " << vertexSource->size() << ", frag: " << fragmentSource->size() << ")" << std::endl;
 
     CreateShaderModule(*vertexSource, _vertShaderModule);
     CreateShaderModule(*fragmentSource, _fragShaderModule);
@@ -83,7 +82,7 @@ VulkanPipeline::VulkanPipeline(VulkanDevice& device, const std::string& vertexFi
         .pColorBlendState = &_config.colorBlendInfo,
 
         // used for setting line width/viewport dynamically
-        .pDynamicState = nullptr,
+        .pDynamicState = &_config.dynamicStateInfo,
 
         .layout = _config.pipelineLayout,
         .renderPass = _config.renderPass,
@@ -131,6 +130,11 @@ void VulkanPipeline::Destroy()
     device.destroyShaderModule(_vertShaderModule);
     device.destroyShaderModule(_fragShaderModule);
     device.destroyPipeline(_graphicsPipeline);
+}
+
+VulkanPipeline::~VulkanPipeline()
+{
+    Destroy();
 }
 
 std::string VulkanPipeline::ExtractName(const std::string& filePath) const

@@ -9,8 +9,6 @@
 
 struct PipelineConfig
 {
-    vk::Viewport viewport { };
-    vk::Rect2D scissor { };
     vk::PipelineViewportStateCreateInfo viewportInfo;
     vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     vk::PipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -18,11 +16,13 @@ struct PipelineConfig
     vk::PipelineColorBlendAttachmentState colorBlendAttachment;
     vk::PipelineColorBlendStateCreateInfo colorBlendInfo;
     vk::PipelineDepthStencilStateCreateInfo depthStencilInfo;
+    vk::PipelineDynamicStateCreateInfo dynamicStateInfo;
+    std::vector<vk::DynamicState> dynamicStateEnables;
     vk::PipelineLayout pipelineLayout { };
     vk::RenderPass renderPass { };
     uint32_t subPass { 0 };
 
-    PipelineConfig(uint32_t width, uint32_t height)
+    PipelineConfig()
     {
         // vertex data topology
         inputAssemblyInfo =
@@ -31,30 +31,12 @@ struct PipelineConfig
             .primitiveRestartEnable     = false
         };
 
-        // transformation between pipeline output and target image
-        viewport =
-        {
-            .x                          = 0.0f,
-            .y                          = 0.0f,
-            .width                      = static_cast<float>(width),
-            .height                     = static_cast<float>(height),
-            .minDepth                   = 0.0f,
-            .maxDepth                   = 1.0f
-        };
-
-        // crops image
-        scissor =
-        {
-            .offset                     = { 0, 0 },
-            .extent                     = { width, height }
-        };
-
         viewportInfo =
         {
             .viewportCount              = 1,
-            .pViewports                 = &viewport,
+            .pViewports                 = nullptr,
             .scissorCount               = 1,
-            .pScissors                  = &scissor
+            .pScissors                  = nullptr,
         };
 
         // fragment stage
@@ -119,6 +101,18 @@ struct PipelineConfig
             .minDepthBounds             = 0.0f,
             .maxDepthBounds             = 1.0f
         };
+
+        dynamicStateEnables =
+        {
+            vk::DynamicState::eViewport,
+            vk::DynamicState::eScissor,
+        };
+
+        dynamicStateInfo =
+        {
+            .dynamicStateCount          = static_cast<uint32_t>(dynamicStateEnables.size()),
+            .pDynamicStates             = dynamicStateEnables.data(),
+        };
     }
 };
 
@@ -141,7 +135,7 @@ public:
         const std::string& vertexFile,
         const std::string& fragmentFile,
         const PipelineConfig& config);
-    ~VulkanPipeline() = default;
+    ~VulkanPipeline();
 
     VulkanPipeline(const VulkanPipeline&) = delete;
     VulkanPipeline& operator=(const VulkanPipeline&) = delete;
