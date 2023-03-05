@@ -41,7 +41,7 @@ public:
     GK_EVENT_CLASS_CATEGORY(Application)
 };
 
-using LabFactoryFunc = std::function<std::shared_ptr<labb::LLab>()>;
+using LabFactoryFunc = std::function<labb::LLab*()>;
 
 class InitLabEvent : public Event
 {

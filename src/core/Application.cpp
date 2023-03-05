@@ -9,7 +9,6 @@
 #include "components/Window.h"
 #include "renderer/Renderer.h"
 #include "renderer/RenderCommand.h"
-#include "ui/UI.h"
 
 // Labb
 #include "labb/LabMenu.h"
@@ -40,15 +39,12 @@ void Application::Init()
     Renderer::Init(_config.api);
 
     // Initialize event system
-    EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Category::Application);
+    EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Application);
 
-    WindowProperties props { _config.title, _config.width, _config.height };
-    _window = std::make_shared<Window>(props);
-    _components.Attach(_window);
+    const WindowProperties props { _config.title, _config.width, _config.height };
+    _window = _components.Create<Window>(props);
 
-    // Init ImGUI
     InitUI();
-
     InitLabs();
 
     if (_config.wireFrameMode) RenderCommand::SetWireframeMode();
@@ -78,7 +74,8 @@ void Application::InitUI()
 
 void Application::InitLabs()
 {
-    _menu = std::make_shared<labb::LLabMenu>();
+    // Add menu to component manager
+    _menu = _components.Create<labb::LLabMenu>();
 
     if (_config.api == RendererAPI::API::OpenGL)
     {
@@ -90,8 +87,6 @@ void Application::InitLabs()
         _menu->RegisterLab<labb::LBatch>("Batch", "batch");
         _menu->RegisterLab<labb::LLoop>("Loop", "loop");
     }
-    // Add menu to component manager
-    _components.Attach(_menu);
 
     // Create an initial lab if set to matching shortname
     if (!_config.initLab.empty())
@@ -102,17 +97,15 @@ void Application::InitLabs()
 
 void Application::Run()
 {
-    double totalTimeElapsed { 0 },
-        timeElapsedNow { 0 },
-        deltaTime { 0 };
+    double totalTimeElapsed { 0 };
 
     // Keep running until we should close and exit
     while (_window->IsRunning())
     {
         // Update timers
-        timeElapsedNow = glfwGetTime();
-        deltaTime = timeElapsedNow - totalTimeElapsed;
-        totalTimeElapsed = timeElapsedNow;
+        const double timeElapsedNow = glfwGetTime();
+        const double deltaTime      = timeElapsedNow - totalTimeElapsed;
+        totalTimeElapsed            = timeElapsedNow;
 
         // Renderer::BeginFrame();
 
@@ -188,8 +181,6 @@ void Application::OnInitLab(InitLabEvent& e)
     e.Handled();
 }
 
-Application::~Application() = default;
-
 void Application::CheckArgs(ApplicationConfig& config)
 {
     for (int i = 0; i < config.args.count; i++)
@@ -205,4 +196,9 @@ void Application::CheckArgs(ApplicationConfig& config)
             config.initLab = config.args[i+1];
         }
     }
+}
+
+Application::~Application()
+{
+    EventManager::Get()->removeListener(this);
 }

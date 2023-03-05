@@ -15,7 +15,7 @@ struct EventHandle
 {
     const void* object { nullptr };
     const EventCallbackFunc func { };
-    int categoryMask { Event::Category::None };
+    int categoryMask { Event::None };
 
     bool operator==(const EventHandle& handle) const { return object == handle.object; }
 };
@@ -24,11 +24,10 @@ class EventManager
 {
 protected:
     EventManager() = default;
-    ~EventManager();
 
 public:
     EventManager(EventManager&) = delete;
-    void operator=(const EventManager&) = delete;
+    EventManager& operator=(const EventManager&) = delete;
 
     static EventManager* Get();
 
@@ -38,7 +37,7 @@ public:
     void Broadcast(Event& event) const;
     
 private:
-    std::vector<std::shared_ptr<EventHandle>> _listeners { };
+    std::vector<std::unique_ptr<EventHandle>> _listeners { };
     inline static EventManager* _manager { nullptr };
     inline static std::mutex _mutex { };
 };

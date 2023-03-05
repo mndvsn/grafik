@@ -19,13 +19,13 @@ EventManager* EventManager::Get()
 
 int& EventManager::addListener(const void* object, const EventCallbackFunc& func, int categoryMask)
 {
-    const auto listener = _listeners.emplace_back(std::make_shared<EventHandle>(object, func, categoryMask));
+    const auto& listener = _listeners.emplace_back(std::make_unique<EventHandle>(object, func, categoryMask));
     return listener->categoryMask;
 }
 
 bool EventManager::removeListener(const void* object)
 {
-    auto listenerObject = [&object](const std::shared_ptr<EventHandle>& cl) { return cl->object == object; };
+    auto listenerObject = [&object](const std::unique_ptr<EventHandle>& cl) { return cl->object == object; };
     const auto match = std::ranges::find_if(_listeners, listenerObject);
     if (match != _listeners.end())
     {
@@ -47,9 +47,4 @@ void EventManager::Broadcast(Event& event) const
             listener->func(event);
         }
     }
-}
-
-EventManager::~EventManager()
-{
-    delete _manager;
 }
