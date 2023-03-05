@@ -18,6 +18,10 @@
 #include <unordered_map>
 #include <vector>
 
+#if !defined(NDEBUG) || defined(_DEBUG)
+    #define GK_DEBUG
+#endif
+
 #ifdef GK_WIN
     #include <Windows.h>
 #endif

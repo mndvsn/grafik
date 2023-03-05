@@ -17,7 +17,7 @@ Window::Window(const WindowProperties& props)
 
 void Window::OnAttach(int& eventMask)
 {
-    eventMask = Event::Category::None;
+    eventMask = Event::None;
 
     glfwSetErrorCallback(glfwError);
     if (!glfwInit())

@@ -9,7 +9,6 @@
 #include "components/Window.h"
 #include "renderer/Renderer.h"
 #include "renderer/RenderCommand.h"
-#include "ui/UI.h"
 
 // Labb
 #include "labb/LabMenu.h"
@@ -40,7 +39,7 @@ void Application::Init()
     Renderer::Init(_config.api);
 
     // Initialize event system
-    EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Category::Application);
+    EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Application);
 
     WindowProperties props { _config.title, _config.width, _config.height };
     _window = std::make_shared<Window>(props);
@@ -102,17 +101,15 @@ void Application::InitLabs()
 
 void Application::Run()
 {
-    double totalTimeElapsed { 0 },
-        timeElapsedNow { 0 },
-        deltaTime { 0 };
+    double totalTimeElapsed { 0 };
 
     // Keep running until we should close and exit
     while (_window->IsRunning())
     {
         // Update timers
-        timeElapsedNow = glfwGetTime();
-        deltaTime = timeElapsedNow - totalTimeElapsed;
-        totalTimeElapsed = timeElapsedNow;
+        const double timeElapsedNow = glfwGetTime();
+        const double deltaTime      = timeElapsedNow - totalTimeElapsed;
+        totalTimeElapsed            = timeElapsedNow;
 
         // Renderer::BeginFrame();
 
@@ -189,8 +186,6 @@ void Application::OnInitLab(InitLabEvent& e)
     e.Handled();
 }
 
-Application::~Application() = default;
-
 void Application::CheckArgs(ApplicationConfig& config)
 {
     for (int i = 0; i < config.args.count; i++)
@@ -206,4 +201,9 @@ void Application::CheckArgs(ApplicationConfig& config)
             config.initLab = config.args[i+1];
         }
     }
+}
+
+Application::~Application()
+{
+    EventManager::Get()->removeListener(this);
 }

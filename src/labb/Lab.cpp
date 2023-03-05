@@ -19,7 +19,7 @@ namespace labb
 {
     void LLab::OnAttach(int& eventMask)
     {
-        eventMask = Event::Category::Application;
+        eventMask = Event::Application;
     }
     
     void LLab::OnEvent(Event& e)
