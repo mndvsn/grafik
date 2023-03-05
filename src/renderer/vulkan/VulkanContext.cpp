@@ -13,6 +13,7 @@
 #include "renderer/vulkan/VulkanDebug.h"
 
 #include <GLFW/glfw3.h>
+#include <glm/ext/matrix_transform.hpp>
 
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
@@ -148,10 +149,18 @@ void VulkanContext::CreateModel()
 
 void VulkanContext::CreatePipelineLayout()
 {
+    vk::PushConstantRange pushConstantRange
+    {
+        .stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+        .offset = 0,
+        .size = sizeof(SimplePushConstantData)
+    };
+
     const vk::PipelineLayoutCreateInfo pipelineLayoutInfo
     {
         .setLayoutCount             = 0,
-        .pushConstantRangeCount     = 0,
+        .pushConstantRangeCount     = 1,
+        .pPushConstantRanges        = &pushConstantRange
     };
     
     try
@@ -170,7 +179,7 @@ void VulkanContext::CreatePipeline()
     assert(_pipelineLayout && "Needed PipelineLayout not available");
     
     auto config = PipelineConfig { };
-    config.renderPass = _swapChain->GetRenderPass();
+    config.renderPass = _swapChain->GetRenderPass(); //TODO: renderpass could possibly be it's own separate thing
     config.pipelineLayout = _pipelineLayout;
 
     _pipeline.reset(new VulkanPipeline {
@@ -270,7 +279,17 @@ void VulkanContext::RecordCommandBuffer(int imageIndex) const
     _pipeline->Bind(buffer);
 
     _model->Bind(buffer);
-    _model->Draw(buffer);
+    for (int i = 0; i < 8; i++)
+    {
+        SimplePushConstantData push { };
+        push.color = { static_cast<float>(i) * 0.1f, 0.0f, 0.0f };
+        push.transform = glm::translate(push.transform, glm::vec3(-0.05f * static_cast<float>(i) , 0.0f, 0.0f));
+        push.transform = glm::rotate(push.transform, static_cast<float>(i) * -0.05f * 3.14159265f, glm::vec3(0, 0, 1));
+        _commandBuffers[imageIndex].pushConstants(_pipelineLayout,
+            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+            0, sizeof(SimplePushConstantData), &push);
+        _model->Draw(buffer);
+    }
 
     buffer.endRenderPass();
     buffer.end();

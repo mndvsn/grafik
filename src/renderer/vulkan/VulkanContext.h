@@ -10,6 +10,10 @@
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
 
 class VulkanModel;
 class VulkanDevice;
@@ -18,6 +22,12 @@ class VulkanPipeline;
 
 static std::string ApplicationName  { "Grafik" };
 static std::string EngineName       { "Vulkan" };
+
+struct SimplePushConstantData
+{
+    glm::mat4 transform { 1.0f };
+    alignas(16) glm::vec3 color { };
+};
 
 class VulkanContext : public GraphicsContext
 {
