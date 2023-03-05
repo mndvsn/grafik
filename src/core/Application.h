@@ -40,10 +40,10 @@ class Application
 {
     ApplicationConfig _config;
     ComponentManager _components { };
-    std::shared_ptr<Window> _window { nullptr };
-    std::unique_ptr<UI> _ui { nullptr };
-    std::shared_ptr<labb::LLabMenu> _menu { nullptr };
-    inline static Application* _application { nullptr };
+    Window* _window { };
+    labb::LLabMenu* _menu { };
+    std::unique_ptr<UI> _ui { };
+    inline static Application* _application { };
     
 public:
     Application(ApplicationConfig config = ApplicationConfig());
@@ -59,7 +59,7 @@ public:
 
     static Application& Get() { return *_application; }
 
-    [[nodiscard]] Window* GetWindow() const { return _window.get(); }
+    [[nodiscard]] Window* GetWindow() const { return _window; }
 
 private:
     void InitUI();

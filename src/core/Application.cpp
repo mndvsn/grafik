@@ -41,13 +41,10 @@ void Application::Init()
     // Initialize event system
     EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Application);
 
-    WindowProperties props { _config.title, _config.width, _config.height };
-    _window = std::make_shared<Window>(props);
-    _components.Attach(_window);
+    const WindowProperties props { _config.title, _config.width, _config.height };
+    _window = _components.Create<Window>(props);
 
-    // Init ImGUI
     InitUI();
-
     InitLabs();
 
     if (_config.wireFrameMode) RenderCommand::SetWireframeMode();
@@ -77,7 +74,8 @@ void Application::InitUI()
 
 void Application::InitLabs()
 {
-    _menu = std::make_shared<labb::LLabMenu>();
+    // Add menu to component manager
+    _menu = _components.Create<labb::LLabMenu>();
 
     if (_config.api == RendererAPI::API::OpenGL)
     {
@@ -89,8 +87,6 @@ void Application::InitLabs()
         _menu->RegisterLab<labb::LBatch>("Batch", "batch");
         _menu->RegisterLab<labb::LLoop>("Loop", "loop");
     }
-    // Add menu to component manager
-    _components.Attach(_menu);
 
     // Create an initial lab if set to matching shortname
     if (!_config.initLab.empty())

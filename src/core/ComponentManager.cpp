@@ -9,37 +9,38 @@
 #include "events/EventManager.h"
 
 
-void ComponentManager::Attach(const std::shared_ptr<Component> comp)
+void ComponentManager::Attach(Component* comp)
 {
     _comps.emplace_back(comp);
 
     const auto manager = EventManager::Get();
-    int& categoryMask = manager->addListener(comp.get(), GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent));
+    int& categoryMask = manager->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent));
     comp->events = manager;
 
     comp->OnAttach(categoryMask);
 }
 
-void ComponentManager::Detach(const std::shared_ptr<Component> comp)
+void ComponentManager::Detach(Component* comp)
 {
-    const auto result = std::ranges::find(_comps, comp);
+    auto compare = [&comp](const std::unique_ptr<Component>& c) { return c.get() == comp; };
+    const auto result = std::ranges::find_if(_comps, compare);
     if (result != _comps.end())
     {
         const auto manager = EventManager::Get();
-        manager->removeListener(comp.get());
-        _comps.erase(result);
+        manager->removeListener(comp);
         comp->OnDetach();
+        _comps.erase(result);
     }
 }
 
 bool ComponentManager::Clean()
 {
     bool cleaned { false };
-    for (const std::shared_ptr<Component>& component : _comps)
+    for (const auto& component : _comps)
     {
         if (component && !component->IsAlive())
         {
-            Detach(component);
+            Detach(component.get());
             cleaned = true;
         }
     }
@@ -48,8 +49,9 @@ bool ComponentManager::Clean()
 
 ComponentManager::~ComponentManager()
 {
-    for (const std::shared_ptr<Component>& component : _comps)
+    for (std::unique_ptr<Component>& component : _comps)
     {
         component->OnDetach();
+        component.reset();
     }
 }

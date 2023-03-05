@@ -12,7 +12,7 @@ namespace labb
     struct LLabMenuItem
     {
         std::string name;
-        std::function<std::shared_ptr<LLab>()> createInstance;
+        std::function<LLab*()> createInstance;
     };
 
     class LLabMenu : public LLab
@@ -37,7 +37,7 @@ namespace labb
                     name,
                     [this]
                     {
-                        return std::make_shared<T>();
+                        return new T { };
                     }
                 }
             });
