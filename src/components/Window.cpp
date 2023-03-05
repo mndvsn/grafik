@@ -7,7 +7,7 @@
 #include "Window.h"
 
 #include "events/ApplicationEvent.h"
-#include "renderer/RendererAPI.h"
+#include "renderer/Renderer.h"
 
 #include <GLFW/glfw3.h>
 
@@ -76,6 +76,9 @@ void Window::OnEvent(Event& e)
 
 void Window::OnFramebufferSize(const FramebufferSizeEvent& e)
 {
+    //TODO: Fix perspective
+    Renderer::SetViewport(static_cast<int>(e.GetWidth()), static_cast<int>(e.GetHeight()));
+
     _context->Resize(e.GetWidth(), e.GetHeight());
     _context->SwapBuffers();
 }
@@ -96,13 +99,14 @@ std::string Window::GetDetailedWindowTitle() const
 void Window::Close()
 {
     _state.running = false;
-    _context->Shutdown();
+}
 
+Window::~Window()
+{
+    _context.reset();
     glfwDestroyWindow(_window);
     glfwTerminate();
 }
-
-Window::~Window() = default;
 
 void Window::glfwError(int error, const char* description)
 {

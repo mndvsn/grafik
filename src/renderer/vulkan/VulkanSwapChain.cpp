@@ -18,7 +18,7 @@ VulkanSwapChain::VulkanSwapChain(VulkanDevice& device)
 
 VulkanSwapChain::VulkanSwapChain(VulkanDevice& device, std::shared_ptr<VulkanSwapChain> previous)
     : _device { device }
-    , _reusableSwapChain { previous }
+    , _reusableSwapChain { std::move(previous) }
 {
     Init();
     
@@ -396,7 +396,7 @@ vk::Result VulkanSwapChain::SubmitCommandBuffers(const vk::CommandBuffer* buffer
         .pImageIndices = &imageIndex
     };
 
-    auto result = _device.GetPresentQueue().presentKHR(presentInfo);
+    const auto result = _device.GetPresentQueue().presentKHR(presentInfo);
 
     _currentFrame = (_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     return result;
@@ -470,7 +470,7 @@ vk::Format VulkanSwapChain::FindDepthFormat() const
         vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 }
 
-void VulkanSwapChain::Shutdown()
+VulkanSwapChain::~VulkanSwapChain()
 {
     const vk::Device& device = _device.GetDevice();
 
@@ -502,9 +502,4 @@ void VulkanSwapChain::Shutdown()
     }
 
     device.destroyRenderPass(_renderPass);
-}
-
-VulkanSwapChain::~VulkanSwapChain()
-{
-    Shutdown();
 }

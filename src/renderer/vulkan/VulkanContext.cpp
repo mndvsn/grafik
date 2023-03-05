@@ -30,14 +30,13 @@ void VulkanContext::Init(GLFWwindow* window)
     CreateInstance();
     CreateSurface();
     
-    int width { 0 }, height { 0 };
-    glfwGetFramebufferSize(_window, &width, &height);
-    Resize(width, height);
-
     _device = std::make_unique<VulkanDevice>(_instance, _surface, _validationLayers);
 
     CreatePipelineLayout();
-    CreateSwapchain();
+    
+    int width { 0 }, height { 0 };
+    glfwGetFramebufferSize(_window, &width, &height);
+    Resize(width, height); // will also create swap chain
 
     CreateModel();
     CreateCommandBuffers();
@@ -110,6 +109,8 @@ void VulkanContext::CreateSurface()
 
 void VulkanContext::CreateSwapchain()
 {
+    if (_extent.width == 0 || _extent.height == 0) return;
+    
     _device->GetDevice().waitIdle();
 
     if (!_swapChain)
@@ -277,10 +278,13 @@ void VulkanContext::RecordCommandBuffer(int imageIndex) const
 
 void VulkanContext::Resize(unsigned width, unsigned height)
 {
-    _extent.width = width;
-    _extent.height = height;
+    if (_extent.width == width && _extent.height == height) return;
 
+    _extent = { width, height };
     _extentWasResized = true;
+
+    // Crate new swap chain here to get rendering on resize
+    CreateSwapchain();
 }
 
 void VulkanContext::SwapBuffers()
@@ -299,7 +303,7 @@ void VulkanContext::SwapBuffers()
         // Submit buffer to device graphics queue, and handle image swap based on present mode
         const auto result = _swapChain->SubmitCommandBuffers(&_commandBuffers[imageIndex], imageIndex);
 
-        if (result == vk::Result::eSuboptimalKHR || _extentWasResized)
+        if (result == vk::Result::eSuboptimalKHR)
         {
             return CreateSwapchain();
         }
@@ -315,10 +319,11 @@ void VulkanContext::SwapBuffers()
     }
 }
 
-void VulkanContext::Shutdown()
+VulkanContext::~VulkanContext()
 {
     // wait for rendering to complete
     _device->GetDevice().waitIdle();
+    VulkanContext::Resize(0, 0);
 
     // call destructors
     _model.reset();
@@ -333,10 +338,7 @@ void VulkanContext::Shutdown()
     
     _instance.destroySurfaceKHR(_surface);
     _instance.destroy();
-    Resize(0, 0);
 }
-
-VulkanContext::~VulkanContext() = default;
 
 std::vector<const char*> VulkanContext::GetRequiredExtensions()
 {

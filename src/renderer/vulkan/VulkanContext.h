@@ -34,8 +34,6 @@ public:
     void Resize(unsigned width, unsigned height) override;
     [[nodiscard]] std::pair<unsigned, unsigned> GetSize() const override { return { _extent.width, _extent.height }; }
 
-    void Shutdown() override;
-
 private:
     void CreateInstance();
     void CreateSurface();

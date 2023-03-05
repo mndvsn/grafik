@@ -52,7 +52,7 @@ bool ComponentManager::Clean()
 ComponentManager::~ComponentManager()
 {
     // reverse order
-    for (std::unique_ptr<Component>& component : std::ranges::reverse_view { _comps })
+    for (auto& component : std::ranges::reverse_view { _comps })
     {
         component->OnDetach();
         component.reset();

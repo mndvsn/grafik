@@ -20,8 +20,6 @@ public:
 
     VulkanSwapChain(const VulkanSwapChain&) = delete;
     VulkanSwapChain& operator=(const VulkanSwapChain&) = delete;
-    VulkanSwapChain(VulkanSwapChain&&) = delete;
-    VulkanSwapChain& operator=(VulkanSwapChain&&) = delete;
 
     [[nodiscard]] vk::SwapchainKHR GetSwapChain() const { return _swapChain; }
     [[nodiscard]] vk::RenderPass GetRenderPass() const { return _renderPass; }
@@ -34,8 +32,6 @@ public:
 
     void GetNextImage(uint32_t& imageIndex) const;
     vk::Result SubmitCommandBuffers(const vk::CommandBuffer* buffers, uint32_t imageIndex);
-    
-    void Shutdown();
 
 private:
     void Init();

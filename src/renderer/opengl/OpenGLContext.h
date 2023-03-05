@@ -25,8 +25,6 @@ public:
     void Resize(unsigned width, unsigned height) override { _width = width; _height = height; }
     [[nodiscard]] std::pair<unsigned, unsigned> GetSize() const override { return { _width, _height }; }
 
-    void Shutdown() override { }
-
 #ifdef _DEBUG
     void InitDebug() const;
 #endif

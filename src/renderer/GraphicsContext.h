@@ -21,8 +21,6 @@ public:
     
     virtual void Init(GLFWwindow* window) = 0;
     virtual void SwapBuffers() = 0;
-    
-    virtual void Shutdown() = 0;
 
     virtual void Resize(unsigned width, unsigned height) = 0;
     [[nodiscard]] virtual std::pair<unsigned, unsigned> GetSize() const = 0;
