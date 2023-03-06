@@ -16,13 +16,12 @@ VulkanSwapChain::VulkanSwapChain(VulkanDevice& device)
     Init();
 }
 
-VulkanSwapChain::VulkanSwapChain(VulkanDevice& device, std::shared_ptr<VulkanSwapChain> previous)
+VulkanSwapChain::VulkanSwapChain(VulkanDevice& device, std::unique_ptr<VulkanSwapChain> previous)
     : _device { device }
     , _reusableSwapChain { std::move(previous) }
 {
     Init();
-    
-    _reusableSwapChain.reset();
+    _reusableSwapChain.reset(); // destroy previous
 }
 
 void VulkanSwapChain::Init()

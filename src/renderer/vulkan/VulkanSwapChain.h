@@ -15,7 +15,7 @@ class VulkanSwapChain
 
 public:
     VulkanSwapChain(VulkanDevice& device);
-    VulkanSwapChain(VulkanDevice& device, std::shared_ptr<VulkanSwapChain> previous);
+    VulkanSwapChain(VulkanDevice& device, std::unique_ptr<VulkanSwapChain> previous);
     ~VulkanSwapChain();
 
     VulkanSwapChain(const VulkanSwapChain&) = delete;
@@ -69,7 +69,7 @@ private:
     std::vector<vk::ImageView>        _depthImageViews { };
     std::vector<vk::DeviceMemory>     _depthImageMemory { };
 
-    std::shared_ptr<VulkanSwapChain>  _reusableSwapChain { };
+    std::unique_ptr<VulkanSwapChain>  _reusableSwapChain { };
 
     std::vector<vk::Semaphore>        _imageAvailableSemaphores { };
     std::vector<vk::Semaphore>        _renderFinishedSemaphores { };
