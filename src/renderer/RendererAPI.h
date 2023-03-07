@@ -15,6 +15,7 @@ public:
         OpenGL = 1,
         Vulkan = 2,
     };
+    inline static constexpr API APIs[] = { API::OpenGL, API::Vulkan };
 
     virtual ~RendererAPI() = default;
 
@@ -29,7 +30,7 @@ public:
 
     static std::unique_ptr<RendererAPI> Create(API api);
     static API GetAPI() { return _api; }
-    static std::string_view GetAPIString();
+    static std::string_view GetAPIString(API api = _api);
 
 private:
     inline static API _api { API::None };

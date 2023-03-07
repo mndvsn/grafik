@@ -14,43 +14,45 @@
 class Window;
 namespace labb { class LLabMenu; }
 
-struct ApplicationArgs
-{
-    int count { 0 };
-    char** values { nullptr };
-
-    const char* operator[](const int index) const
-    {
-        return values[index];
-    }
-};
-
-struct ApplicationConfig
-{
-    std::string         title           { };
-    unsigned            width           { 640 };
-    unsigned            height          { 480 };
-    RendererAPI::API    api             { RendererAPI::API::OpenGL };
-    std::string         initLab         { };
-    bool                wireFrameMode   { false };
-    ApplicationArgs     args            { };
-};
-
 class Application
 {
-    ApplicationConfig _config;
+public:
+    struct Args
+    {
+        int count { 0 };
+        char** values { nullptr };
+
+        const char* operator[](const int index) const
+        {
+            return values[index];
+        }
+    };
+    
+    struct Config
+    {
+        std::string         title           { };
+        unsigned            width           { 640 };
+        unsigned            height          { 480 };
+        RendererAPI::API    api             { RendererAPI::API::OpenGL };
+        std::string         initLab         { };
+        bool                wireFrameMode   { false };
+        Args                args            { };
+    };
+    
+    Config _config;
     ComponentManager _components { };
     Window* _window { };
     labb::LLabMenu* _menu { };
     std::unique_ptr<UI> _ui { };
     inline static Application* _application { };
     
-public:
-    Application(ApplicationConfig config = ApplicationConfig());
+    Application(Config config = Config());
     ~Application();
     
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
+    Application(const Application&&) = delete;
+    Application& operator=(const Application&&) = delete;
 
     void Init();
     void Run();
@@ -70,5 +72,5 @@ private:
     
     void OnInitLab(InitLabEvent& e);
     
-    static void CheckArgs(ApplicationConfig& config);
+    static void CheckArgs(Config& config);
 };

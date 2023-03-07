@@ -22,9 +22,9 @@ std::unique_ptr<RendererAPI> RendererAPI::Create(API api)
     return nullptr;
 }
 
-std::string_view RendererAPI::GetAPIString()
+std::string_view RendererAPI::GetAPIString(API api)
 {
-    switch (_api)
+    switch (api)
     {
         case API::None:       return "None";
         case API::OpenGL:     return "OpenGL";

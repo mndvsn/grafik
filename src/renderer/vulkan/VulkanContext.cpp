@@ -57,11 +57,12 @@ void VulkanContext::CreateInstance()
 
     const auto appInfo = vk::ApplicationInfo
     {
-        .pApplicationName       = ApplicationName.c_str(),
+        .pApplicationName       = Grafik::ApplicationName,
         .applicationVersion     = 1,
-        .pEngineName            = EngineName.c_str(),
+        .pEngineName            = Grafik::EngineName,
         .engineVersion          = 1,
-        .apiVersion             = VK_API_VERSION_1_1
+        .apiVersion             = VK_MAKE_API_VERSION(0, Grafik::VulkanAPIMajor, Grafik::VulkanAPIMinor,
+                                  Grafik::VulkanAPIPatch)
     };
 
     const auto extensions = GetRequiredExtensions();

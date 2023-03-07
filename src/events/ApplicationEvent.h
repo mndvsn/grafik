@@ -35,10 +35,16 @@ private:
 class WindowCloseEvent : public Event
 {
 public:
-    WindowCloseEvent() = default;
+    WindowCloseEvent(bool restart = false)
+        : _restart { restart } { }
 
+    [[nodiscard]] bool ShouldExit() const { return _restart == false; }
+    
     GK_EVENT_CLASS_TYPE(WindowClose)
     GK_EVENT_CLASS_CATEGORY(Application)
+
+private:
+    bool _restart { false };
 };
 
 using LabFactoryFunc = std::function<labb::LLab*()>;

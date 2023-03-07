@@ -20,7 +20,7 @@
 class Event
 {
 public:
-    enum class Type : int
+    enum class Type : unsigned
     {
         None = 0,
         InitLab,
@@ -30,7 +30,7 @@ public:
         MouseButton, MouseMove, MouseScroll
     };
 
-    enum Category : int
+    enum Category : unsigned
     {
         None = 0,
         Application         = BIT(0),

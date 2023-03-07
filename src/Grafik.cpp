@@ -1,22 +1,26 @@
 /**
  * Grafik
  * Grafik
- * Copyright 2012-2022 Martin Furuberg 
+ * Copyright Martin Furuberg
  */
 #include "gpch.h"
 #include "core/Application.h"
 
 
-bool appShouldExit { false };
-
-int Grafik(const int argc, char** argv)
+int grafik(const int argc, char** argv)
 {
-    while (!appShouldExit)
+    while (!Grafik::ShouldExit)
     {
-        ApplicationConfig config("Grafik", 1100, 750);
-        config.args = { argc, argv };
-
-        const auto app = new Application(config);
+        Grafik::ShouldExit = false;
+        
+        const Application::Config config
+        {
+            .title   = Grafik::ApplicationName,
+            .width   = Grafik::WindowWidth,
+            .height  = Grafik::WindowHeight,
+            .args    = { argc, argv }, 
+        };
+        const auto app = std::make_unique<Application>(config);
 
         try
         {
@@ -28,24 +32,22 @@ int Grafik(const int argc, char** argv)
             std::cerr << "Error: " << ex.what() << std::endl;
             return EXIT_FAILURE;
         }
-
-        delete app;
     }
     return EXIT_SUCCESS;
 }
 
-#ifdef GK_DISTR
+#if defined(GK_DISTR) && defined(GK_WIN)
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 {
-    return Grafik(__argc, __argv);
+    return grafik(__argc, __argv);
 }
 
 #else
 
 int main(const int argc, char** argv)
 {
-    return Grafik(argc, argv);
+    return grafik(argc, argv);
 }
 
 #endif

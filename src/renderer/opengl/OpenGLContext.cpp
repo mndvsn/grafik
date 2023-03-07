@@ -6,7 +6,7 @@
 #include "gpch.h"
 #include "OpenGLContext.h"
 
-#ifdef _DEBUG
+#ifdef GK_DEBUG
 #include "renderer/opengl/OpenGLDebug.h"
 #endif
 
@@ -16,11 +16,11 @@
 
 OpenGLContext::OpenGLContext()
 {
-    // Set OpenGL context to 4.6 Core
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    // Set OpenGL context
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, Grafik::OpenGLAPIMajor);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, Grafik::OpenGLAPIMinor);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef _DEBUG
+#ifdef GK_DEBUG
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 #endif
 }
@@ -40,7 +40,7 @@ void OpenGLContext::Init(GLFWwindow* window)
         }
     }
 
-#   ifdef _DEBUG
+#   ifdef GK_DEBUG
     InitDebug();
 #   endif
 
@@ -75,7 +75,7 @@ void OpenGLContext::SwapBuffers()
     }
 }
 
-#ifdef _DEBUG
+#ifdef GK_DEBUG
 void OpenGLContext::InitDebug() const
 {
     // Print adapter info

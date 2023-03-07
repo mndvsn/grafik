@@ -20,9 +20,6 @@ class VulkanDevice;
 class VulkanSwapChain;
 class VulkanPipeline;
 
-static std::string ApplicationName  { "Grafik" };
-static std::string EngineName       { "Vulkan" };
-
 struct SimplePushConstantData
 {
     glm::mat4 transform { 1.0f };

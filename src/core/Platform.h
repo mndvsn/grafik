@@ -7,10 +7,9 @@
 // Windows
 #ifdef _WIN32
     // x64
-    #ifdef _WIN64
-        #define GK_WIN
+    #define GK_WIN
     // x86
-    #else
+    #ifndef _WIN64
         #error "Windows x86 is not supported!"
     #endif
 
