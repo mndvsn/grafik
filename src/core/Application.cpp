@@ -23,9 +23,7 @@
 #include <imgui/imgui.h>
 
 
-extern bool appShouldExit;
-
-Application::Application(ApplicationConfig config)
+Application::Application(Config config)
     : _config { std::move(config) }
 {
     _application = this;
@@ -134,8 +132,6 @@ void Application::Run()
             _menu->ShowBigMenu();
         }
     }
-
-    appShouldExit = true;
 }
 
 void Application::OnEvent(Event& e)
@@ -150,6 +146,10 @@ void Application::OnEvent(Event& e)
 void Application::OnWindowClose(WindowCloseEvent& e) const
 {
     _window->Close();
+    if (e.ShouldExit())
+    {
+        Grafik::ShouldExit = true;
+    }
     e.Handled();
 }
 
@@ -182,24 +182,32 @@ void Application::OnInitLab(InitLabEvent& e)
     e.Handled();
 }
 
-void Application::CheckArgs(ApplicationConfig& config)
+void Application::CheckArgs(Config& config)
 {
     for (int i = 0; i < config.args.count; i++)
     {
+        // Look for lab init option
+        if (config.args.count > i+1 && strcmp(config.args[i], "-l") == 0)
+        {
+            config.initLab = config.args[i+1];
+        }
+
+        // Override Rendering API
+        if (Grafik::APIOverride > 0)
+        {
+            config.api = static_cast<RendererAPI::API>(Grafik::APIOverride);
+            break;
+        }
+
         // Look for vulkan flag
         if (strcmp(config.args[i], "-vulkan") == 0)
         {
             config.api = RendererAPI::API::Vulkan;
-        }
-        // Look for lab init option
-        else if (config.args.count > i+1 && strcmp(config.args[i], "-l") == 0)
-        {
-            config.initLab = config.args[i+1];
         }
     }
 }
 
 Application::~Application()
 {
-    EventManager::Get()->removeListener(this);
+    EventManager::Get()->Reset();
 }

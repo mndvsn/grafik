@@ -35,6 +35,8 @@ public:
     bool removeListener(const void* object);
 
     void Broadcast(Event& event) const;
+
+    void Reset();
     
 private:
     std::vector<std::unique_ptr<EventHandle>> _listeners { };

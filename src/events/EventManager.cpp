@@ -48,3 +48,8 @@ void EventManager::Broadcast(Event& event) const
         }
     }
 }
+
+void EventManager::Reset()
+{
+    _listeners.clear();
+}

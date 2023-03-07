@@ -26,6 +26,7 @@ namespace labb
         void OnUI(UIEvent& e) override;
         
         void BeginLabMenu();
+        void BeginRendererMenu();
         void BeginBigMenu();
 
         template<typename T>
@@ -35,7 +36,7 @@ namespace labb
             _labs.push_back({ shortName,
                 {
                     name,
-                    [this]
+                    []
                     {
                         return new T { };
                     }

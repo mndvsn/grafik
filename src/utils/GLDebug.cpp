@@ -6,8 +6,10 @@
 #include "gpch.h"
 #include "GLDebug.h"
 
+#include <glad/glad.h>
 
-#ifdef _DEBUG
+
+#ifdef GK_DEBUG
 void APIENTRY HandleGLDebugMessage(unsigned int source, unsigned int type, unsigned int id, unsigned int severity, int length, const char* message, const void* userParam)
 {
     (void)userParam;

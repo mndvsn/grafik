@@ -12,6 +12,8 @@
 
 #include <ranges>
 
+#include "renderer/Renderer.h"
+
 
 namespace labb
 {
@@ -26,6 +28,11 @@ namespace labb
                 BeginLabMenu();
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("Renderer"))
+            {
+                BeginRendererMenu();
+                ImGui::EndMenu();
+            }
             ImGui::EndMainMenuBar();
         }
 
@@ -37,11 +44,11 @@ namespace labb
     {
         if (ImGui::BeginMenu("Open"))
         {
-            for (const auto& lab : _labs | std::views::values)
+            for (const auto&[name, createFunc] : _labs | std::views::values)
             {
-                if (ImGui::MenuItem(lab.name.c_str()))
+                if (ImGui::MenuItem(name.c_str()))
                 {
-                    InitLabEvent event { lab.createInstance };
+                    InitLabEvent event { createFunc };
                     EventManager::Get()->Broadcast(event);
                 }
             }
@@ -52,6 +59,26 @@ namespace labb
         {
             WindowCloseEvent e;
             EventManager::Get()->Broadcast(e);
+        }
+    }
+
+    void LLabMenu::BeginRendererMenu()
+    {
+        if (ImGui::BeginMenu("API"))
+        {
+            for (const auto api : RendererAPI::APIs)
+            {
+                if (ImGui::MenuItem(std::string(RendererAPI::GetAPIString(api)).c_str(),
+                    nullptr, RendererAPI::GetAPI() == api))
+                {
+                    if (RendererAPI::GetAPI() == api) break;
+                    
+                    Grafik::APIOverride = static_cast<unsigned>(api);
+                    WindowCloseEvent e { true };
+                    EventManager::Get()->Broadcast(e);
+                }
+            }
+            ImGui::EndMenu();
         }
     }
 
@@ -74,13 +101,13 @@ namespace labb
         {
             if (ImGui::BeginTable("labsList", 1))
             {
-                for (const auto& lab : _labs | std::views::values)
+                for (const auto&[name, createFunc] : _labs | std::views::values)
                 {
                     ImGui::TableNextRow();
                     ImGui::TableNextColumn();
-                    if (ImGui::Button(lab.name.c_str(), ImVec2(-FLT_MIN, 0.0f)))
+                    if (ImGui::Button(name.c_str(), ImVec2(-FLT_MIN, 0.0f)))
                     {
-                        InitLabEvent event { lab.createInstance };
+                        InitLabEvent event { createFunc };
                         EventManager::Get()->Broadcast(event);
                     }
                 }
