@@ -121,6 +121,8 @@ void VulkanDevice::CreateCommandPool()
     }
 }
 
+/* -------------------------- */
+
 void VulkanDevice::CreateImage(const vk::ImageCreateInfo& imageInfo, vk::MemoryPropertyFlags properties,
     vk::Image& image, vk::DeviceMemory& memory) const
 {
@@ -163,6 +165,8 @@ vk::DescriptorPool VulkanDevice::CreateDescriptorPool(const std::vector<vk::Desc
     };
     return _device.createDescriptorPool(poolInfo);
 }
+
+/* -------------------------- */
 
 bool VulkanDevice::CheckDevice(const vk::PhysicalDevice& device) const
 {
@@ -373,13 +377,8 @@ void VulkanDevice::CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_
 
 /* -------------------------- */
 
-void VulkanDevice::Shutdown() const
+VulkanDevice::~VulkanDevice()
 {
     _device.destroyCommandPool(_commandPool);
     _device.destroy();
-}
-
-VulkanDevice::~VulkanDevice()
-{
-    Shutdown();
 }

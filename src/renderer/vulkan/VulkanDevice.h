@@ -69,8 +69,6 @@ public:
     void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;
     void CopyBuffer(vk::Buffer sourceBuffer, vk::Buffer destBuffer, vk::DeviceSize size);
     void CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height, uint32_t layerCount);
-    
-    void Shutdown() const;
 
 private:
     void SelectPhysicalDevice();

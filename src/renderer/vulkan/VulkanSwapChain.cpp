@@ -263,6 +263,32 @@ void VulkanSwapChain::InitFramebuffers()
     }
 }
 
+void VulkanSwapChain::InitSyncObjects()
+{
+    _imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    _inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    _imagesInFlight.resize(GetImageCount(), nullptr);
+
+    constexpr auto fenceInfo = vk::FenceCreateInfo { .flags = vk::FenceCreateFlagBits::eSignaled };
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        try
+        {
+            _imageAvailableSemaphores[i] = _device.GetDevice().createSemaphore({ });
+            _renderFinishedSemaphores[i] = _device.GetDevice().createSemaphore({ });
+            _inFlightFences[i] = _device.GetDevice().createFence(fenceInfo);
+        }
+        catch (vk::SystemError& error)
+        {
+            std::cerr << "Failed to create vulkan swap chain synchronization objects: " << error.what() << std::endl;
+        }
+    }
+}
+
+/* -------------------------- */
+
 vk::RenderPass VulkanSwapChain::CreateRenderPass(const vk::SubpassDescription& subpass,
                                                  const vk::SubpassDependency& dependency,
                                                  const std::vector<vk::AttachmentDescription>& attachments) const
@@ -315,30 +341,6 @@ vk::Framebuffer VulkanSwapChain::CreateFramebuffer(const vk::RenderPass& renderP
     }
     
     return fb;
-}
-
-void VulkanSwapChain::InitSyncObjects()
-{
-    _imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    _renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    _inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-    _imagesInFlight.resize(GetImageCount(), nullptr);
-
-    constexpr auto fenceInfo = vk::FenceCreateInfo { .flags = vk::FenceCreateFlagBits::eSignaled };
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        try
-        {
-            _imageAvailableSemaphores[i] = _device.GetDevice().createSemaphore({ });
-            _renderFinishedSemaphores[i] = _device.GetDevice().createSemaphore({ });
-            _inFlightFences[i] = _device.GetDevice().createFence(fenceInfo);
-        }
-        catch (vk::SystemError& error)
-        {
-            std::cerr << "Failed to create vulkan swap chain synchronization objects: " << error.what() << std::endl;
-        }
-    }
 }
 
 /* -------------------------- */
