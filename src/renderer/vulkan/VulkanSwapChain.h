@@ -31,16 +31,19 @@ public:
     [[nodiscard]] size_t GetImageCount() const { return _images.size(); }
 
     void GetNextImage(uint32_t& imageIndex) const;
-    vk::Result SubmitCommandBuffers(const vk::CommandBuffer* buffers, uint32_t imageIndex);
+    vk::Result SubmitCommandBuffers(const std::vector<vk::CommandBuffer>& buffers, uint32_t imageIndex);
 
+    [[nodiscard]] vk::Framebuffer CreateFramebuffer(const vk::RenderPass& renderPass, const std::vector<vk::ImageView>& attachments) const;
+    [[nodiscard]] vk::RenderPass CreateRenderPass(const vk::SubpassDescription& subpass, const vk::SubpassDependency& dependency, const std::vector<vk::AttachmentDescription>& attachments) const;
+    
 private:
     void Init();
-    void CreateSwapChain();
-    void CreateImageViews();
-    void CreateDepthResources();
-    void CreateRenderPass();
-    void CreateFramebuffers();
-    void CreateSyncObjects();
+    void InitSwapChain();
+    void InitImageViews();
+    void InitDepthResources();
+    void InitRenderPass();
+    void InitFramebuffers();
+    void InitSyncObjects();
 
     [[nodiscard]] vk::SurfaceFormatKHR SelectSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) const;
     [[nodiscard]] vk::PresentModeKHR SelectPresentMode(const std::vector<vk::PresentModeKHR>& availableModes) const;

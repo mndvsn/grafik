@@ -18,5 +18,5 @@ public:
     virtual void Begin() = 0;
     virtual void End() = 0;
 
-    static std::unique_ptr<UI> Create();
+    static std::shared_ptr<UI> Create();
 };

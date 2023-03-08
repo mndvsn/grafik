@@ -43,7 +43,7 @@ public:
     ComponentManager _components { };
     Window* _window { };
     labb::LLabMenu* _menu { };
-    std::unique_ptr<UI> _ui { };
+    std::shared_ptr<UI> _ui { };
     inline static Application* _application { };
     
     Application(Config config = Config());
@@ -62,6 +62,8 @@ public:
     static Application& Get() { return *_application; }
 
     [[nodiscard]] Window* GetWindow() const { return _window; }
+    template <typename T>
+    [[nodiscard]] std::weak_ptr<T> GetUI() const { return std::dynamic_pointer_cast<T>(_ui); }
 
 private:
     void InitUI();

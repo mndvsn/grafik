@@ -48,6 +48,7 @@ public:
 
     [[nodiscard]] vk::Instance& GetInstance() const { return _instance; }
     [[nodiscard]] vk::Device& GetDevice() { return _device; }
+    [[nodiscard]] vk::PhysicalDevice& GetPhysicalDevice() { return _physicalDevice; }
     [[nodiscard]] vk::SurfaceKHR& GetSurface() const { return _surface; }
     [[nodiscard]] vk::CommandPool& GetCommandPool() { return _commandPool; }
 
@@ -60,10 +61,11 @@ public:
     [[nodiscard]] uint32_t FindMemoryType(uint32_t typeFilter, const vk::MemoryPropertyFlags& properties) const;
 
     void CreateImage(const vk::ImageCreateInfo& imageInfo, vk::MemoryPropertyFlags properties, vk::Image& image, vk::DeviceMemory& memory) const;
+    [[nodiscard]] vk::DescriptorPool CreateDescriptorPool(const std::vector<vk::DescriptorPoolSize>& poolSizes, unsigned maxSets) const;
 
     // Buffer helper functions
     void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer& buffer, vk::DeviceMemory& bufferMemory) const;
-    vk::CommandBuffer BeginSingleTimeCommands() const;
+    [[nodiscard]] vk::CommandBuffer BeginSingleTimeCommands() const;
     void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;
     void CopyBuffer(vk::Buffer sourceBuffer, vk::Buffer destBuffer, vk::DeviceSize size);
     void CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height, uint32_t layerCount);

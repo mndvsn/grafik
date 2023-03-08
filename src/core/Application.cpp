@@ -76,10 +76,11 @@ void Application::InitLabs()
     // Add menu to component manager
     _menu = _components.Create<labb::LLabMenu>();
 
+    // Add labs to main menu
+    _menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
+
     if (_config.api == RendererAPI::API::OpenGL)
     {
-        // Add labs to main menu
-        _menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
         _menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
         _menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
         _menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
@@ -114,14 +115,12 @@ void Application::Run()
         RenderEvent renderEvent;
         EventManager::Get()->Broadcast(renderEvent);
 
+        // Render UI
         if (_ui && !_window->IsMinimized())
         {
             _ui->Begin();
-
             UIEvent uiEvent;
             EventManager::Get()->Broadcast(uiEvent);
-
-            // Render UI
             _ui->End();
         }
 

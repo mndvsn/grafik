@@ -15,6 +15,7 @@
 #include <glm/glm.hpp>
 
 
+class VulkanUI;
 class VulkanModel;
 class VulkanDevice;
 class VulkanSwapChain;
@@ -41,6 +42,13 @@ public:
     void Resize(unsigned width, unsigned height) override;
     [[nodiscard]] std::pair<unsigned, unsigned> GetSize() const override { return { _extent.width, _extent.height }; }
 
+    [[nodiscard]] vk::Instance& GetInstance() { return _instance; }
+    [[nodiscard]] VulkanDevice* GetDevice() const { return _device.get(); }
+    [[nodiscard]] VulkanSwapChain* GetSwapChain() const { return _swapChain.get(); }
+
+    void AttachUI(const std::weak_ptr<VulkanUI>& ui) { _vulkanUI = ui; }
+    void DetachUI() { _vulkanUI.reset(); }
+    
 private:
     void CreateInstance();
     void CreateSurface();
@@ -71,6 +79,7 @@ private:
     vk::Extent2D _extent { 0, 0 };
     bool _extentWasResized { false };
 
+    std::weak_ptr<VulkanUI> _vulkanUI { };
     std::unique_ptr<VulkanModel> _model { };
     
     vk::DebugUtilsMessengerEXT _debugMessenger { };

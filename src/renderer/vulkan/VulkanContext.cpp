@@ -11,6 +11,7 @@
 #include "renderer/vulkan/VulkanPipeline.h"
 #include "renderer/vulkan/VulkanModel.h"
 #include "renderer/vulkan/VulkanDebug.h"
+#include "ui/vulkan/VulkanUI.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
@@ -128,6 +129,12 @@ void VulkanContext::CreateSwapchain()
             CreateCommandBuffers();
         }
     }
+
+    // Update ImGUI with new swapchain
+    if (!_vulkanUI.expired())
+    {
+        _vulkanUI.lock()->CreateContext();
+    }
     
     //TODO: create unless any existing is compatible
     CreatePipeline();
@@ -206,7 +213,6 @@ void VulkanContext::CreateCommandBuffers()
     {
         throw std::runtime_error { "Failed to allocate vulkan command buffers!" };
     }
-
 }
 
 void VulkanContext::FreeCommandBuffers()
@@ -220,10 +226,10 @@ void VulkanContext::RecordCommandBuffer(int imageIndex) const
     const vk::CommandBuffer& buffer = _commandBuffers[imageIndex];
     
     constexpr auto beginInfo = vk::CommandBufferBeginInfo
-        {
-            .flags = vk::CommandBufferUsageFlagBits::eSimultaneousUse
-        };
-        
+    {
+        .flags           = vk::CommandBufferUsageFlagBits::eSimultaneousUse
+    };
+
     if (buffer.begin(&beginInfo) != vk::Result::eSuccess)
     {
         throw std::runtime_error { "Failed to begin recording command buffer!" };
@@ -286,7 +292,7 @@ void VulkanContext::RecordCommandBuffer(int imageIndex) const
         push.color = { static_cast<float>(i) * 0.1f, 0.0f, 0.0f };
         push.transform = glm::translate(push.transform, glm::vec3(-0.05f * static_cast<float>(i) , 0.0f, 0.0f));
         push.transform = glm::rotate(push.transform, static_cast<float>(i) * -0.05f * 3.14159265f, glm::vec3(0, 0, 1));
-        _commandBuffers[imageIndex].pushConstants(_pipelineLayout,
+        buffer.pushConstants(_pipelineLayout,
             vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
             0, sizeof(SimplePushConstantData), &push);
         _model->Draw(buffer);
@@ -317,11 +323,20 @@ void VulkanContext::SwapBuffers()
         
         // Wait for an image to become available to render to
         _swapChain->GetNextImage(imageIndex);
-        
+
         RecordCommandBuffer(static_cast<int>(imageIndex));
+
+        std::vector buffers { _commandBuffers[imageIndex] };
+
+        // Record buffer for ImGUI
+        if (!_vulkanUI.expired())
+        {
+            const vk::CommandBuffer& uiBuffer = _vulkanUI.lock()->Render(imageIndex);
+            buffers.emplace_back(uiBuffer);
+        }
         
         // Submit buffer to device graphics queue, and handle image swap based on present mode
-        const auto result = _swapChain->SubmitCommandBuffers(&_commandBuffers[imageIndex], imageIndex);
+        const auto result = _swapChain->SubmitCommandBuffers(buffers, imageIndex);
 
         if (result == vk::Result::eSuboptimalKHR)
         {

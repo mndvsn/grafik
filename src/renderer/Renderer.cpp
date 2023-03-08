@@ -16,6 +16,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <imgui/imgui.h>
 
 
 Renderer::Renderer(GLFWwindow* window)
@@ -84,6 +85,9 @@ void Renderer::SetWireframeMode(bool bUseLineDraw)
 void Renderer::SetViewport(int width, int height)
 {
     RenderCommand::SetViewport(width, height);
+    
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
 }
 
 bool Renderer::GetFramebufferSize(int& width, int& height)

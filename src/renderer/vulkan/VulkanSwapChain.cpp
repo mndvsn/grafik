@@ -26,15 +26,15 @@ VulkanSwapChain::VulkanSwapChain(VulkanDevice& device, std::unique_ptr<VulkanSwa
 
 void VulkanSwapChain::Init()
 {
-    CreateSwapChain();
-    CreateImageViews();
-    CreateDepthResources();
-    CreateRenderPass();
-    CreateFramebuffers();
-    CreateSyncObjects();
+    InitSwapChain();
+    InitImageViews();
+    InitDepthResources();
+    InitRenderPass();
+    InitFramebuffers();
+    InitSyncObjects();
 }
 
-void VulkanSwapChain::CreateSwapChain()
+void VulkanSwapChain::InitSwapChain()
 {
     const SwapChainSupportDetails supported = _device.GetSwapChainSupport();
 
@@ -99,7 +99,7 @@ void VulkanSwapChain::CreateSwapChain()
     _imageFormat = surfaceFormat.format;
 }
 
-void VulkanSwapChain::CreateImageViews()
+void VulkanSwapChain::InitImageViews()
 {
     _imageViews.resize(_images.size());
 
@@ -130,7 +130,7 @@ void VulkanSwapChain::CreateImageViews()
     }
 }
 
-void VulkanSwapChain::CreateDepthResources()
+void VulkanSwapChain::InitDepthResources()
 {
     const auto depthFormat = FindDepthFormat();
 
@@ -187,7 +187,7 @@ void VulkanSwapChain::CreateDepthResources()
     }
 }
 
-void VulkanSwapChain::CreateRenderPass()
+void VulkanSwapChain::InitRenderPass()
 {
     const vk::AttachmentDescription colorAttachment
     {
@@ -198,12 +198,12 @@ void VulkanSwapChain::CreateRenderPass()
         .stencilLoadOp   = vk::AttachmentLoadOp::eDontCare,
         .stencilStoreOp  = vk::AttachmentStoreOp::eDontCare,
         .initialLayout   = vk::ImageLayout::eUndefined,
-        .finalLayout     = vk::ImageLayout::ePresentSrcKHR
+        .finalLayout     = vk::ImageLayout::eColorAttachmentOptimal
     };
 
     /* Index of attachment
      * GLSL: layout(location = 0) out vec4 outColor */
-    vk::AttachmentReference colorAttachmentRef
+    constexpr vk::AttachmentReference colorAttachmentRef
     {
         .attachment      = 0,
         .layout          = vk::ImageLayout::eColorAttachmentOptimal
@@ -221,13 +221,13 @@ void VulkanSwapChain::CreateRenderPass()
         .finalLayout     = vk::ImageLayout::eDepthStencilAttachmentOptimal
     };
 
-    vk::AttachmentReference depthAttachmentRef
+    constexpr vk::AttachmentReference depthAttachmentRef
     {
         .attachment      = 1,
         .layout          = vk::ImageLayout::eDepthStencilAttachmentOptimal
     };
 
-    vk::SubpassDescription subpass
+    const vk::SubpassDescription subpass
     {
         .pipelineBindPoint          = vk::PipelineBindPoint::eGraphics,
         .colorAttachmentCount       = 1,
@@ -235,7 +235,7 @@ void VulkanSwapChain::CreateRenderPass()
         .pDepthStencilAttachment    = &depthAttachmentRef
     };
 
-    vk::SubpassDependency dependency
+    constexpr vk::SubpassDependency dependency
     {
         .srcSubpass             = VK_SUBPASS_EXTERNAL,
         .dstSubpass             = 0,
@@ -248,8 +248,27 @@ void VulkanSwapChain::CreateRenderPass()
                                 | vk::AccessFlagBits::eDepthStencilAttachmentWrite,
     };
 
-    const std::array attachments = { colorAttachment, depthAttachment };
+    const std::vector attachments = { colorAttachment, depthAttachment };
+    _renderPass = CreateRenderPass(subpass, dependency, attachments);
+}
 
+void VulkanSwapChain::InitFramebuffers()
+{
+    const size_t count = GetImageCount();
+    _framebuffers.resize(count);
+    for (size_t i = 0; i < count; i++)
+    {
+        std::vector attachments { _imageViews[i], _depthImageViews[i] };
+        _framebuffers[i] = CreateFramebuffer(_renderPass, attachments);
+    }
+}
+
+vk::RenderPass VulkanSwapChain::CreateRenderPass(const vk::SubpassDescription& subpass,
+                                                 const vk::SubpassDependency& dependency,
+                                                 const std::vector<vk::AttachmentDescription>& attachments) const
+{
+    vk::RenderPass renderPass;
+    
     const vk::RenderPassCreateInfo renderPassInfo
     {
         .attachmentCount        = static_cast<uint32_t>(attachments.size()),
@@ -262,45 +281,43 @@ void VulkanSwapChain::CreateRenderPass()
 
     try
     {
-        _renderPass = _device.GetDevice().createRenderPass(renderPassInfo);
+        renderPass = _device.GetDevice().createRenderPass(renderPassInfo);
     }
     catch (vk::SystemError& error)
     {
         std::cerr << "Failed to create vulkan Render Pass: " << error.what() << std::endl;
     }
+    
+    return renderPass;
 }
 
-void VulkanSwapChain::CreateFramebuffers()
+vk::Framebuffer VulkanSwapChain::CreateFramebuffer(const vk::RenderPass& renderPass, const std::vector<vk::ImageView>& attachments) const
 {
-    const size_t count = GetImageCount();
-    _framebuffers.resize(count);
+    vk::Framebuffer fb;
 
-    for (size_t i = 0; i < count; i++)
+    const vk::FramebufferCreateInfo fbInfo
     {
-        std::array attachments { _imageViews[i], _depthImageViews[i] };
+        .renderPass = renderPass,
+        .attachmentCount = static_cast<uint32_t>(attachments.size()),
+        .pAttachments = attachments.data(),
+        .width = _extent.width,
+        .height = _extent.height,
+        .layers = 1
+    };
 
-        const vk::FramebufferCreateInfo framebufferInfo
-        {
-            .renderPass = _renderPass,
-            .attachmentCount = static_cast<uint32_t>(attachments.size()),
-            .pAttachments = attachments.data(),
-            .width = _extent.width,
-            .height = _extent.height,
-            .layers = 1
-        };
-
-        try
-        {
-            _framebuffers[i] = _device.GetDevice().createFramebuffer(framebufferInfo);
-        }
-        catch (vk::SystemError& err)
-        {
-            std::cerr << "Failed to create vulkan framebuffer: " << err.what() << std::endl;
-        }
+    try
+    {
+        fb = _device.GetDevice().createFramebuffer(fbInfo);
     }
+    catch (vk::SystemError& err)
+    {
+        std::cerr << "Failed to create vulkan framebuffer: " << err.what() << std::endl;
+    }
+    
+    return fb;
 }
 
-void VulkanSwapChain::CreateSyncObjects()
+void VulkanSwapChain::InitSyncObjects()
 {
     _imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     _renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -343,7 +360,7 @@ void VulkanSwapChain::GetNextImage(uint32_t& imageIndex) const
     imageIndex = resultValue.value;
 }
 
-vk::Result VulkanSwapChain::SubmitCommandBuffers(const vk::CommandBuffer* buffers, const uint32_t imageIndex)
+vk::Result VulkanSwapChain::SubmitCommandBuffers(const std::vector<vk::CommandBuffer>& buffers, const uint32_t imageIndex)
 {
     if (_imagesInFlight[imageIndex] != vk::Fence(nullptr))
     {
@@ -364,8 +381,8 @@ vk::Result VulkanSwapChain::SubmitCommandBuffers(const vk::CommandBuffer* buffer
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = waitSemaphores,
         .pWaitDstStageMask = waitStages,
-        .commandBufferCount = 1,
-        .pCommandBuffers = buffers,
+        .commandBufferCount = static_cast<uint32_t>(buffers.size()),
+        .pCommandBuffers = buffers.data(),
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = signalSemaphores
     };
@@ -381,7 +398,7 @@ vk::Result VulkanSwapChain::SubmitCommandBuffers(const vk::CommandBuffer* buffer
     }
     catch (vk::SystemError& error)
     {
-        std::cerr << "Failed to submit vulkan command buffer: " << error.what() << std::endl;
+        std::cerr << "Failed to submit vulkan command buffers: " << error.what() << std::endl;
     }
 
     const vk::SwapchainKHR swapChains[] = { _swapChain };
@@ -405,12 +422,12 @@ vk::SurfaceFormatKHR VulkanSwapChain::SelectSurfaceFormat(const std::vector<vk::
 {
     if (availableFormats.size() == 1 && availableFormats[0].format == vk::Format::eUndefined)
     {
-        return { vk::Format::eB8G8R8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear };
+        return { vk::Format::eR8G8B8A8Srgb, vk::ColorSpaceKHR::eSrgbNonlinear };
     }
     
     for (const auto& available : availableFormats)
     {
-        if (available.format == vk::Format::eB8G8R8A8Srgb && available.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+        if (available.format == vk::Format::eR8G8B8A8Srgb && available.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
         {
             return available;
         }

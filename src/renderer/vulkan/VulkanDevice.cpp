@@ -152,6 +152,18 @@ void VulkanDevice::CreateImage(const vk::ImageCreateInfo& imageInfo, vk::MemoryP
     }
 }
 
+vk::DescriptorPool VulkanDevice::CreateDescriptorPool(const std::vector<vk::DescriptorPoolSize>& poolSizes, unsigned maxSets) const
+{
+    const vk::DescriptorPoolCreateInfo poolInfo
+    {
+        .flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+        .maxSets = maxSets * static_cast<uint32_t>(std::end(poolSizes) - std::begin(poolSizes)),
+        .poolSizeCount = static_cast<uint32_t>(std::end(poolSizes) - std::begin(poolSizes)),
+        .pPoolSizes = poolSizes.data(),
+    };
+    return _device.createDescriptorPool(poolInfo);
+}
+
 bool VulkanDevice::CheckDevice(const vk::PhysicalDevice& device) const
 {
     const QueueFamilyIndices indices = FindQueueFamilies(device);
@@ -315,7 +327,7 @@ void VulkanDevice::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const
         .pCommandBuffers = &commandBuffer
     };
 
-    _graphicsQueue.submit(submitInfo, nullptr);
+    _graphicsQueue.submit(submitInfo);
     _graphicsQueue.waitIdle();
 
     _device.freeCommandBuffers(_commandPool, commandBuffer);

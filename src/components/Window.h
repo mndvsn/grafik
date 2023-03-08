@@ -21,7 +21,7 @@ struct WindowProperties
 class Window : public Component
 {
     GLFWwindow* _window { nullptr };
-    std::unique_ptr<GraphicsContext> _context { nullptr };
+    std::shared_ptr<GraphicsContext> _context { nullptr };
 
 public:
     Window(const WindowProperties& prop = WindowProperties());
@@ -42,6 +42,9 @@ public:
     [[nodiscard]] bool IsRunning() const { return _state.running; }
     [[nodiscard]] bool IsMinimized() const { return _state.minimized; }
     [[nodiscard]] GLFWwindow* GetNativeWindow() const { return _window; }
+
+    template <typename T>
+    [[nodiscard]] std::shared_ptr<T> GetContext() const { return std::dynamic_pointer_cast<T>(_context); }
     [[nodiscard]] std::pair<unsigned, unsigned> GetContextSize() const { return _context->GetSize(); }
 
 protected:

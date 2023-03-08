@@ -11,13 +11,13 @@
 #include "renderer/vulkan/VulkanContext.h"
 
 
-std::unique_ptr<GraphicsContext> GraphicsContext::Create()
+std::shared_ptr<GraphicsContext> GraphicsContext::Create()
 {
     switch (RendererAPI::GetAPI())
     {
         case RendererAPI::API::None:           return nullptr;
-        case RendererAPI::API::OpenGL:         return std::make_unique<OpenGLContext>();
-        case RendererAPI::API::Vulkan:         return std::make_unique<VulkanContext>();
+        case RendererAPI::API::OpenGL:         return std::make_shared<OpenGLContext>();
+        case RendererAPI::API::Vulkan:         return std::make_shared<VulkanContext>();
     }
     return nullptr;
 }
