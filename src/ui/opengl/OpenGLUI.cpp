@@ -31,7 +31,6 @@ void OpenGLUI::Begin()
     
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    //ImGui::ShowDemoWindow();
 }
 
 void OpenGLUI::End()

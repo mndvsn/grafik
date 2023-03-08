@@ -65,7 +65,7 @@ std::optional<std::vector<char>> File::ReadBytes()
         return {};
     }
 
-    size_t fileSize = fin.tellg();
+    const auto fileSize = fin.tellg();
     std::vector<char> buffer(fileSize);
 
     fin.seekg(0);

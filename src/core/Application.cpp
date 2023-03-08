@@ -61,13 +61,14 @@ void Application::InitUI()
     style.WindowRounding = 3.0f;
     style.FrameRounding = 3.0f;
 
-    if ((_ui = UI::Create()))
+    const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
+    IM_ASSERT(font);
+    io.FontDefault = font;
+
+    if (((_ui = UI::Create())) && _window)
     {
         _ui->Init(_window->GetNativeWindow());
     }
-
-    const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
-    IM_ASSERT(font != nullptr); (void)font;
 }
 
 void Application::InitLabs()
