@@ -20,10 +20,12 @@
 
 #if !defined(NDEBUG) || defined(_DEBUG)
     #define GK_DEBUG
+    #define GK_LOGGING
 #endif
 
 #ifdef GK_WIN
     #include <Windows.h>
 #endif
 
+#include "core/Log.h"
 #include "core/Common.h"

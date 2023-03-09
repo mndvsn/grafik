@@ -12,7 +12,9 @@
     #ifndef _WIN64
         #error "Windows x86 is not supported!"
     #endif
-
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
 // Apple (macOS, iOS, iPadOS, ...)
 #elif defined(__APPLE__) || defined(__MACH__)
     #define GK_MACOS

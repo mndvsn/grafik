@@ -9,6 +9,8 @@
 
 int grafik(const int argc, char** argv)
 {
+    Grafik::Init();
+
     while (!Grafik::ShouldExit)
     {
         Grafik::ShouldExit = false;

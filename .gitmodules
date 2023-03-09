@@ -9,3 +9,6 @@
 [submodule "include/vulkan"]
 	path = include/vulkan
 	url = git@github.com:KhronosGroup/Vulkan-Headers.git
+[submodule "spdlog"]
+	path = include/spdlog
+	url = git@github.com:gabime/spdlog.git
