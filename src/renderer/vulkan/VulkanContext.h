@@ -63,7 +63,7 @@ private:
     
     static std::vector<const char*> GetRequiredExtensions();
 
-#ifdef _DEBUG
+#ifdef GK_DEBUG
     void InitDebug();
 #endif
 
@@ -81,7 +81,6 @@ private:
 
     std::weak_ptr<VulkanUI> _vulkanUI { };
     std::unique_ptr<VulkanModel> _model { };
-    
-    vk::DebugUtilsMessengerEXT _debugMessenger { };
+
     std::vector<const char*> _validationLayers { "VK_LAYER_KHRONOS_validation" };
 };

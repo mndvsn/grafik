@@ -24,8 +24,8 @@ void VulkanDevice::SelectPhysicalDevice()
     {
         throw std::runtime_error("No GPUs with Vulkan support found!");
     }
-    std::cout << "Devices found: \t"   << devices.size() << std::endl;
-
+    Log::Info("{0:<12} {1}", "Available:", devices.size());
+    
     for (const auto& device : devices)
     {
         if (CheckDevice(device))
@@ -39,9 +39,6 @@ void VulkanDevice::SelectPhysicalDevice()
     {
         throw std::runtime_error("Failed to find a suitable GPU!");
     }
-
-    const auto props = _physicalDevice.getProperties();
-    std::cout << "Adapter: \t"    << props.deviceName << std::endl;
 }
 
 void VulkanDevice::CreateLogicalDevice()

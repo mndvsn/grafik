@@ -24,6 +24,7 @@
 #if !defined(NDEBUG) || defined(_DEBUG)
     #define GK_DEBUG
     #define GK_LOGGING
+    #define GK_ASSERTS
 #endif
 
 #ifdef GK_WIN

@@ -31,7 +31,7 @@ int grafik(const int argc, char** argv)
         }
         catch (const std::runtime_error& ex)
         {
-            std::cerr << "Error: " << ex.what() << std::endl;
+            Log::Error("Error: {0}", ex.what());
             return EXIT_FAILURE;
         }
     }

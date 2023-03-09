@@ -62,7 +62,7 @@ void Application::InitUI()
     style.FrameRounding = 3.0f;
 
     const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
-    IM_ASSERT(font);
+    GK_ASSERT(font, "Font loading failed");
     io.FontDefault = font;
 
     if (((_ui = UI::Create())) && _window)
@@ -179,7 +179,7 @@ void Application::CheckArgs(Config& config)
     for (int i = 0; i < config.args.count; i++)
     {
         // Look for lab init option
-        if (config.args.count > i+1 && strcmp(config.args[i], "-l") == 0)
+        if (config.args.count > i+1 && (strcmp(config.args[i], "-lab") == 0 || strcmp(config.args[i], "-l") == 0))
         {
             config.initLab = config.args[i+1];
         }
@@ -192,7 +192,7 @@ void Application::CheckArgs(Config& config)
         }
 
         // Look for vulkan flag
-        if (strcmp(config.args[i], "-vulkan") == 0)
+        if (strcmp(config.args[i], "-vulkan") == 0 || strcmp(config.args[i], "-v") == 0)
         {
             config.api = RendererAPI::API::Vulkan;
         }

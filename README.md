@@ -1,6 +1,14 @@
 # Grafik
 
-<img src="screenshot.png" width="600" />
+<img src=".meta/screenshot.png" width="600" />
 
-**OpenGL Shader Experiments**\
-Small application for viewing and manipulating small OpenGL/shader experiments.
+### Vulkan + OpenGL Shader Experiments
+
+Small application for experimenting with real-time rendering.
+
+| Startup options          |                                        |
+| :----------------------- | :------------------------------------- |
+| `-vulkan`,<br/>`-v`      | Start with vulkan as graphics API      |
+| `-lab lab`,<br/>`-l lab` | Load experiment &lt;lab&gt; on startup |
+
+@mndvsn

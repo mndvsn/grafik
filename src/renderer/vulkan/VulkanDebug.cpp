@@ -12,18 +12,27 @@ vk::Bool32 VulkanDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity, 
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
     (void)pUserData;
-    
-    std::cerr << "---------------\n";
-    std::cerr << "Vulkan: ";
 
-    std::cerr << vk::to_string(static_cast<vk::DebugUtilsMessageSeverityFlagBitsEXT>(severity));
-    std::cerr << " " << vk::to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(type)) << " ";
-    std::cerr << pCallbackData->pMessageIdName;
-    std::cerr << " / ";
-    std::cerr << pCallbackData->pMessage << std::endl;
-    
-    // __debugbreak();
-    
+    if (severity == static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(vk::DebugUtilsMessageSeverityFlagBitsEXT::eVerbose))
+    {
+        Log::Info("Vulkan: {1} {0}", to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(type)), pCallbackData->pMessageIdName);
+        Log::Msg("{0}", pCallbackData->pMessage);
+    }
+    else if (severity == static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo))
+    {
+        Log::Debug("Vulkan: {1} {0}", to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(type)), pCallbackData->pMessageIdName);
+        Log::Msg("{0}", pCallbackData->pMessage);
+    }
+    else if (severity == static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning))
+    {
+        Log::Warn("Vulkan: {1} {0}", to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(type)), pCallbackData->pMessageIdName);
+        Log::Msg("{0}", pCallbackData->pMessage);
+    }
+    else if (severity == static_cast<VkDebugUtilsMessageSeverityFlagBitsEXT>(vk::DebugUtilsMessageSeverityFlagBitsEXT::eError))
+    {
+        Log::Error("Vulkan: {1} {0}", to_string(static_cast<vk::DebugUtilsMessageTypeFlagsEXT>(type)), pCallbackData->pMessageIdName);
+        Log::Msg("{0}", pCallbackData->pMessage);
+    }
     return false;
 }
 

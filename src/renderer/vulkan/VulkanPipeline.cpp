@@ -38,7 +38,7 @@ VulkanPipeline::VulkanPipeline(VulkanDevice& device, const std::string& vertexFi
         return;
     }
 
-    std::cout << "Pipeline <" << _shaderName << "> created (vertex: " << vertexSource->size() << ", frag: " << fragmentSource->size() << ")" << std::endl;
+    Log::Debug("Pipeline <{0}> created (vertex: {1}, frag: {2})", _shaderName, vertexSource->size(), fragmentSource->size());
 
     CreateShaderModule(*vertexSource, _vertShaderModule);
     CreateShaderModule(*fragmentSource, _fragShaderModule);

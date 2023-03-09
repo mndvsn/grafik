@@ -34,6 +34,10 @@ void VulkanContext::Init(GLFWwindow* window)
     
     _device = std::make_unique<VulkanDevice>(_instance, _surface, _validationLayers);
 
+#ifdef GK_DEBUG
+    InitDebug();
+#endif
+
     CreatePipelineLayout();
     
     int width { 0 }, height { 0 };
@@ -46,9 +50,8 @@ void VulkanContext::Init(GLFWwindow* window)
 
 void VulkanContext::CreateInstance()
 {
-    std::cout << "Vulkan" << std::endl;
-
-#ifdef _DEBUG
+#ifdef GK_DEBUG
+    Log::Info("{:*^50}", " Vulkan ");
     if (!CheckDebugSupport(_validationLayers))
     {
         throw std::runtime_error { "Validation layers are not supported!" };
@@ -70,11 +73,11 @@ void VulkanContext::CreateInstance()
 
     const vk::InstanceCreateInfo createInfo
     {
-        #ifdef _DEBUG
+        #ifdef GK_DEBUG
         .pNext                   = &debugCreateInfo,
         #endif
         .pApplicationInfo        = &appInfo,
-        #ifdef _DEBUG
+        #ifdef GK_DEBUG
         // Add validation layers to check for errors
         .enabledLayerCount       = static_cast<uint32_t>(_validationLayers.size()),
         .ppEnabledLayerNames     = _validationLayers.data(),
@@ -367,10 +370,6 @@ VulkanContext::~VulkanContext()
     _swapChain.reset();
     _device.reset();
 
-#ifdef _DEBUG
-    _instance.destroyDebugUtilsMessengerEXT(_debugMessenger);
-#endif
-    
     _instance.destroySurfaceKHR(_surface);
     _instance.destroy();
 }
@@ -386,24 +385,42 @@ std::vector<const char*> VulkanContext::GetRequiredExtensions()
 
     std::vector extensions(glfwExtensions, glfwExtensions + glfwExtensionsCount);
 
-    #ifdef _DEBUG
+    #ifdef GK_DEBUG
     extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     #endif
     
     return extensions;
 }
 
-#ifdef _DEBUG
+#ifdef GK_DEBUG
 void VulkanContext::InitDebug()
 {
-    const auto debugCreateInfo = GetDebugInfo();
-    try
+    const auto props = _device->GetPhysicalDevice().getProperties();
+
+    // Print device info
+    Log::Info("{0:<12} {1}", "Device:", props.deviceName);
+
+    std::string type;
+    switch (props.deviceType)
     {
-        _debugMessenger = _instance.createDebugUtilsMessengerEXT(debugCreateInfo);
+    case vk::PhysicalDeviceType::eDiscreteGpu:
+        type = "Discrete";
+        break;
+    case vk::PhysicalDeviceType::eIntegratedGpu:
+        type = "Integrated";
+        break;
+    case vk::PhysicalDeviceType::eCpu:
+        type = "CPU";
+        break;
+    case vk::PhysicalDeviceType::eVirtualGpu:
+        type = "Virtual";
+        break;
+    case vk::PhysicalDeviceType::eOther:
+        type = "Other";
     }
-    catch (vk::SystemError& err)
-    {
-        std::cerr << "Failed to create Vulkan debug messenger: " << err.what() << std::endl;
-    }
+    Log::Info("{0:<12} {1}", "Type:", type);
+    
+    Log::Info("{0:<12} v{1}.{2}.{3}", "API:", VK_API_VERSION_MAJOR(props.apiVersion), VK_API_VERSION_MINOR(props.apiVersion), VK_API_VERSION_PATCH(props.apiVersion));
+    Log::Info("{0:<12} v{1}.{2}.{3}", "Driver:", VK_API_VERSION_MAJOR(props.driverVersion), VK_API_VERSION_MINOR(props.driverVersion), VK_API_VERSION_PATCH(props.driverVersion));
 }
 #endif
