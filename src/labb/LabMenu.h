@@ -32,7 +32,7 @@ namespace labb
         template<typename T>
         void RegisterLab(const std::string& name, const std::string& shortName)
         {
-            std::cout << "Adding lab: " << name << std::endl;
+            Log::Debug("Adding lab: {0}", name);
             _labs.push_back({ shortName,
                 {
                     name,

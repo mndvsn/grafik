@@ -78,11 +78,12 @@ void OpenGLContext::SwapBuffers()
 #ifdef GK_DEBUG
 void OpenGLContext::InitDebug() const
 {
+    Log::Info("{:*^50}", " OpenGL ");
     // Print adapter info
-    std::cout << "Shading language: \t" << glGetString(GL_SHADING_LANGUAGE_VERSION) << "\n";
-    std::cout << "GL Version: \t\t"     << glGetString(GL_VERSION) << "\n";
-    std::cout << "Vendor: \t\t"         << glGetString(GL_VENDOR) << "\n";
-    std::cout << "Renderer: \t\t"       << glGetString(GL_RENDERER) << std::endl;
+    Log::Info("{:<20} {}", "Vendor:",           reinterpret_cast<const char*>(glGetString(GL_VENDOR)));
+    Log::Info("{:<20} {}", "Renderer:",         reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
+    Log::Info("{:<20} {}", "Shading language:", reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+    Log::Info("{:<20} {}", "GL Version:",       reinterpret_cast<const char*>(glGetString(GL_VERSION)));
 
     // Set up debug/error message handling
     int flags {};

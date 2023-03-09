@@ -64,6 +64,7 @@
     <ClCompile Include="src\components\Window.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\core\ComponentManager.cpp" />
+    <ClCompile Include="src\core\Log.cpp" />
     <ClCompile Include="src\DataTexture.cpp" />
     <ClCompile Include="src\events\EventManager.cpp" />
     <ClCompile Include="src\glad.c">
@@ -149,6 +150,8 @@
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\core\Common.h" />
     <ClInclude Include="src\core\ComponentManager.h" />
+    <ClInclude Include="src\core\Log.h" />
+    <ClInclude Include="src\core\LogN.h" />
     <ClInclude Include="src\core\Platform.h" />
     <ClInclude Include="src\DataTexture.h" />
     <ClInclude Include="src\ElementBuffer.h" />
@@ -261,7 +264,7 @@
       <PrecompiledHeaderFile>gpch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%VULKAN_SDK%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\spdlog\include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%VULKAN_SDK%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DisableSpecificWarnings>4324</DisableSpecificWarnings>
     </ClCompile>
@@ -285,7 +288,7 @@
       <PrecompiledHeaderFile>gpch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%VULKAN_SDK%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\spdlog\include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%VULKAN_SDK%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4324</DisableSpecificWarnings>
     </ClCompile>
@@ -311,7 +314,7 @@
       <PrecompiledHeaderFile>gpch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%VULKAN_SDK%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)src\;$(ProjectDir)include\;$(ProjectDir)include\spdlog\include\;$(ProjectDir)include\glm\;$(ProjectDir)include\imgui\;%VULKAN_SDK%\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DisableSpecificWarnings>4324</DisableSpecificWarnings>
     </ClCompile>

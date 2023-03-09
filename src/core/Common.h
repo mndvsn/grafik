@@ -1,5 +1,6 @@
 ﻿/**
  * Grafik
+ * Common
  * Copyright 2023 Martin Furuberg
  */
 #pragma once
@@ -21,6 +22,14 @@ namespace Grafik
     
     inline bool                 ShouldExit              { false };
     inline unsigned             APIOverride             { 0 };
+
+    constexpr Log::Level        LoggingLevel            { Log::Level::All };
+
+
+    inline void Init()
+    {
+        Log::Init(LoggingLevel);
+    }
 }
 
-#define BIT(x) (1 << x)
+#define BIT(x) (1 << (x))
