@@ -80,13 +80,17 @@ void Window::OnFramebufferSize(const FramebufferSizeEvent& e)
     Renderer::SetViewport(static_cast<int>(e.GetWidth()), static_cast<int>(e.GetHeight()));
 
     _context->Resize(e.GetWidth(), e.GetHeight());
-    _context->SwapBuffers();
+
+    // Redraw
+    Renderer::BeginFrame();
+    RenderEvent renderEvent;
+    EventManager::Get()->Broadcast(renderEvent);
+    Renderer::EndFrame();
 }
 
 void Window::Update()
 {
     glfwPollEvents();
-    _context->SwapBuffers();
 }
 
 std::string Window::GetDetailedWindowTitle() const

@@ -14,7 +14,8 @@ class RenderCommand
 public:
     static void Init(RendererAPI::API api);
 
-    static void ResetState();
+    static void BeginFrame();
+    static void EndFrame();
     
     static void ClearBuffer();
 

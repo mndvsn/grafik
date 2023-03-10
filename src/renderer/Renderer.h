@@ -9,17 +9,13 @@
 #include <glm/fwd.hpp>
 
 
-struct GLFWwindow;
 class VertexArray;
 class Shader;
 
 class Renderer
 {
-    GLFWwindow* _context;
-
 public:
-    Renderer(GLFWwindow* window);
-    ~Renderer();
+    Renderer() = default;
 
     static void Init(RendererAPI::API api);
 
@@ -39,6 +35,4 @@ public:
 
     static void SetViewport(int width, int height);
     static bool GetFramebufferSize(int& width, int& height);
-
-    [[nodiscard]] GLFWwindow* GetContext() const { return _context; }
 };

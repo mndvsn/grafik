@@ -19,7 +19,8 @@ public:
 
     virtual ~RendererAPI() = default;
 
-    virtual void ResetState() const = 0;
+    virtual void BeginFrame() const = 0;
+    virtual void EndFrame() const = 0;
 
     virtual void ClearBuffer() const = 0;
 

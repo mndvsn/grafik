@@ -10,7 +10,8 @@
 class OpenGLRendererAPI : public RendererAPI
 {
 public:
-    void ResetState() const override;
+    void BeginFrame() const override;
+    void EndFrame() const override;
     
     void ClearBuffer() const override;
     

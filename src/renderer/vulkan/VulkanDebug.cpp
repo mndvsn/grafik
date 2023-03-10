@@ -59,7 +59,7 @@ vk::DebugUtilsMessengerCreateInfoEXT GetDebugInfo()
 
 bool CheckDebugSupport(const std::vector<const char*>& requestedLayers)
 {
-    const auto availableLayers = vk::enumerateInstanceLayerProperties();
+    const auto& availableLayers = vk::enumerateInstanceLayerProperties();
     for (const char* layerName : requestedLayers)
     {
         bool found { false };

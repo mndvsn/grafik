@@ -6,11 +6,21 @@
 #include "gpch.h"
 #include "OpenGLRendererAPI.h"
 
+#include "core/Application.h"
+#include "components/Window.h"
+#include "renderer/opengl/OpenGLContext.h"
+
 #include <glad/glad.h>
 
 
-void OpenGLRendererAPI::ResetState() const
+void OpenGLRendererAPI::BeginFrame() const
 {
+}
+
+void OpenGLRendererAPI::EndFrame() const
+{
+    const auto context = Application::Get().GetWindow()->GetContext<OpenGLContext>();
+    context->SwapBuffers();
 }
 
 void OpenGLRendererAPI::ClearBuffer() const

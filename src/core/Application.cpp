@@ -18,6 +18,7 @@
 #include "labb/Loop.h"
 #include "labb/Stacks.h"
 #include "labb/Triangle.h"
+#include "labb/VulkanTest.h"
 
 #include <GLFW/glfw3.h>
 #include <imgui/imgui.h>
@@ -62,7 +63,7 @@ void Application::InitUI()
     style.FrameRounding = 3.0f;
 
     const auto font = io.Fonts->AddFontFromFileTTF("data/fonts/JetBrainsMonoNL-Light.ttf", 15.0f);
-    GK_ASSERT(font, "Font loading failed");
+    GK_ASSERT(font, "Font loading failed")
     io.FontDefault = font;
 
     if (((_ui = UI::Create())) && _window)
@@ -77,15 +78,18 @@ void Application::InitLabs()
     _menu = _components.Create<labb::LLabMenu>();
 
     // Add labs to main menu
-    _menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
-
     if (_config.api == RendererAPI::API::OpenGL)
     {
+        _menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
         _menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
         _menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
         _menu->RegisterLab<labb::LMirror>("Mirror", "mirror");
         _menu->RegisterLab<labb::LBatch>("Batch", "batch");
         _menu->RegisterLab<labb::LLoop>("Loop", "loop");
+    }
+    else
+    {
+        _menu->RegisterLab<labb::LVulkanTest>("Vulkan", "vulkan");
     }
 
     // Create an initial lab if set to matching shortname
@@ -107,10 +111,12 @@ void Application::Run()
         const double deltaTime      = timeElapsedNow - totalTimeElapsed;
         totalTimeElapsed            = timeElapsedNow;
 
-        // Renderer::BeginFrame();
-
+        
         TickEvent tickEvent { deltaTime };
         EventManager::Get()->Broadcast(tickEvent);
+
+        _window->Update();
+        Renderer::BeginFrame();
 
         RenderEvent renderEvent;
         EventManager::Get()->Broadcast(renderEvent);
@@ -124,8 +130,7 @@ void Application::Run()
             _ui->End();
         }
 
-        // Renderer::EndFrame();
-        _window->Update();
+        Renderer::EndFrame();
 
         if (_components.Clean() && _components.GetCount() < 3)
         {
@@ -155,9 +160,6 @@ void Application::OnWindowClose(WindowCloseEvent& e) const
 void Application::OnWindowResize(const WindowSizeEvent&) const
 {
     if (_window->IsMinimized()) return;
-    
-    RenderEvent renderEvent;
-    EventManager::Get()->Broadcast(renderEvent);
 }
 
 void Application::OnInitLab(InitLabEvent& e)

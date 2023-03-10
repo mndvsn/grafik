@@ -19,11 +19,6 @@
 #include <imgui/imgui.h>
 
 
-Renderer::Renderer(GLFWwindow* window)
-{
-    _context = window;
-}
-
 void Renderer::Render(const VertexArray& vao, const std::shared_ptr<Shader>& shader, const int elementStart, int elementEnd)
 {
     if (shader->Bind())
@@ -47,11 +42,12 @@ void Renderer::Init(RendererAPI::API api)
 
 void Renderer::BeginFrame()
 {
-    RenderCommand::ResetState();
+    RenderCommand::BeginFrame();
 }
 
 void Renderer::EndFrame()
 {
+    RenderCommand::EndFrame();
 }
 
 void Renderer::BeginScene()
@@ -100,9 +96,4 @@ bool Renderer::GetFramebufferSize(int& width, int& height)
     }
     glfwGetFramebufferSize(_window, &width, &height);
     return true;
-}
-
-Renderer::~Renderer()
-{
-    _context = nullptr;
 }

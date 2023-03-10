@@ -6,9 +6,25 @@
 #include "gpch.h"
 #include "VulkanRendererAPI.h"
 
+#include "core/Application.h"
+#include "components/Window.h"
+#include "renderer/vulkan/VulkanContext.h"
 
-void VulkanRendererAPI::ResetState() const
+
+void VulkanRendererAPI::BeginFrame() const
 {
+    const auto context = Application::Get().GetWindow()->GetContext<VulkanContext>();
+    if (const auto commandBuffer = context->BeginFrame())
+    {
+        context->BeginRenderPass(commandBuffer);
+    }
+}
+
+void VulkanRendererAPI::EndFrame() const
+{
+    const auto context = Application::Get().GetWindow()->GetContext<VulkanContext>();
+    context->EndRenderPass();
+    context->SwapBuffers();
 }
 
 void VulkanRendererAPI::ClearBuffer() const

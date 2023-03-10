@@ -8,13 +8,10 @@
 
 #include "renderer/vulkan/VulkanDevice.h"
 #include "renderer/vulkan/VulkanSwapChain.h"
-#include "renderer/vulkan/VulkanPipeline.h"
-#include "renderer/vulkan/VulkanModel.h"
 #include "renderer/vulkan/VulkanDebug.h"
 #include "ui/vulkan/VulkanUI.h"
 
 #include <GLFW/glfw3.h>
-#include <glm/ext/matrix_transform.hpp>
 
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
@@ -37,14 +34,11 @@ void VulkanContext::Init(GLFWwindow* window)
 #ifdef GK_DEBUG
     InitDebug();
 #endif
-
-    CreatePipelineLayout();
     
     int width { 0 }, height { 0 };
     glfwGetFramebufferSize(_window, &width, &height);
     Resize(width, height); // will also create swap chain
 
-    CreateModel();
     CreateCommandBuffers();
 }
 
@@ -139,65 +133,8 @@ void VulkanContext::CreateSwapchain()
         _vulkanUI.lock()->CreateContext();
     }
     
-    //TODO: create unless any existing is compatible
-    CreatePipeline();
-    
     // reset flag
     _extentWasResized = false;
-}
-
-void VulkanContext::CreateModel()
-{
-    std::vector<VulkanModel::Vertex> vertices
-    {
-        { .position = {  0.0f, -0.5f, 0.0f }, .color = { 1.0f, 0.0f, 0.0f }},
-        { .position = {  0.5f,  0.5f, 0.0f }, .color = { 0.0f, 1.0f, 0.0f }},
-        { .position = { -0.5f,  0.5f, 0.0f }, .color = { 0.0f, 0.0f, 1.0f }}
-    };
-    
-    _model = std::make_unique<VulkanModel>(*_device, vertices);
-}
-
-void VulkanContext::CreatePipelineLayout()
-{
-    vk::PushConstantRange pushConstantRange
-    {
-        .stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-        .offset = 0,
-        .size = sizeof(SimplePushConstantData)
-    };
-
-    const vk::PipelineLayoutCreateInfo pipelineLayoutInfo
-    {
-        .setLayoutCount             = 0,
-        .pushConstantRangeCount     = 1,
-        .pPushConstantRanges        = &pushConstantRange
-    };
-    
-    try
-    {
-        _pipelineLayout = _device->GetDevice().createPipelineLayout(pipelineLayoutInfo);
-    }
-    catch (vk::SystemError& error)
-    {
-        std::cerr << "Failed to create Vulkan Pipeline Layout: " << error.what() << std::endl;
-    }
-}
-
-void VulkanContext::CreatePipeline()
-{
-    assert(_swapChain && "Needed Swapchain not available");
-    assert(_pipelineLayout && "Needed PipelineLayout not available");
-    
-    auto config = PipelineConfig { };
-    config.renderPass = _swapChain->GetRenderPass(); //TODO: renderpass could possibly be it's own separate thing
-    config.pipelineLayout = _pipelineLayout;
-
-    _pipeline.reset(new VulkanPipeline {
-        *_device,
-        "data/shaders/vktest.vert.spv",
-        "data/shaders/vktest.frag.spv",
-        config });
 }
 
 void VulkanContext::CreateCommandBuffers()
@@ -224,10 +161,34 @@ void VulkanContext::FreeCommandBuffers()
     _commandBuffers.clear();
 }
 
-void VulkanContext::RecordCommandBuffer(int imageIndex) const
+vk::CommandBuffer VulkanContext::BeginFrame()
 {
-    const vk::CommandBuffer& buffer = _commandBuffers[imageIndex];
+    GK_ASSERT(!FrameInProgress(), "Frame is already in progress!")
+    if (_extent.width == 0 || _extent.height == 0) return nullptr;
     
+    try
+    {
+        // Wait for an image to become available to render to
+        _swapChain->GetNextImage(_currentFrame);
+        return _commandBuffers.at(_currentFrame);
+    }
+    catch (vk::OutOfDateKHRError&)
+    {
+        // extent has changed, ie window resized/minimized
+        CreateSwapchain();
+    }
+    catch (vk::SystemError& err)
+    {
+        Log::Error("Failed to begin new frame: {}", err.what());
+    }
+    return nullptr;
+}
+
+void VulkanContext::BeginRenderPass(vk::CommandBuffer buffer)
+{
+    GK_ASSERT(buffer == GetCommandBuffer(), "Command buffer mismatch")
+    _inFrameRender = true;
+
     constexpr auto beginInfo = vk::CommandBufferBeginInfo
     {
         .flags           = vk::CommandBufferUsageFlagBits::eSimultaneousUse
@@ -240,7 +201,7 @@ void VulkanContext::RecordCommandBuffer(int imageIndex) const
 
     const vk::ClearValue color
     {
-        .color           = { std::array { 0.6f, 0.6f, 0.6f, 1.0f } }
+        .color           = { std::array { 0.08f, 0.08f, 0.08f, 1.0f } }
     };
     constexpr vk::ClearValue depthStencil
     {
@@ -251,7 +212,7 @@ void VulkanContext::RecordCommandBuffer(int imageIndex) const
     const vk::RenderPassBeginInfo renderPassBeginInfo
     {
         .renderPass      = _swapChain->GetRenderPass(),
-        .framebuffer     = _swapChain->GetFramebuffer(imageIndex),
+        .framebuffer     = _swapChain->GetFramebuffer(static_cast<int>(_currentFrame)),
         .renderArea      = {
             .offset      = { 0, 0 },
             .extent      = _swapChain->GetExtent()
@@ -284,25 +245,49 @@ void VulkanContext::RecordCommandBuffer(int imageIndex) const
     };
     buffer.setViewport(0, 1, &viewport);
     buffer.setScissor(0, 1, &scissor);
+}
 
-    // Bind command buffer to graphics binding point
-    _pipeline->Bind(buffer);
-
-    _model->Bind(buffer);
-    for (int i = 0; i < 8; i++)
-    {
-        SimplePushConstantData push { };
-        push.color = { static_cast<float>(i) * 0.1f, 0.0f, 0.0f };
-        push.transform = glm::translate(push.transform, glm::vec3(-0.05f * static_cast<float>(i) , 0.0f, 0.0f));
-        push.transform = glm::rotate(push.transform, static_cast<float>(i) * -0.05f * 3.14159265f, glm::vec3(0, 0, 1));
-        buffer.pushConstants(_pipelineLayout,
-            vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-            0, sizeof(SimplePushConstantData), &push);
-        _model->Draw(buffer);
-    }
-
+void VulkanContext::EndRenderPass() const
+{
+    GK_ASSERT(FrameInProgress(), "Failed to end render pass. Frame has not begun!")
+    const auto buffer = GetCommandBuffer();
     buffer.endRenderPass();
     buffer.end();
+}
+
+void VulkanContext::SwapBuffers()
+{
+    GK_ASSERT(FrameInProgress(), "Failed to submit buffer. Frame has not begun!")
+    try
+    {
+        // Command buffers to submit
+         std::vector buffers { GetCommandBuffer() };
+
+        // Record ImGUI
+        if (!_vulkanUI.expired())
+        {
+            const vk::CommandBuffer& uiBuffer = _vulkanUI.lock()->Render(_currentFrame);
+            buffers.emplace_back(uiBuffer);
+        }
+
+        _inFrameRender = false;
+        
+        // Submit buffer to device graphics queue, and handle image swap based on present mode
+        if (_swapChain->SubmitCommandBuffers(buffers, _currentFrame) == vk::Result::eSuboptimalKHR)
+        {
+            Log::Warn("Sub-optimal result of presentation");
+            return CreateSwapchain();
+        } 
+    }
+    catch (vk::OutOfDateKHRError&)
+    {
+        // extent has changed, ie window resized/minimized
+        return CreateSwapchain();
+    }
+    catch (vk::SystemError& err)
+    {
+        Log::Error("Failed to swap buffers: {}", err.what());
+    }
 }
 
 void VulkanContext::Resize(unsigned width, unsigned height)
@@ -316,47 +301,6 @@ void VulkanContext::Resize(unsigned width, unsigned height)
     CreateSwapchain();
 }
 
-void VulkanContext::SwapBuffers()
-{
-    if (_extent.width == 0 || _extent.height == 0) return;
-
-    try
-    {
-        uint32_t imageIndex;
-        
-        // Wait for an image to become available to render to
-        _swapChain->GetNextImage(imageIndex);
-
-        RecordCommandBuffer(static_cast<int>(imageIndex));
-
-        std::vector buffers { _commandBuffers[imageIndex] };
-
-        // Record buffer for ImGUI
-        if (!_vulkanUI.expired())
-        {
-            const vk::CommandBuffer& uiBuffer = _vulkanUI.lock()->Render(imageIndex);
-            buffers.emplace_back(uiBuffer);
-        }
-        
-        // Submit buffer to device graphics queue, and handle image swap based on present mode
-        const auto result = _swapChain->SubmitCommandBuffers(buffers, imageIndex);
-
-        if (result == vk::Result::eSuboptimalKHR)
-        {
-            return CreateSwapchain();
-        }
-    }
-    catch (vk::OutOfDateKHRError&)
-    {
-        // extent has changed, ie window resized/minimized
-        return CreateSwapchain();
-    }
-    catch (vk::SystemError& err)
-    {
-        std::cerr << "Failed to swap buffers in vulkan swap chain: " << err.what() << std::endl;
-    }
-}
-
 VulkanContext::~VulkanContext()
 {
     // wait for rendering to complete
@@ -364,9 +308,6 @@ VulkanContext::~VulkanContext()
     VulkanContext::Resize(0, 0);
 
     // call destructors
-    _model.reset();
-    _device->GetDevice().destroyPipelineLayout(_pipelineLayout);
-    _pipeline.reset();
     _swapChain.reset();
     _device.reset();
 
@@ -395,7 +336,7 @@ std::vector<const char*> VulkanContext::GetRequiredExtensions()
 #ifdef GK_DEBUG
 void VulkanContext::InitDebug()
 {
-    const auto props = _device->GetPhysicalDevice().getProperties();
+    const auto& props = _device->GetPhysicalDevice().getProperties();
 
     // Print device info
     Log::Info("{0:<12} {1}", "Device:", props.deviceName);
@@ -404,17 +345,13 @@ void VulkanContext::InitDebug()
     switch (props.deviceType)
     {
     case vk::PhysicalDeviceType::eDiscreteGpu:
-        type = "Discrete";
-        break;
+        type = "Discrete"; break;
     case vk::PhysicalDeviceType::eIntegratedGpu:
-        type = "Integrated";
-        break;
+        type = "Integrated"; break;
     case vk::PhysicalDeviceType::eCpu:
-        type = "CPU";
-        break;
+        type = "CPU"; break;
     case vk::PhysicalDeviceType::eVirtualGpu:
-        type = "Virtual";
-        break;
+        type = "Virtual"; break;
     case vk::PhysicalDeviceType::eOther:
         type = "Other";
     }

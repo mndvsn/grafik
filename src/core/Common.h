@@ -34,7 +34,7 @@ namespace Grafik
 
 #define BIT(x) (1 << (x))
 
-#ifdef GK_ASSERTS
+#ifndef GK_NO_ASSERT
 #define GK_ASSERT(check, ...) { if(!(check)) { Log::Crit(__VA_ARGS__); __debugbreak(); } }
 #else
 #define GK_ASSERT(...) 

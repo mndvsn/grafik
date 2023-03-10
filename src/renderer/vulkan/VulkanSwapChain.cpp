@@ -441,7 +441,9 @@ vk::PresentModeKHR VulkanSwapChain::SelectPresentMode(const std::vector<vk::Pres
 {
     // FIFO: V-Sync, wait for surface vertical blank (vblank)
     vk::PresentModeKHR preferredMode = vk::PresentModeKHR::eFifo;
-    
+
+    (void)availableModes;
+    /* Temp bypass
     for (const auto& mode : availableModes)
     {
         // Mailbox: Lower latency, newer frame used, but higher GPU usage
@@ -455,6 +457,7 @@ vk::PresentModeKHR VulkanSwapChain::SelectPresentMode(const std::vector<vk::Pres
             preferredMode = mode;
         }
     }
+    */
     return preferredMode;
 }
 

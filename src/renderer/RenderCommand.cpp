@@ -14,9 +14,14 @@ void RenderCommand::Init(const RendererAPI::API api)
     _renderAPI = RendererAPI::Create(api);
 }
 
-void RenderCommand::ResetState()
+void RenderCommand::BeginFrame()
 {
-    _renderAPI->ResetState();
+    _renderAPI->BeginFrame();
+}
+
+void RenderCommand::EndFrame()
+{
+    _renderAPI->EndFrame();
 }
 
 void RenderCommand::SetClearColor(const glm::vec3& color)

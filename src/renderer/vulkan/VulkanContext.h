@@ -10,22 +10,10 @@
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-
 
 class VulkanUI;
-class VulkanModel;
 class VulkanDevice;
 class VulkanSwapChain;
-class VulkanPipeline;
-
-struct SimplePushConstantData
-{
-    glm::mat4 transform { 1.0f };
-    alignas(16) glm::vec3 color { };
-};
 
 class VulkanContext : public GraphicsContext
 {
@@ -35,8 +23,14 @@ public:
 
     VulkanContext(const VulkanContext&) = delete;
     VulkanContext& operator=(const VulkanContext&) = delete;
+    VulkanContext(const VulkanContext&&) = delete;
+    VulkanContext& operator=(const VulkanContext&&) = delete;
 
     void Init(GLFWwindow* window) override;
+
+    vk::CommandBuffer BeginFrame();
+    void BeginRenderPass(vk::CommandBuffer buffer);
+    void EndRenderPass() const;
     void SwapBuffers() override;
     
     void Resize(unsigned width, unsigned height) override;
@@ -45,6 +39,9 @@ public:
     [[nodiscard]] vk::Instance& GetInstance() { return _instance; }
     [[nodiscard]] VulkanDevice* GetDevice() const { return _device.get(); }
     [[nodiscard]] VulkanSwapChain* GetSwapChain() const { return _swapChain.get(); }
+    [[nodiscard]] vk::CommandBuffer GetCommandBuffer() const { return _commandBuffers.at(_currentFrame); }
+
+    [[nodiscard]] bool FrameInProgress() const { return _inFrameRender; }
 
     void AttachUI(const std::weak_ptr<VulkanUI>& ui) { _vulkanUI = ui; }
     void DetachUI() { _vulkanUI.reset(); }
@@ -54,12 +51,8 @@ private:
     void CreateSurface();
 
     void CreateSwapchain();
-    void CreatePipelineLayout();
-    void CreatePipeline();
-    void CreateModel();
     void CreateCommandBuffers();
     void FreeCommandBuffers();
-    void RecordCommandBuffer(int imageIndex) const;
     
     static std::vector<const char*> GetRequiredExtensions();
 
@@ -71,16 +64,14 @@ private:
     vk::SurfaceKHR _surface { };
     
     std::unique_ptr<VulkanDevice> _device { };
-    std::unique_ptr<VulkanPipeline> _pipeline { };
     std::unique_ptr<VulkanSwapChain> _swapChain { };
     std::vector<vk::CommandBuffer> _commandBuffers { };
-    vk::PipelineLayout _pipelineLayout { };
-    
-    vk::Extent2D _extent { 0, 0 };
-    bool _extentWasResized { false };
-
     std::weak_ptr<VulkanUI> _vulkanUI { };
-    std::unique_ptr<VulkanModel> _model { };
+    
+    uint32_t _currentFrame { 0 };
+    vk::Extent2D _extent { 0, 0 };
+    bool _inFrameRender { false };
+    bool _extentWasResized { false };
 
     std::vector<const char*> _validationLayers { "VK_LAYER_KHRONOS_validation" };
 };
