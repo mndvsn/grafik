@@ -26,6 +26,8 @@ void Renderer::Init(RendererAPI::API api)
 
 void Renderer::Render()
 {
+    if (!IsRenderValid()) return;
+    
     RenderCommand::BeginFrame();
 
     // Render components
@@ -49,6 +51,13 @@ void Renderer::BeginScene()
 
 void Renderer::EndScene()
 {
+}
+
+bool Renderer::IsRenderValid()
+{
+    int width, height;
+    GetFramebufferSize(width, height);
+    return (width > 0 && height > 0);
 }
 
 void Renderer::Render(const VertexArray& vao, const std::shared_ptr<Shader>& shader, const int elementStart, int elementEnd)
