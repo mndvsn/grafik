@@ -113,24 +113,12 @@ void Application::Run()
 
         // Tick
         EventManager::Get()->Broadcast<TickEvent>(deltaTime);
-
         _window->Update();
-
-        Renderer::BeginFrame();
-
-        // Render components
-        EventManager::Get()->Broadcast<RenderEvent>();
-
-        // Render UI
-        if (_ui && !_window->IsMinimized())
+        
+        if (!_window->IsMinimized())
         {
-            _ui->Begin();
-            EventManager::Get()->Broadcast<UIEvent>();
-            _ui->End();
+            Renderer::Render();
         }
-
-        // Present frame
-        Renderer::EndFrame();
 
         if (_components.Clean() && _components.GetCount() < 3)
         {

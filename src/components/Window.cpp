@@ -75,12 +75,9 @@ void Window::OnFramebufferSize(const FramebufferSizeEvent& e)
     //TODO: Fix perspective
     Renderer::SetViewport(static_cast<int>(e.GetWidth()), static_cast<int>(e.GetHeight()));
 
-    _context->Resize(e.GetWidth(), e.GetHeight());
-
     // Redraw
-    Renderer::BeginFrame();
-    EventManager::Get()->Broadcast<RenderEvent>();
-    Renderer::EndFrame();
+    _context->Resize(e.GetWidth(), e.GetHeight());
+    Renderer::Render();
 }
 
 void Window::Update()

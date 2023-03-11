@@ -19,8 +19,7 @@ public:
 
     static void Init(RendererAPI::API api);
 
-    static void BeginFrame();
-    static void EndFrame();
+    static void Render();
     
     static void BeginScene();
     static void EndScene();

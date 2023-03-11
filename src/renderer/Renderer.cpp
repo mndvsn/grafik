@@ -19,6 +19,38 @@
 #include <imgui/imgui.h>
 
 
+void Renderer::Init(RendererAPI::API api)
+{
+    RenderCommand::Init(api);
+}
+
+void Renderer::Render()
+{
+    RenderCommand::BeginFrame();
+
+    // Render components
+    EventManager::Get()->Broadcast<RenderEvent>();
+    
+    // Render UI
+    if (const auto ui = Application::Get().GetUI<UI>().lock())
+    {
+        ui->Begin();
+        EventManager::Get()->Broadcast<UIEvent>();
+        ui->End();
+    }
+
+    // Present frame
+    RenderCommand::EndFrame();
+}
+
+void Renderer::BeginScene()
+{
+}
+
+void Renderer::EndScene()
+{
+}
+
 void Renderer::Render(const VertexArray& vao, const std::shared_ptr<Shader>& shader, const int elementStart, int elementEnd)
 {
     if (shader->Bind())
@@ -33,29 +65,6 @@ void Renderer::Render(const VertexArray& vao, const std::shared_ptr<Shader>& sha
         const void* offset = reinterpret_cast<const void*>(static_cast<intptr_t>(sizeof(unsigned)*elementStart)); // NOLINT(performance-no-int-to-ptr)
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, offset);
     }
-}
-
-void Renderer::Init(RendererAPI::API api)
-{
-    RenderCommand::Init(api);
-}
-
-void Renderer::BeginFrame()
-{
-    RenderCommand::BeginFrame();
-}
-
-void Renderer::EndFrame()
-{
-    RenderCommand::EndFrame();
-}
-
-void Renderer::BeginScene()
-{
-}
-
-void Renderer::EndScene()
-{
 }
 
 void Renderer::Clear() const
