@@ -28,8 +28,6 @@ void ComponentManager::Detach(Component* comp)
     const auto result = std::ranges::find_if(_comps, compare);
     if (result != _comps.end())
     {
-        const auto manager = EventManager::Get();
-        manager->removeListener(comp);
         comp->OnDetach();
         _comps.erase(result);
     }

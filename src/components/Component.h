@@ -16,7 +16,7 @@ protected:
     
 public:
     Component() = default;
-    virtual ~Component() = default;
+    virtual ~Component() { EventManager::Get()->removeListener(this); }
 
     Component(const Component&) = delete;
     Component& operator=(const Component&) = delete;

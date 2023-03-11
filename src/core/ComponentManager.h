@@ -44,9 +44,8 @@ T* ComponentManager::Create(auto&& ... args)
     _comps.emplace_back(std::make_unique<T>(std::forward<decltype(args)>(args)...));
     auto comp = static_cast<T*>(_comps.back().get());
 
-    const auto manager = EventManager::Get();
-    int& categoryMask = manager->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent));
-    comp->events = manager;
+    comp->events = EventManager::Get();
+    int& categoryMask = comp->events->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent));
 
     comp->OnAttach(categoryMask);
     return comp;
