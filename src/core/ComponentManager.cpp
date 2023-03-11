@@ -16,9 +16,10 @@ void ComponentManager::Attach(Component* comp)
     _comps.emplace_back(comp);
 
     const auto manager = EventManager::Get();
-    int& categoryMask = manager->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent));
+    int& categoryMask = manager->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent), 0, true);
     comp->events = manager;
 
+    Log::Msg("Component attached");
     comp->OnAttach(categoryMask);
 }
 
@@ -28,6 +29,7 @@ void ComponentManager::Detach(Component* comp)
     const auto result = std::ranges::find_if(_comps, compare);
     if (result != _comps.end())
     {
+        Log::Msg("Component detached");
         comp->OnDetach();
         _comps.erase(result);
     }

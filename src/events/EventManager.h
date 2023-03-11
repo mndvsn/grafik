@@ -16,6 +16,7 @@ struct EventHandle
     const void* object { nullptr };
     const EventCallbackFunc func { };
     int categoryMask { Event::None };
+    bool bComponent { false };
 
     bool operator==(const EventHandle& handle) const { return object == handle.object; }
 };
@@ -31,7 +32,7 @@ public:
 
     static EventManager* Get();
 
-    int& addListener(const void* object, const EventCallbackFunc& func, int categoryMask = 0);
+    int& addListener(const void* object, const EventCallbackFunc& func, int categoryMask = 0, bool isComponent = false);
     bool removeListener(const void* object);
 
     void Broadcast(Event& event) const;

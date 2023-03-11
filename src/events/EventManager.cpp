@@ -6,6 +6,8 @@
 #include "gpch.h"
 #include "EventManager.h"
 
+#include "components/Component.h"
+
 
 EventManager* EventManager::Get()
 {
@@ -17,9 +19,9 @@ EventManager* EventManager::Get()
     return _manager;
 }
 
-int& EventManager::addListener(const void* object, const EventCallbackFunc& func, int categoryMask)
+int& EventManager::addListener(const void* object, const EventCallbackFunc& func, int categoryMask, bool isComponent)
 {
-    const auto& listener = _listeners.emplace_back(std::make_unique<EventHandle>(object, func, categoryMask));
+    const auto& listener = _listeners.emplace_back(std::make_unique<EventHandle>(object, func, categoryMask, isComponent));
     return listener->categoryMask;
 }
 
@@ -44,6 +46,11 @@ void EventManager::Broadcast(Event& event) const
         const auto& listener = _listeners[i];
         if (listener && listener->categoryMask & event.GetCategories())
         {
+            // Skip if Listener object is component and disabled
+            if (listener->bComponent && !static_cast<const Component*>(listener->object)->IsEnabled())
+            {
+                continue;
+            }
             listener->func(event);
         }
     }

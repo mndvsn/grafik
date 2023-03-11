@@ -45,7 +45,7 @@ T* ComponentManager::Create(auto&& ... args)
     auto comp = static_cast<T*>(_comps.back().get());
 
     comp->events = EventManager::Get();
-    int& categoryMask = comp->events->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent));
+    int& categoryMask = comp->events->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent), 0, true);
 
     comp->OnAttach(categoryMask);
     return comp;
