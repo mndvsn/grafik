@@ -12,8 +12,11 @@ namespace labb { class LLab; }
 class WindowSizeEvent : public Event
 {
 public:
-    WindowSizeEvent(unsigned width, unsigned height)
-        : _width { width }, _height { height } { }
+    WindowSizeEvent(unsigned width, unsigned height, void* instigator = nullptr)
+        : _width { width }, _height { height }
+    {
+        _instigator = instigator;
+    }
     
     GK_EVENT_CLASS_TYPE(WindowSize)
     GK_EVENT_CLASS_CATEGORY(Application)
@@ -35,8 +38,11 @@ private:
 class WindowCloseEvent : public Event
 {
 public:
-    WindowCloseEvent(bool restart = false)
-        : _restart { restart } { }
+    WindowCloseEvent(bool restart = false, void* instigator = nullptr)
+        : _restart { restart }
+    {
+        _instigator = instigator;
+    }
 
     [[nodiscard]] bool ShouldExit() const { return _restart == false; }
     
@@ -52,8 +58,11 @@ using LabFactoryFunc = std::function<labb::LLab*()>;
 class InitLabEvent : public Event
 {
 public:
-    InitLabEvent(LabFactoryFunc fn)
-        : createLab { std::move(fn) } { }
+    InitLabEvent(LabFactoryFunc fn, void* instigator = nullptr)
+        : createLab { std::move(fn) }
+    {
+        _instigator = instigator;
+    }
     
     GK_EVENT_CLASS_TYPE(InitLab)
     GK_EVENT_CLASS_CATEGORY(Application)
@@ -86,7 +95,10 @@ private:
 class RenderEvent : public Event
 {
 public:
-    RenderEvent() = default;
+    RenderEvent(void* instigator = nullptr)
+    {
+        _instigator = instigator;
+    }
 
     GK_EVENT_CLASS_TYPE(Render)
     GK_EVENT_CLASS_CATEGORY(Application)
@@ -95,8 +107,11 @@ public:
 class FramebufferSizeEvent : public Event
 {
 public:
-    FramebufferSizeEvent(unsigned width, unsigned height)
-        : _width { width }, _height { height } { }
+    FramebufferSizeEvent(unsigned width, unsigned height, void* instigator = nullptr)
+        : _width { width }, _height { height }
+    {
+        _instigator = instigator;
+    }
 
     GK_EVENT_CLASS_TYPE(FramebufferSize)
     GK_EVENT_CLASS_CATEGORY(Application)
@@ -118,7 +133,10 @@ private:
 class UIEvent : public Event
 {
 public:
-    UIEvent() = default;
+    UIEvent(void* instigator = nullptr)
+    {
+        _instigator = instigator;
+    }
 
     GK_EVENT_CLASS_TYPE(UI)
     GK_EVENT_CLASS_CATEGORY(Application)

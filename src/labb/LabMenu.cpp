@@ -48,8 +48,7 @@ namespace labb
             {
                 if (ImGui::MenuItem(name.c_str()))
                 {
-                    InitLabEvent event { createFunc };
-                    EventManager::Get()->Broadcast(event);
+                    EventManager::Get()->Broadcast<InitLabEvent>(createFunc);
                 }
             }
             ImGui::EndMenu();
@@ -57,8 +56,7 @@ namespace labb
         ImGui::Separator();
         if (ImGui::MenuItem("Exit", "ESC"))
         {
-            WindowCloseEvent e;
-            EventManager::Get()->Broadcast(e);
+            EventManager::Get()->Broadcast<WindowCloseEvent>();
         }
     }
 
@@ -74,8 +72,7 @@ namespace labb
                     if (RendererAPI::GetAPI() == api) break;
                     
                     Grafik::APIOverride = static_cast<unsigned>(api);
-                    WindowCloseEvent e { true };
-                    EventManager::Get()->Broadcast(e);
+                    EventManager::Get()->Broadcast<WindowCloseEvent>(true); // true = restart
                 }
             }
             ImGui::EndMenu();
@@ -107,8 +104,7 @@ namespace labb
                     ImGui::TableNextColumn();
                     if (ImGui::Button(name.c_str(), ImVec2(-FLT_MIN, 0.0f)))
                     {
-                        InitLabEvent event { createFunc };
-                        EventManager::Get()->Broadcast(event);
+                        EventManager::Get()->Broadcast<InitLabEvent>(createFunc);
                     }
                 }
                 ImGui::EndTable();

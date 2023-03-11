@@ -70,8 +70,6 @@ private:
     void InitLabs();
 
     void OnWindowClose(WindowCloseEvent& e) const;
-    void OnWindowResize(const WindowSizeEvent& e) const;
-    
     void OnInitLab(InitLabEvent& e);
     
     static void CheckArgs(Config& config);

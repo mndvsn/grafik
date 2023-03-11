@@ -103,7 +103,7 @@ void Application::Run()
 {
     double totalTimeElapsed { 0 };
 
-    // Keep running until we should close and exit
+    // Keep running until window is closed
     while (_window->IsRunning())
     {
         // Update timers
@@ -111,25 +111,25 @@ void Application::Run()
         const double deltaTime      = timeElapsedNow - totalTimeElapsed;
         totalTimeElapsed            = timeElapsedNow;
 
-        
-        TickEvent tickEvent { deltaTime };
-        EventManager::Get()->Broadcast(tickEvent);
+        // Tick
+        EventManager::Get()->Broadcast<TickEvent>(deltaTime);
 
         _window->Update();
+
         Renderer::BeginFrame();
 
-        RenderEvent renderEvent;
-        EventManager::Get()->Broadcast(renderEvent);
+        // Render components
+        EventManager::Get()->Broadcast<RenderEvent>();
 
         // Render UI
         if (_ui && !_window->IsMinimized())
         {
             _ui->Begin();
-            UIEvent uiEvent;
-            EventManager::Get()->Broadcast(uiEvent);
+            EventManager::Get()->Broadcast<UIEvent>();
             _ui->End();
         }
 
+        // Present frame
         Renderer::EndFrame();
 
         if (_components.Clean() && _components.GetCount() < 3)
@@ -142,7 +142,6 @@ void Application::Run()
 void Application::OnEvent(Event& e)
 {
     EventDispatcher dispatcher { e };
-    dispatcher.Dispatch<WindowSizeEvent>(GK_BIND_EVENT_HANDLER(OnWindowResize));
     dispatcher.Dispatch<WindowCloseEvent>(GK_BIND_EVENT_HANDLER(OnWindowClose));
     dispatcher.Dispatch<InitLabEvent>(GK_BIND_EVENT_HANDLER(OnInitLab));
 }
@@ -155,11 +154,6 @@ void Application::OnWindowClose(WindowCloseEvent& e) const
         Grafik::ShouldExit = true;
     }
     e.Handled();
-}
-
-void Application::OnWindowResize(const WindowSizeEvent&) const
-{
-    if (_window->IsMinimized()) return;
 }
 
 void Application::OnInitLab(InitLabEvent& e)

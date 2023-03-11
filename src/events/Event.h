@@ -47,6 +47,10 @@ public:
     [[nodiscard]] virtual int GetCategories() const = 0;
     [[nodiscard]] virtual std::string ToString() const { return GetName(); }
 
+    template <typename T>
+    [[nodiscard]] T* GetInstigator() const { return static_cast<T*>(_instigator); }
+    void SetInstigator(void* instigator) { _instigator = instigator; }
+    
     [[nodiscard]] bool IsCategory(Category category) const { return GetCategories() & category; }
     
     virtual void Handled() { _bHandled = true; }
@@ -54,6 +58,7 @@ public:
 
 protected:
     bool _bHandled { false };
+    void* _instigator { };
     friend class EventDispatcher;
 };
 

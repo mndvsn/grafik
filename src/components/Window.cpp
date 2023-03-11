@@ -36,20 +36,17 @@ void Window::OnAttach(int& eventMask)
         WindowState& state = *static_cast<WindowState*>(glfwGetWindowUserPointer(window));
         state.SetSize(width, height);
 
-        WindowSizeEvent event(width, height);
-        EventManager::Get()->Broadcast(event);
+        EventManager::Get()->Broadcast<WindowSizeEvent>(width, height);
     });
 
     glfwSetWindowCloseCallback(_window, [](GLFWwindow*)
     {
-        WindowCloseEvent event;
-        EventManager::Get()->Broadcast(event);
+        EventManager::Get()->Broadcast<WindowCloseEvent>();
     });
 
     glfwSetFramebufferSizeCallback(_window, [](GLFWwindow*, const int width, const int height)
     {
-        FramebufferSizeEvent event(width, height);
-        EventManager::Get()->Broadcast(event);
+        EventManager::Get()->Broadcast<FramebufferSizeEvent>(width, height);
     });
 }
 
@@ -70,8 +67,7 @@ void Window::CreateNativeWindow()
 
 void Window::OnEvent(Event& e)
 {
-    EventDispatcher dispatcher(e);
-    dispatcher.Dispatch<FramebufferSizeEvent>(GK_BIND_EVENT_HANDLER(OnFramebufferSize));
+    EventDispatcher(e).Dispatch<FramebufferSizeEvent>(GK_BIND_EVENT_HANDLER(OnFramebufferSize));
 }
 
 void Window::OnFramebufferSize(const FramebufferSizeEvent& e)
@@ -83,8 +79,7 @@ void Window::OnFramebufferSize(const FramebufferSizeEvent& e)
 
     // Redraw
     Renderer::BeginFrame();
-    RenderEvent renderEvent;
-    EventManager::Get()->Broadcast(renderEvent);
+    EventManager::Get()->Broadcast<RenderEvent>();
     Renderer::EndFrame();
 }
 

@@ -35,6 +35,12 @@ public:
     bool removeListener(const void* object);
 
     void Broadcast(Event& event) const;
+    template <class T>
+    void Broadcast(auto&& ... args) const
+    {
+        T evt(std::forward<decltype(args)>(args)...);
+        Broadcast(evt);
+    }
 
     void Reset();
     
