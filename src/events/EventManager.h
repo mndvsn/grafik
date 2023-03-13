@@ -32,8 +32,8 @@ public:
 
     static EventManager* Get();
 
-    int& addListener(const void* object, const EventCallbackFunc& func, int categoryMask = 0, bool isComponent = false);
-    bool removeListener(const void* object);
+    int& AddListener(const void* object, const EventCallbackFunc& func, int categoryMask = 0, bool isComponent = false);
+    bool RemoveListener(const void* object);
 
     void Broadcast(Event& event) const;
     template <class T>

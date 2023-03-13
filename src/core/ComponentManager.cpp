@@ -16,7 +16,7 @@ void ComponentManager::Attach(Component* comp)
     _comps.emplace_back(comp);
 
     const auto manager = EventManager::Get();
-    int& categoryMask = manager->addListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent), 0, true);
+    int& categoryMask = manager->AddListener(comp, GK_BIND_EVENT_HANDLER_EXTERN(comp, OnEvent), 0, true);
     comp->events = manager;
 
     Log::Msg("Component attached");

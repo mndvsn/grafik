@@ -38,7 +38,7 @@ void Application::Init()
     Renderer::Init(_config.api);
 
     // Initialize event system
-    EventManager::Get()->addListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Application);
+    EventManager::Get()->AddListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Application);
 
     const WindowProperties props { _config.title, _config.width, _config.height };
     _window = _components.Create<Window>(props);

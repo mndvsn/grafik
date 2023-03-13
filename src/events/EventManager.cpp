@@ -19,13 +19,13 @@ EventManager* EventManager::Get()
     return _manager;
 }
 
-int& EventManager::addListener(const void* object, const EventCallbackFunc& func, int categoryMask, bool isComponent)
+int& EventManager::AddListener(const void* object, const EventCallbackFunc& func, int categoryMask, bool isComponent)
 {
     const auto& listener = _listeners.emplace_back(std::make_unique<EventHandle>(object, func, categoryMask, isComponent));
     return listener->categoryMask;
 }
 
-bool EventManager::removeListener(const void* object)
+bool EventManager::RemoveListener(const void* object)
 {
     auto listenerObject = [&object](const std::unique_ptr<EventHandle>& cl) { return cl->object == object; };
     const auto match = std::ranges::find_if(_listeners, listenerObject);
