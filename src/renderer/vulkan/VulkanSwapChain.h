@@ -11,9 +11,9 @@ class VulkanDevice;
 
 class VulkanSwapChain
 {
+public:
     static constexpr int MAX_FRAMES_IN_FLIGHT { 2 };
 
-public:
     VulkanSwapChain(VulkanDevice& device);
     VulkanSwapChain(VulkanDevice& device, std::unique_ptr<VulkanSwapChain> previous);
     ~VulkanSwapChain();
@@ -28,8 +28,14 @@ public:
     
     [[nodiscard]] vk::Extent2D GetExtent() const { return _extent; }
     [[nodiscard]] vk::Format GetImageFormat() const { return _imageFormat; }
+    [[nodiscard]] vk::Format GetDepthFormat() const { return _depthFormat; }
     [[nodiscard]] size_t GetImageCount() const { return _images.size(); }
 
+    [[nodiscard]] bool CompareImageFormats(const VulkanSwapChain& otherSwap) const
+    {
+        return _imageFormat == otherSwap.GetImageFormat() && _depthFormat == otherSwap.GetDepthFormat();
+    }
+    
     void GetNextImage(uint32_t& imageIndex) const;
     vk::Result SubmitCommandBuffers(const std::vector<vk::CommandBuffer>& buffers, uint32_t imageIndex);
 
@@ -63,6 +69,7 @@ private:
     vk::RenderPass                    _renderPass { };
 
     vk::Format                        _imageFormat { vk::Format::eUndefined };
+    vk::Format                        _depthFormat { vk::Format::eUndefined };
     vk::Extent2D                      _extent { };
 
     std::vector<vk::Framebuffer>      _framebuffers { };

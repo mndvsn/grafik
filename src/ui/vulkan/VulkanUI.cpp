@@ -60,6 +60,7 @@ void VulkanUI::CreateContext()
     
     _vulkanSwapchain = _context->GetSwapChain();
     const size_t imageCount = _vulkanSwapchain->GetImageCount();
+    constexpr size_t frameCount = VulkanSwapChain::MAX_FRAMES_IN_FLIGHT;
 
     CreateRenderPass();
 
@@ -72,10 +73,10 @@ void VulkanUI::CreateContext()
     }
 
     // Allocate command buffers if needed 
-    if (imageCount != _commandBuffers.size())
+    if (_commandBuffers.size() != frameCount)
     {
         // old buffers freed in swapchain
-        CreateCommandBuffers(static_cast<uint32_t>(imageCount));
+        CreateCommandBuffers(static_cast<uint32_t>(frameCount));
     }
 
     // update only if ImGUI is initialized
@@ -102,7 +103,7 @@ void VulkanUI::End()
 vk::CommandBuffer& VulkanUI::Render(uint32_t imageIndex)
 {
     // Record command buffer
-    auto& commandBuffer = _commandBuffers.at(imageIndex);
+    auto& commandBuffer = _commandBuffers.at(_context->GetCurrentFrame());
 
     // Begin
     constexpr auto beginInfo = vk::CommandBufferBeginInfo

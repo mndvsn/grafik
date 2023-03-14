@@ -39,9 +39,14 @@ public:
     [[nodiscard]] vk::Instance& GetInstance() { return _instance; }
     [[nodiscard]] VulkanDevice* GetDevice() const { return _device.get(); }
     [[nodiscard]] VulkanSwapChain* GetSwapChain() const { return _swapChain.get(); }
-    [[nodiscard]] vk::CommandBuffer GetCommandBuffer() const { return _commandBuffers.at(_currentFrame); }
+    [[nodiscard]] vk::CommandBuffer GetCommandBuffer() const
+    {
+        GK_ASSERT(FrameInProgress(), "No frame in progress")
+        return _commandBuffers.at(_currentFrame);
+    }
 
     [[nodiscard]] bool FrameInProgress() const { return _inFrameRender; }
+    [[nodiscard]] uint32_t GetCurrentFrame() const { return _currentFrame; }
 
     void AttachUI(const std::weak_ptr<VulkanUI>& ui) { _vulkanUI = ui; }
     void DetachUI() { _vulkanUI.reset(); }
@@ -52,7 +57,6 @@ private:
 
     void CreateSwapchain();
     void CreateCommandBuffers();
-    void FreeCommandBuffers();
     
     static std::vector<const char*> GetRequiredExtensions();
 
@@ -68,6 +72,7 @@ private:
     std::vector<vk::CommandBuffer> _commandBuffers { };
     std::weak_ptr<VulkanUI> _vulkanUI { };
     
+    uint32_t _currentImage { 0 };
     uint32_t _currentFrame { 0 };
     vk::Extent2D _extent { 0, 0 };
     bool _inFrameRender { false };

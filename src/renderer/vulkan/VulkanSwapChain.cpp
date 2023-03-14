@@ -21,6 +21,11 @@ VulkanSwapChain::VulkanSwapChain(VulkanDevice& device, std::unique_ptr<VulkanSwa
     , _reusableSwapChain { std::move(previous) }
 {
     Init();
+    
+    if (!CompareImageFormats(*_reusableSwapChain))
+    {
+        throw std::runtime_error { "Reused swap chain has new incompatible image formats!" };
+    }
     _reusableSwapChain.reset(); // destroy previous
 }
 
@@ -132,7 +137,7 @@ void VulkanSwapChain::InitImageViews()
 
 void VulkanSwapChain::InitDepthResources()
 {
-    const auto depthFormat = FindDepthFormat();
+    _depthFormat = FindDepthFormat();
 
     // Create equal amount of depth images as for color 
     const size_t count = GetImageCount();
@@ -145,7 +150,7 @@ void VulkanSwapChain::InitDepthResources()
         vk::ImageCreateInfo imageInfo
         {
             .imageType          = vk::ImageType::e2D,
-            .format             = depthFormat,
+            .format             = _depthFormat,
             .extent = {
                 .width          = _extent.width,
                 .height         = _extent.height,
@@ -166,7 +171,7 @@ void VulkanSwapChain::InitDepthResources()
         {
             .image              = _depthImages[i],
             .viewType           = vk::ImageViewType::e2D,
-            .format             = depthFormat,
+            .format             = _depthFormat,
             .subresourceRange   = {
                 .aspectMask     = vk::ImageAspectFlagBits::eDepth,
                 .baseMipLevel   = 0,

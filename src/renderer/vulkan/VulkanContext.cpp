@@ -113,18 +113,22 @@ void VulkanContext::CreateSwapchain()
     
     _device->GetDevice().waitIdle();
 
-    if (!_swapChain)
+    try
     {
-        _swapChain = std::make_unique<VulkanSwapChain>(*_device);
-    }
-    else
-    {
-        _swapChain = std::make_unique<VulkanSwapChain>(*_device, std::move(_swapChain));
-        if (_swapChain->GetImageCount() != _commandBuffers.size())
+        if (!_swapChain)
         {
-            FreeCommandBuffers();
-            CreateCommandBuffers();
+            // Create new
+            _swapChain = std::make_unique<VulkanSwapChain>(*_device);
         }
+        else
+        {
+            // Recreate/reuse
+            _swapChain = std::make_unique<VulkanSwapChain>(*_device, std::move(_swapChain));
+        }
+    }
+    catch (std::exception& err)
+    {
+        Log::Error("Error: {}", err.what());
     }
 
     // Update ImGUI with new swapchain
@@ -139,8 +143,8 @@ void VulkanContext::CreateSwapchain()
 
 void VulkanContext::CreateCommandBuffers()
 {
-    // Set number of command buffers to swapchain images/fb count
-    _commandBuffers.resize(_swapChain->GetImageCount());
+    // Set number of command buffers to swapchain images in flight
+    _commandBuffers.resize(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
 
     const vk::CommandBufferAllocateInfo allocInfo
     {
@@ -155,12 +159,6 @@ void VulkanContext::CreateCommandBuffers()
     }
 }
 
-void VulkanContext::FreeCommandBuffers()
-{
-    _device->GetDevice().freeCommandBuffers(_device->GetCommandPool(), static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
-    _commandBuffers.clear();
-}
-
 vk::CommandBuffer VulkanContext::BeginFrame()
 {
     GK_ASSERT(!FrameInProgress(), "Frame is already in progress!")
@@ -169,7 +167,7 @@ vk::CommandBuffer VulkanContext::BeginFrame()
     try
     {
         // Wait for an image to become available to render to
-        _swapChain->GetNextImage(_currentFrame);
+        _swapChain->GetNextImage(_currentImage);
         return _commandBuffers.at(_currentFrame);
     }
     catch (vk::OutOfDateKHRError&)
@@ -186,8 +184,8 @@ vk::CommandBuffer VulkanContext::BeginFrame()
 
 void VulkanContext::BeginRenderPass(vk::CommandBuffer buffer)
 {
-    GK_ASSERT(buffer == GetCommandBuffer(), "Command buffer mismatch")
     _inFrameRender = true;
+    GK_ASSERT(buffer == GetCommandBuffer(), "Command buffer mismatch")
 
     constexpr auto beginInfo = vk::CommandBufferBeginInfo
     {
@@ -212,7 +210,7 @@ void VulkanContext::BeginRenderPass(vk::CommandBuffer buffer)
     const vk::RenderPassBeginInfo renderPassBeginInfo
     {
         .renderPass      = _swapChain->GetRenderPass(),
-        .framebuffer     = _swapChain->GetFramebuffer(static_cast<int>(_currentFrame)),
+        .framebuffer     = _swapChain->GetFramebuffer(static_cast<int>(_currentImage)),
         .renderArea      = {
             .offset      = { 0, 0 },
             .extent      = _swapChain->GetExtent()
@@ -266,18 +264,20 @@ void VulkanContext::SwapBuffers()
         // Record ImGUI
         if (!_vulkanUI.expired())
         {
-            const vk::CommandBuffer& uiBuffer = _vulkanUI.lock()->Render(_currentFrame);
+            const vk::CommandBuffer& uiBuffer = _vulkanUI.lock()->Render(_currentImage);
             buffers.emplace_back(uiBuffer);
         }
 
         _inFrameRender = false;
         
         // Submit buffer to device graphics queue, and handle image swap based on present mode
-        if (_swapChain->SubmitCommandBuffers(buffers, _currentFrame) == vk::Result::eSuboptimalKHR)
+        if (_swapChain->SubmitCommandBuffers(buffers, _currentImage) == vk::Result::eSuboptimalKHR)
         {
             Log::Warn("Sub-optimal result of presentation");
             return CreateSwapchain();
-        } 
+        }
+
+        _currentFrame = (_currentFrame + 1) % VulkanSwapChain::MAX_FRAMES_IN_FLIGHT;
     }
     catch (vk::OutOfDateKHRError&)
     {
