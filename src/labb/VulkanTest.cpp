@@ -28,11 +28,35 @@ namespace labb
 
         CreatePipeline();
         CreateModel();
+
+        for (int i = 0; i < _objCount; i++)
+        {
+            const auto step = static_cast<float>(i);
+
+            Triangle triangle
+            {
+                .color = {
+                    step * 0.1f,
+                    step * 0.1f,
+                    step * 0.1f
+                }
+            };
+            _triangles.emplace_back(triangle);
+        }
     }
 
-    void LVulkanTest::OnTick(TickEvent&)
+    void LVulkanTest::OnTick(TickEvent& e)
     {
-        
+        const auto delta = e.GetDeltaTime();
+        _animCycle = glm::mod(_animCycle + 90.0 * delta, 360.0);
+        const auto radCycle = glm::radians(_animCycle);
+
+        for (double step = 0.0; auto& triangle : _triangles)
+        {
+            triangle.transform.translation.x = static_cast<float>(glm::sin(radCycle) * step * 0.04);
+            triangle.transform.rotation.z = static_cast<float>(glm::radians(15 * glm::sin(radCycle)));
+            step += 1.0;
+        }
     }
 
     void LVulkanTest::OnRender(RenderEvent&)
@@ -43,12 +67,13 @@ namespace labb
         _pipeline->Bind(cmdBuffer);
         _model->Bind(cmdBuffer);
 
-        for (int i = 0; i < 8; i++)
+        for (const auto& triangle : _triangles)
         {
-            SimplePushConstantData push { };
-            push.color = { static_cast<float>(i) * 0.1f, 0.0f, 0.0f };
-            push.transform = glm::translate(push.transform, glm::vec3(-0.05f * static_cast<float>(i) , 0.0f, 0.0f));
-            push.transform = glm::rotate(push.transform, static_cast<float>(i) * -0.05f * 3.14159265f, glm::vec3(0, 0, 1));
+            SimplePushConstantData push
+            {
+                .transform = triangle.transform.mat4(),
+                .color = triangle.color
+            };
             cmdBuffer.pushConstants(_pipelineLayout,
                 vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
                 0, sizeof(SimplePushConstantData), &push);
@@ -75,6 +100,8 @@ namespace labb
         ImGui::Begin("Vulkan", &_keepAlive, flags);
         ImGui::Text("Render %.3f ms/f (%.1f fps)", 1000.0 / static_cast<double>(ImGui::GetIO().Framerate),
             static_cast<double>(ImGui::GetIO().Framerate));
+        ImGui::Separator();
+        ImGui::Text("Animation: %d %%", static_cast<int>(_animCycle / 360. * 100));
         ImGui::End();
     }
 
