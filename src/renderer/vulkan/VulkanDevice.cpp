@@ -14,7 +14,8 @@ VulkanDevice::VulkanDevice(vk::Instance& instance, vk::SurfaceKHR& surface, std:
 {
     SelectPhysicalDevice();
     CreateLogicalDevice();
-    CreateCommandPool();
+    InitCommandPool();
+    InitDescriptorPool();
 }
 
 void VulkanDevice::SelectPhysicalDevice()
@@ -93,7 +94,7 @@ void VulkanDevice::CreateLogicalDevice()
     _presentQueue = _device.getQueue(indices.presentFamily.value(), 0);
 }
 
-void VulkanDevice::CreateCommandPool()
+void VulkanDevice::InitCommandPool()
 {
     const QueueFamilyIndices queueFamilies = FindQueueFamilies(_physicalDevice);
     if (!queueFamilies.graphicsFamily || !queueFamilies.presentFamily)
@@ -116,6 +117,16 @@ void VulkanDevice::CreateCommandPool()
     {
         std::cerr << "Failed to create Vulkan Command Pool: " << error.what() << std::endl;
     }
+}
+
+void VulkanDevice::InitDescriptorPool()
+{
+    const std::vector<vk::DescriptorPoolSize> poolSizes =
+    {
+        { .type = vk::DescriptorType::eSampler,                 .descriptorCount = 1 },
+        { .type = vk::DescriptorType::eUniformBuffer,           .descriptorCount = 1 },
+    };
+    _descriptorPool = CreateDescriptorPool(poolSizes, 1);
 }
 
 /* -------------------------- */
@@ -377,5 +388,6 @@ void VulkanDevice::CopyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_
 VulkanDevice::~VulkanDevice()
 {
     _device.destroyCommandPool(_commandPool);
+    _device.destroyDescriptorPool(_descriptorPool);
     _device.destroy();
 }

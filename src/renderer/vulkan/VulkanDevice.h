@@ -34,7 +34,7 @@ class VulkanDevice
     vk::PhysicalDevice  _physicalDevice { };
     vk::Device          _device { };
     vk::CommandPool     _commandPool { };
-    // vk::DescriptorPool  _descriptorPool { };
+    vk::DescriptorPool  _descriptorPool { };
     vk::Queue           _graphicsQueue { };
     vk::Queue           _presentQueue { };
     
@@ -52,7 +52,7 @@ public:
     [[nodiscard]] vk::PhysicalDevice& GetPhysicalDevice() { return _physicalDevice; }
     [[nodiscard]] vk::SurfaceKHR& GetSurface() const { return _surface; }
     [[nodiscard]] vk::CommandPool& GetCommandPool() { return _commandPool; }
-    // [[nodiscard]] vk::DescriptorPool& GetDescriptorPool() { return _descriptorPool; }
+    [[nodiscard]] vk::DescriptorPool& GetDescriptorPool() { return _descriptorPool; }
 
     [[nodiscard]] vk::Queue GetGraphicsQueue() const { return _graphicsQueue; }
     [[nodiscard]] vk::Queue GetPresentQueue() const { return _presentQueue; }
@@ -75,7 +75,8 @@ public:
 private:
     void SelectPhysicalDevice();
     void CreateLogicalDevice();
-    void CreateCommandPool();
+    void InitCommandPool();
+    void InitDescriptorPool();
 
     [[nodiscard]] bool CheckDevice(const vk::PhysicalDevice& device) const;
     [[nodiscard]] QueueFamilyIndices FindQueueFamilies(const vk::PhysicalDevice& device) const;

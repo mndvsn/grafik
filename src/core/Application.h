@@ -5,7 +5,6 @@
  */
 #pragma once
 #include "core/ComponentManager.h"
-#include "events/EventManager.h"
 #include "events/ApplicationEvent.h"
 #include "renderer/RendererAPI.h"
 #include "ui/UI.h"

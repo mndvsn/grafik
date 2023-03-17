@@ -7,6 +7,7 @@
 #include "Application.h"
 
 #include "components/Window.h"
+#include "events/EventManager.h"
 #include "renderer/Renderer.h"
 #include "renderer/RenderCommand.h"
 
@@ -78,9 +79,10 @@ void Application::InitLabs()
     _menu = _components.Create<labb::LLabMenu>();
 
     // Add labs to main menu
+    _menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
+    
     if (_config.api == RendererAPI::API::OpenGL)
     {
-        _menu->RegisterLab<labb::LClearColor>("Clear Color", "clearcolor");
         _menu->RegisterLab<labb::LTriangle>("Triangle", "triangle");
         _menu->RegisterLab<labb::LStacks>("Stacks", "stacks");
         _menu->RegisterLab<labb::LMirror>("Mirror", "mirror");

@@ -199,7 +199,7 @@ void VulkanContext::BeginRenderPass(vk::CommandBuffer buffer)
 
     const vk::ClearValue color
     {
-        .color           = { std::array { 0.08f, 0.08f, 0.08f, 1.0f } }
+        .color           = { std::array { _clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a } }
     };
     constexpr vk::ClearValue depthStencil
     {

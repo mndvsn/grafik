@@ -10,6 +10,10 @@
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
 
 class VulkanUI;
 class VulkanDevice;
@@ -36,6 +40,8 @@ public:
     void Resize(unsigned width, unsigned height) override;
     [[nodiscard]] std::pair<unsigned, unsigned> GetSize() const override { return { _extent.width, _extent.height }; }
 
+    void SetClearColor(const glm::vec4& color) { _clearColor = color; }
+    
     [[nodiscard]] vk::Instance& GetInstance() { return _instance; }
     [[nodiscard]] VulkanDevice* GetDevice() const { return _device.get(); }
     [[nodiscard]] VulkanSwapChain* GetSwapChain() const { return _swapChain.get(); }
@@ -77,6 +83,8 @@ private:
     vk::Extent2D _extent { 0, 0 };
     bool _inFrameRender { false };
     bool _extentWasResized { false };
+
+    glm::vec4 _clearColor { 0.0f, 0.0f, 0.0f, 1.0f };
 
     std::vector<const char*> _validationLayers { "VK_LAYER_KHRONOS_validation" };
 };

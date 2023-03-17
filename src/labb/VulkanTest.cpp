@@ -8,16 +8,14 @@
 
 #include "core/Application.h"
 #include "components/Window.h"
+#include "renderer/RenderCommand.h"
 #include "renderer/vulkan/VulkanContext.h"
 #include "renderer/vulkan/VulkanSwapChain.h"
 #include "renderer/vulkan/VulkanModel.h"
 
-#include <imgui/imgui.h>
-
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <imgui/imgui.h>
 
 
 namespace labb
@@ -26,6 +24,8 @@ namespace labb
     {
         _context = Application::Get().GetWindow()->GetContext<VulkanContext>().get();
 
+        RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.12f });
+        
         CreatePipeline();
         CreateModel();
 
@@ -59,11 +59,10 @@ namespace labb
         }
     }
 
-    void LVulkanTest::OnRender(RenderEvent&)
+    void LVulkanTest::OnRender(RenderEvent& e)
     {
-        const auto cmdBuffer = _context->GetCommandBuffer();
-        
         // Bind command buffer to graphics binding point
+        const auto cmdBuffer = _context->GetCommandBuffer();
         _pipeline->Bind(cmdBuffer);
         _model->Bind(cmdBuffer);
 
@@ -79,6 +78,7 @@ namespace labb
                 0, sizeof(SimplePushConstantData), &push);
             _model->Draw(cmdBuffer);
         }
+        e.Handled();
     }
 
     void LVulkanTest::OnUI(UIEvent& e)

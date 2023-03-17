@@ -485,8 +485,7 @@ vk::Extent2D VulkanSwapChain::SelectImageExtent(const vk::SurfaceCapabilitiesKHR
 vk::Extent2D VulkanSwapChain::GetWindowExtent()
 {
     auto[width, height] = Application::Get().GetWindow()->GetContextSize();
-    const vk::Extent2D extent { width, height };
-    return extent;
+    return { width, height };
 }
 
 vk::Format VulkanSwapChain::FindDepthFormat() const
