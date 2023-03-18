@@ -32,17 +32,15 @@ project "ImGui"
     includedirs
     {
         "imgui",
-        "$(ProjectDir)"
+        "glfw/include"
     }
 
-    links "glfw3.lib"
+    links "GLFW"
 
     filter "configurations:Debug"
         runtime "Debug"
         symbols "on"
-        libdirs "../lib/GLFW/Debug"
 
     filter { "configurations:Release or Dist" }
         runtime "Release"
         optimize "speed"
-        libdirs "../lib/GLFW/Release"

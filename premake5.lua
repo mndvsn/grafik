@@ -21,6 +21,7 @@ output_dir = "%{ cfg.buildcfg }"
 
 group "Dependencies"
     include "include/glad"
+    include "include/glfw.lua"
     include "include/imgui.lua"
 group ""
 
@@ -60,7 +61,7 @@ project "Grafik"
         "include",
         "include/glad/include",
         "include/glm",
-        "include/GLFW",
+        "include/glfw/include",
         "include/imgui",
         "include/spdlog/include",
         "include/stb",
@@ -69,16 +70,15 @@ project "Grafik"
 
     libdirs
     {
-        "%{ VULKAN_SDK }/Lib",
-        "lib/GLFW/%{ cfg.buildcfg }"
+        "%{ VULKAN_SDK }/Lib"
     }
 
     links
     {
         "vulkan-1.lib",
-        "glfw3.lib",
         "glad",
-        "imgui"
+        "glfw",
+        "imgui",
     }
 
     defines
@@ -118,7 +118,3 @@ project "Grafik"
         kind "WindowedApp"
         symbols "off"
         defines "GK_DISTR"
-        libdirs
-        {
-            "lib/GLFW/Release"
-        }
