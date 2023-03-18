@@ -6,9 +6,7 @@
 	path = include/glm
 	url = git@github.com:g-truc/glm.git
 	branch = master
-[submodule "include/vulkan"]
-	path = include/vulkan
-	url = git@github.com:KhronosGroup/Vulkan-Headers.git
 [submodule "spdlog"]
 	path = include/spdlog
 	url = git@github.com:gabime/spdlog.git
+	branch = v1.x

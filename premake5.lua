@@ -1,3 +1,5 @@
+VULKAN_SDK = os.getenv("VULKAN_SDK")
+
 workspace "Grafik"
     architecture "x86_64"
     startproject "Grafik"
@@ -67,7 +69,7 @@ project "Grafik"
     includedirs
     {
         "src",
-        "include/",
+        "include",
         "include/glad",
         "include/glm",
         "include/GLFW",
@@ -75,12 +77,12 @@ project "Grafik"
         "include/KHR",
         "include/spdlog/include",
         "include/stb",
-        "include/vulkan/include"
+        "%{ VULKAN_SDK }/Include"
     }
 
     libdirs
     {
-        "lib/VulkanSDK/1.3.239.0",
+        "%{ VULKAN_SDK }/Lib",
         "lib/GLFW/%{ cfg.buildcfg }"
     }
 
@@ -140,6 +142,5 @@ project "Grafik"
         }
         libdirs
         {
-            "lib/VulkanSDK/1.3.239.0",
             "lib/GLFW/Release"
         }
