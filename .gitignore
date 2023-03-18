@@ -1,5 +1,7 @@
 # Visual Studio
 .vs/
+*.sln
+*.vcxproj*
 
 # User files
 *.rsuser
@@ -40,9 +42,9 @@
 !*.lib
 
 # Binary Files
-bin/*
+**/bin/*
 *.exe
 
 # Compiled source files
-intermediate/*
+**/intermediate/*
 

@@ -9,3 +9,8 @@
 [submodule "spdlog"]
 	path = include/spdlog
 	url = git@github.com:gabime/spdlog.git
+	branch = v1.x
+[submodule "glfw"]
+	path = include/glfw
+	url = git@github.com:glfw/glfw.git
+	branch = latest
