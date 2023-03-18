@@ -17,6 +17,12 @@ workspace "Grafik"
         "FatalWarnings"
     }
 
+output_dir = "%{ cfg.buildcfg }"
+
+group "Dependencies"
+    include "include/glad"
+group ""
+
 project "Grafik"
     location ""
     kind "ConsoleApp"
@@ -28,8 +34,8 @@ project "Grafik"
     functionlevellinking "on"
     conformancemode "on"
 
-    targetdir ("bin/%{ cfg.buildcfg }")
-    objdir ("intermediate/%{ cfg.buildcfg }")
+    targetdir ("bin/" .. output_dir)
+    objdir ("intermediate/" .. output_dir)
 
     pchheader "gpch.h"
     pchsource "src/gpch.cpp"
@@ -37,7 +43,6 @@ project "Grafik"
     files
     {
         "src/**.h",
-        "src/**.c",
         "src/**.cpp",
 
         "data/**",
@@ -70,11 +75,10 @@ project "Grafik"
     {
         "src",
         "include",
-        "include/glad",
+        "include/glad/include",
         "include/glm",
         "include/GLFW",
         "include/imgui",
-        "include/KHR",
         "include/spdlog/include",
         "include/stb",
         "%{ VULKAN_SDK }/Include"
@@ -89,16 +93,14 @@ project "Grafik"
     links
     {
         "vulkan-1.lib",
-        "glfw3.lib"
+        "glfw3.lib",
+        "glad"
     }
 
     defines
 	{
 		"GLFW_INCLUDE_NONE"
 	}
-
-    filter "files:src/glad.c"
-        flags "NoPCH"
 
     filter "files:include/**.cpp"
         flags "NoPCH"
@@ -119,27 +121,19 @@ project "Grafik"
             "_CONSOLE"
         }
         
-    filter "configurations:Release"
+    filter "configurations:Release or Dist"
         runtime "Release"
         optimize "Speed"
         flags "LinkTimeOptimization"
-        defines
-        {
-            "NDEBUG",
-            "_CONSOLE"
-        }
+        defines "NDEBUG"
+
+    filter "configurations:Release"
+        defines "_CONSOLE"
         
     filter "configurations:Dist"
         kind "WindowedApp"
-        runtime "Release"
-        optimize "Speed"
         symbols "off"
-        flags "LinkTimeOptimization"
-        defines
-        {
-            "NDEBUG",
-            "GK_DISTR"
-        }
+        defines "GK_DISTR"
         libdirs
         {
             "lib/GLFW/Release"

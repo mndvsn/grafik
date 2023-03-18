@@ -42,9 +42,9 @@
 !*.lib
 
 # Binary Files
-bin/*
+**/bin/*
 *.exe
 
 # Compiled source files
-intermediate/*
+**/intermediate/*
 
