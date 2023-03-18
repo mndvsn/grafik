@@ -36,7 +36,7 @@ void Shader::Unbind()
     switch (RendererAPI::GetAPI())
     {
         case RendererAPI::API::None:           break;
-        case RendererAPI::API::OpenGL:         OpenGLShader::Unbind();
+        case RendererAPI::API::OpenGL:         OpenGLShader::Unbind(); break;
         case RendererAPI::API::Vulkan:         break;
     }
 }
