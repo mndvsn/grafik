@@ -1,0 +1,48 @@
+project "ImGui"
+    kind "StaticLib"
+    language "C++"
+    staticruntime "on"
+    systemversion "latest"
+
+    targetdir ("../bin/" .. output_dir .. "/%{ prj.name }")
+    objdir ("../intermediate/" .. output_dir .. "/%{ prj.name }")
+
+    files
+    {
+        "imgui/imconfig.h",
+        "imgui/imgui.h",
+        "imgui/imgui.cpp",
+        "imgui/imgui_internal.h",
+        "imgui/imstb_rectpack.h",
+        "imgui/imstb_textedit.h",
+        "imgui/imstb_truetype.h",
+        "imgui/imgui_demo.cpp",
+        "imgui/imgui_draw.cpp",
+        "imgui/imgui_tables.cpp",
+        "imgui/imgui_widgets.cpp",
+
+        "imgui/backends/imgui_impl_glfw.h",
+        "imgui/backends/imgui_impl_glfw.cpp",
+
+        "imgui/backends/imgui_impl_opengl3.h",
+        "imgui/backends/imgui_impl_opengl3_loader.h",
+        "imgui/backends/imgui_impl_opengl3.cpp",
+    }
+
+    includedirs
+    {
+        "imgui",
+        "$(ProjectDir)"
+    }
+
+    links "glfw3.lib"
+
+    filter "configurations:Debug"
+        runtime "Debug"
+        symbols "on"
+        libdirs "../lib/GLFW/Debug"
+
+    filter { "configurations:Release or Dist" }
+        runtime "Release"
+        optimize "speed"
+        libdirs "../lib/GLFW/Release"

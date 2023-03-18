@@ -21,6 +21,7 @@ output_dir = "%{ cfg.buildcfg }"
 
 group "Dependencies"
     include "include/glad"
+    include "include/imgui.lua"
 group ""
 
 project "Grafik"
@@ -34,8 +35,8 @@ project "Grafik"
     functionlevellinking "on"
     conformancemode "on"
 
-    targetdir ("bin/" .. output_dir)
-    objdir ("intermediate/" .. output_dir)
+    targetdir ("bin/" .. output_dir .. "/%{ prj.name }")
+    objdir ("intermediate/" .. output_dir .. "/%{ prj.name }")
 
     pchheader "gpch.h"
     pchsource "src/gpch.cpp"
@@ -49,24 +50,6 @@ project "Grafik"
 
         "include/stb/**.h",
         "include/stb/**.cpp",
-
-        "include/imgui/imgui.h",
-        "include/imgui/imgui_internal.h",
-        "include/imgui/imconfig.h",
-        "include/imgui/imstb_rectpack.h",
-        "include/imgui/imstb_textedit.h",
-        "include/imgui/imstb_truetype.h",
-        "include/imgui/backends/imgui_impl_glfw.h",
-        "include/imgui/backends/imgui_impl_opengl3_loader.h",
-        "include/imgui/backends/imgui_impl_opengl3.cpp",
-
-        "include/imgui/imgui.cpp",
-        "include/imgui/imgui_demo.cpp",
-        "include/imgui/imgui_draw.cpp",
-        "include/imgui/imgui_tables.cpp",
-        "include/imgui/imgui_widgets.cpp",
-        "include/imgui/backends/imgui_impl_glfw.cpp",
-        "include/imgui/backends/imgui_impl_opengl3.h",
     }
     -- temp
     removefiles "src/f3d/**"
@@ -94,7 +77,8 @@ project "Grafik"
     {
         "vulkan-1.lib",
         "glfw3.lib",
-        "glad"
+        "glad",
+        "imgui"
     }
 
     defines
