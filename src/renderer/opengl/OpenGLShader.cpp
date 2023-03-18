@@ -58,8 +58,8 @@ unsigned OpenGLShader::CreateShaderProgram(const std::string& vertexShader, cons
         std::cout << "Warning: Failed to compile shader '" << _shaderName << "'." << std::endl;
     }
 
-    glDeleteShader(vs);
-    glDeleteShader(fs);
+    glDetachShader(program, vs);
+    glDetachShader(program, fs);
 
     return program;
 }

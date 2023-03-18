@@ -15,7 +15,6 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 #include <imgui/imgui.h>
 
 
@@ -74,26 +73,6 @@ void Renderer::Render(const VertexArray& vao, const std::shared_ptr<Shader>& sha
         const void* offset = reinterpret_cast<const void*>(static_cast<intptr_t>(sizeof(unsigned)*elementStart)); // NOLINT(performance-no-int-to-ptr)
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, offset);
     }
-}
-
-void Renderer::Clear() const
-{
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void Renderer::SetClearColor(const glm::vec3& color)
-{
-    glClearColor(color.r, color.g, color.b, 1.0f);
-}
-
-void Renderer::SetClearColor(const glm::vec4& color)
-{
-    glClearColor(color.r, color.g, color.b, color.a);
-}
-
-void Renderer::SetWireframeMode(bool bUseLineDraw)
-{
-    glPolygonMode(GL_FRONT_AND_BACK, bUseLineDraw ? GL_LINE : GL_FILL);
 }
 
 void Renderer::SetViewport(int width, int height)

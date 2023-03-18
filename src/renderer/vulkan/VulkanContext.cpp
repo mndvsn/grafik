@@ -53,7 +53,7 @@ void VulkanContext::CreateInstance()
     const auto debugCreateInfo = GetDebugInfo();
 #endif
 
-    const auto appInfo = vk::ApplicationInfo
+    constexpr auto appInfo = vk::ApplicationInfo
     {
         .pApplicationName       = Grafik::ApplicationName,
         .applicationVersion     = 1,
@@ -197,6 +197,7 @@ void VulkanContext::BeginRenderPass(vk::CommandBuffer buffer)
         throw std::runtime_error { "Failed to begin recording command buffer!" };
     }
 
+    // Should be separated into Framebuffer class
     const vk::ClearValue color
     {
         .color           = { std::array { _clearColor.r, _clearColor.g, _clearColor.b, _clearColor.a } }

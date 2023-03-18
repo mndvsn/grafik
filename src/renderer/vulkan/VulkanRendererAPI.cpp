@@ -33,6 +33,7 @@ void VulkanRendererAPI::ClearBuffer() const
 
 void VulkanRendererAPI::SetClearColor(const float r, const float g, const float b, const float alpha)
 {
+    //TODO: Update Framebuffer wrapper instead
     const auto context = Application::Get().GetWindow()->GetContext<VulkanContext>();
     context->SetClearColor({ r, g, b, alpha });
 }
