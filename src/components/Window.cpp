@@ -7,6 +7,7 @@
 #include "Window.h"
 
 #include "events/ApplicationEvent.h"
+#include "events/MouseEvent.h"
 #include "renderer/Renderer.h"
 
 #include <GLFW/glfw3.h>
@@ -47,6 +48,14 @@ void Window::OnAttach(int& eventMask)
     glfwSetFramebufferSizeCallback(_window, [](GLFWwindow*, const int width, const int height)
     {
         EventManager::Get()->Broadcast<FramebufferSizeEvent>(width, height);
+    });
+
+    glfwSetMouseButtonCallback(_window, [](GLFWwindow*, int button, int action, int mods)
+    {
+        const bool pressed = action == GLFW_PRESS;
+        (void)mods; //TODO: handle modifier keys
+        
+        EventManager::Get()->Broadcast<MouseButtonEvent>(button, pressed);
     });
 }
 

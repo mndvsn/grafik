@@ -4,6 +4,7 @@
  * Copyright 2023 Martin Furuberg
  */
 #pragma once
+#include <spdlog/fmt/ostr.h>
 
 
 #define GK_BIND_EVENT_HANDLER_EXTERN(obj,h) [obj](auto&& ... args) -> decltype(auto) { (obj)->h(std::forward<decltype(args)>(args)...); }
@@ -82,6 +83,5 @@ public:
 
 inline std::ostream& operator<<(std::ostream& os, const Event& e)
 {
-    os << e.ToString();
-    return os;
+    return os << e.ToString();
 }
