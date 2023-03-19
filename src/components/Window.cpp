@@ -95,6 +95,12 @@ void Window::OnAttach(int& eventMask)
         
         EventManager::Get()->Broadcast<KeyEvent>(key, state);
     });
+
+    glfwSetCharCallback(_window, [](GLFWwindow*, unsigned int codePoint)
+    {
+        //TODO: Proper Unicode code point handling
+        EventManager::Get()->Broadcast<KeyCharEvent>(codePoint);
+    });
 }
 
 void Window::CreateNativeWindow()

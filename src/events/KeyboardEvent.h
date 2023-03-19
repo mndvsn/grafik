@@ -45,3 +45,31 @@ public:
         return stream.str();
     }
 };
+
+//TODO: Handle unicode
+class KeyCharEvent : public Event
+{
+    int  _codePoint { 0 };
+    char _char      { 0 };
+    
+public:
+    KeyCharEvent(const int codePoint, void* instigator = nullptr)
+        : _codePoint { codePoint }
+        , _char { static_cast<char>(codePoint) }
+    {
+        _instigator = instigator;
+    }
+    
+    GK_EVENT_CLASS_TYPE(KeyChar)
+    GK_EVENT_CLASS_CATEGORY(Input | Keyboard)
+
+    [[nodiscard]] char GetChar() const { return _char; }
+    [[nodiscard]] int GetCode() const { return _codePoint; }
+
+    [[nodiscard]] std::string ToString() const override
+    {
+        std::stringstream stream;
+        stream << GetName() << " (" << _codePoint << ": " << _char << ")";
+        return stream.str();
+    }
+};
