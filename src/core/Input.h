@@ -190,7 +190,9 @@ namespace Input
             RightCtrl           = 345,
             RightAlt            = 346,
             RightSuper          = 347,
-            Menu                = 348
+            Menu                = 348,
+
+            Last                = Menu
         };
 
         inline const char* KeyString(const Key k)
@@ -331,4 +333,7 @@ namespace Input
             return os << KeyString(k);
         }
     }
+
+    bool IsButtonPressed(Mouse::Button button);
+    bool IsKeyPressed(Keyboard::Key key);
 }

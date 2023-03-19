@@ -7,6 +7,7 @@
 #include "VulkanTest.h"
 
 #include "core/Application.h"
+#include "core/Input.h"
 #include "components/Window.h"
 #include "events/KeyboardEvent.h"
 #include "renderer/RenderCommand.h"
@@ -60,10 +61,32 @@ namespace labb
         _animCycle = glm::mod(_animCycle + 90.0 * delta * _speed, 360.0);
         const auto radCycle = glm::radians(_animCycle);
 
+        const bool lmbDown = Input::IsButtonPressed(Input::Mouse::Left);
+        const bool rmbDown = Input::IsButtonPressed(Input::Mouse::Right);
+
+        const bool keyDown = Input::IsKeyPressed(Input::Keyboard::LeftShift);
+        
         for (double step = 0.0; auto& triangle : _triangles)
         {
             triangle.transform.translation.x = static_cast<float>(glm::sin(radCycle) * step * 0.04);
             triangle.transform.rotation.z = static_cast<float>(glm::radians(15 * glm::sin(radCycle)));
+
+            if (lmbDown)
+            {
+                triangle.transform.translation.y += static_cast<float>(0.001 * step);
+            }
+            if (rmbDown)
+            {
+                triangle.transform.translation.y -= static_cast<float>(0.001 * step);
+            }
+            if (keyDown)
+            {
+                triangle.color.b += 0.005f;
+            }
+            else
+            {
+                triangle.color.b = std::max(0.0f, triangle.color.b - 0.003f);
+            }
             step += 1.0;
         }
     }
@@ -127,7 +150,7 @@ namespace labb
     {
         if (e.GetKey() == Input::Keyboard::Space)
         {
-            _anim = !e.IsPressed();
+            _anim = !(e.IsPressed() || e.IsRepeated());
         }
         else if (e.IsPressed() && e.GetKey() == Input::Keyboard::Up)
         {
