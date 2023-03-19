@@ -45,6 +45,9 @@
 **/bin/*
 *.exe
 
+# Allow premake
+!build/**/*.exe
+
 # Compiled source files
 **/intermediate/*
 
