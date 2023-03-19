@@ -7,6 +7,7 @@
 #include "Window.h"
 
 #include "events/ApplicationEvent.h"
+#include "events/KeyboardEvent.h"
 #include "events/MouseEvent.h"
 #include "renderer/Renderer.h"
 
@@ -72,6 +73,27 @@ void Window::OnAttach(int& eventMask)
         (void)mods; //TODO: handle modifier keys
         
         EventManager::Get()->Broadcast<MouseButtonEvent>(button, pressed);
+    });
+
+    glfwSetKeyCallback(_window, [](GLFWwindow*, int keyCode, int scancode, int action, int mods)
+    {
+        auto key = static_cast<Input::Keyboard::Key>(keyCode);
+        
+        Input::InputState state;
+        switch (action)
+        {
+            default:
+            case GLFW_RELEASE:
+                state = Input::InputState::Release; break;
+            case GLFW_PRESS:
+                state = Input::InputState::Press; break;
+            case GLFW_REPEAT:
+                state = Input::InputState::Repeat; break;
+        }
+        (void)mods; //TODO: handle modifier keys
+        (void)scancode; //https://www.glfw.org/docs/latest/input_guide.html#input_keyboard
+        
+        EventManager::Get()->Broadcast<KeyEvent>(key, state);
     });
 }
 

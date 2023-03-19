@@ -9,6 +9,7 @@
 #include "renderer/vulkan/VulkanPipeline.h"
 
 
+class KeyEvent;
 class VulkanContext;
 
 namespace labb
@@ -75,12 +76,18 @@ namespace labb
     public:
         LVulkanTest();
         ~LVulkanTest() override;
-       
+        
+        void OnAttach(int& eventMask) override;
+        
         void OnTick(TickEvent& e) override;
         void OnRender(RenderEvent& e) override;
         void OnUI(UIEvent& e) override;
+
+        void OnEvent(Event& e) override;
         
     private:
+        void OnButton(KeyEvent& e);
+        
         void CreatePipeline();
         void CreateModel();
 
@@ -90,6 +97,8 @@ namespace labb
         std::unique_ptr<VulkanPipeline> _pipeline { };
         std::unique_ptr<VulkanModel> _model { };
 
+        bool _anim { true };
+        double _speed { 1.0 };
         int _objCount { 8 };
         double _animCycle { };
         std::vector<Triangle> _triangles { };

@@ -8,6 +8,7 @@
 
 #include "core/Application.h"
 #include "components/Window.h"
+#include "events/KeyboardEvent.h"
 #include "renderer/RenderCommand.h"
 #include "renderer/vulkan/VulkanContext.h"
 #include "renderer/vulkan/VulkanSwapChain.h"
@@ -45,10 +46,18 @@ namespace labb
         }
     }
 
+    void LVulkanTest::OnAttach(int& eventMask)
+    {
+        LLab::OnAttach(eventMask);
+        eventMask |= Event::Keyboard;
+    }
+
     void LVulkanTest::OnTick(TickEvent& e)
     {
+        if (!_anim) return;
+        
         const auto delta = e.GetDeltaTime();
-        _animCycle = glm::mod(_animCycle + 90.0 * delta, 360.0);
+        _animCycle = glm::mod(_animCycle + 90.0 * delta * _speed, 360.0);
         const auto radCycle = glm::radians(_animCycle);
 
         for (double step = 0.0; auto& triangle : _triangles)
@@ -102,7 +111,33 @@ namespace labb
             static_cast<double>(ImGui::GetIO().Framerate));
         ImGui::Separator();
         ImGui::Text("Animation: %d %%", static_cast<int>(_animCycle / 360. * 100));
+        ImGui::Text("Speed: %.2f", _speed);
         ImGui::End();
+    }
+
+    void LVulkanTest::OnEvent(Event& e)
+    {
+        LLab::OnEvent(e);
+        
+        EventDispatcher dispatcher { e };
+        dispatcher.Dispatch<KeyEvent>(GK_BIND_EVENT_HANDLER(OnButton));
+    }
+
+    void LVulkanTest::OnButton(KeyEvent& e)
+    {
+        if (e.GetKey() == Input::Keyboard::Space)
+        {
+            _anim = !e.IsPressed();
+        }
+        else if (e.IsPressed() && e.GetKey() == Input::Keyboard::Up)
+        {
+            _speed *= 1.05;
+        }
+        else if (e.IsPressed() && e.GetKey() == Input::Keyboard::Down)
+        {
+            _speed *= 0.95;
+        }
+        e.Handled();
     }
 
     void LVulkanTest::CreatePipeline()
