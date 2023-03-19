@@ -50,6 +50,22 @@ void Window::OnAttach(int& eventMask)
         EventManager::Get()->Broadcast<FramebufferSizeEvent>(width, height);
     });
 
+    glfwSetCursorPosCallback(_window, [](GLFWwindow*, const double x, const double y)
+    {
+        // convert from subpixel data (possibly) to integer
+        auto mx = static_cast<uint16_t>(x);
+        auto my = static_cast<uint16_t>(y);
+        EventManager::Get()->Broadcast<MouseMoveEvent>(mx, my);
+    });
+
+    glfwSetScrollCallback(_window, [](GLFWwindow*, const double dx, const double dy)
+    {
+        // convert from high precision data (ie touch input) to integer
+        auto deltaX = static_cast<uint16_t>(dx);
+        auto deltaY = static_cast<uint16_t>(dy);
+        EventManager::Get()->Broadcast<MouseScrollEvent>(deltaX, deltaY);
+    });
+
     glfwSetMouseButtonCallback(_window, [](GLFWwindow*, int button, int action, int mods)
     {
         const bool pressed = action == GLFW_PRESS;
