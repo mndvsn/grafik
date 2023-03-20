@@ -6,6 +6,7 @@
 #pragma once
 #include "core/ComponentManager.h"
 #include "events/ApplicationEvent.h"
+#include "events/KeyboardEvent.h"
 #include "renderer/RendererAPI.h"
 #include "ui/UI.h"
 
@@ -70,6 +71,7 @@ private:
 
     void OnWindowClose(WindowCloseEvent& e) const;
     void OnInitLab(InitLabEvent& e);
+    void OnKey(KeyEvent& e) const;
     
     static void CheckArgs(Config& config);
 };

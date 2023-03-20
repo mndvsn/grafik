@@ -160,7 +160,6 @@ namespace labb
         {
             _speed *= 0.95;
         }
-        e.Handled();
     }
 
     void LVulkanTest::CreatePipeline()

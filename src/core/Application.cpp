@@ -39,7 +39,8 @@ void Application::Init()
     Renderer::Init(_config.api);
 
     // Initialize event system
-    EventManager::Get()->AddListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), Event::Application);
+    constexpr auto eventMask = Event::Application | Event::Keyboard;
+    EventManager::Get()->AddListener(this, GK_BIND_EVENT_HANDLER(Application::OnEvent), eventMask);
 
     const WindowProperties props { _config.title, _config.width, _config.height };
     _window = _components.Create<Window>(props);
@@ -132,6 +133,7 @@ void Application::Run()
 void Application::OnEvent(Event& e)
 {
     EventDispatcher dispatcher { e };
+    dispatcher.Dispatch<KeyEvent>(GK_BIND_EVENT_HANDLER(OnKey));
     dispatcher.Dispatch<WindowCloseEvent>(GK_BIND_EVENT_HANDLER(OnWindowClose));
     dispatcher.Dispatch<InitLabEvent>(GK_BIND_EVENT_HANDLER(OnInitLab));
 }
@@ -158,6 +160,16 @@ void Application::OnInitLab(InitLabEvent& e)
         }
     }
     e.Handled();
+}
+
+void Application::OnKey(KeyEvent& e) const
+{
+    if (e.IsPressed() && e.GetKey() == Input::Keyboard::Escape)
+    {
+        // Esc pressed, quit application
+        EventManager::Get()->Broadcast<WindowCloseEvent>();
+        e.Handled();
+    }
 }
 
 void Application::CheckArgs(Config& config)
