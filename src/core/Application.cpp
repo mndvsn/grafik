@@ -164,7 +164,7 @@ void Application::OnInitLab(InitLabEvent& e)
 
 void Application::OnKey(KeyEvent& e) const
 {
-    if (e.IsPressed() && e.GetKey() == Input::Keyboard::Escape)
+    if (e.IsPressed() && e.IsKey<Input::Keyboard::Escape>())
     {
         // Esc pressed, quit application
         EventManager::Get()->Broadcast<WindowCloseEvent>();

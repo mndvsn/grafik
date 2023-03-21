@@ -27,5 +27,13 @@ namespace Input
         const auto state = glfwGetKey(window, key);
         return state == GLFW_PRESS;
     }
+
+    std::pair<int16_t, int16_t> GetMousePos()
+    {
+        const auto window = Application::Get().GetWindow()->GetNativeWindow();
+        double mouseX, mouseY;
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+        return { static_cast<int16_t>(mouseX), static_cast<int16_t>(mouseY) };
+    }
 }
 

@@ -124,8 +124,7 @@ namespace labb
         const auto labItem = std::ranges::find_if(_labs, matchesShortName);
         if (labItem != _labs.end())
         {
-            InitLabEvent event { labItem->second.createInstance };
-            EventManager::Get()->Broadcast(event);
+            EventManager::Get()->Broadcast<InitLabEvent>(labItem->second.createInstance);
         }
     }
 }

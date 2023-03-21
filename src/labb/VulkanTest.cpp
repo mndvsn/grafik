@@ -148,15 +148,15 @@ namespace labb
 
     void LVulkanTest::OnButton(KeyEvent& e)
     {
-        if (e.GetKey() == Input::Keyboard::Space)
+        if (e.IsKey<Input::Keyboard::Space>())
         {
             _anim = !(e.IsPressed() || e.IsRepeated());
         }
-        else if (e.IsPressed() && e.GetKey() == Input::Keyboard::Up)
+        else if (e.IsPressed() && e.IsKey<Input::Keyboard::Up>())
         {
             _speed *= 1.05;
         }
-        else if (e.IsPressed() && e.GetKey() == Input::Keyboard::Down)
+        else if (e.IsPressed() && e.IsKey<Input::Keyboard::Down>())
         {
             _speed *= 0.95;
         }

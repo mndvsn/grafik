@@ -23,6 +23,8 @@ public:
     GK_EVENT_CLASS_TYPE(Key)
     GK_EVENT_CLASS_CATEGORY(Input | Keyboard)
 
+    template <Input::Keyboard::Key K>
+    [[nodiscard]] bool IsKey() const { return _key == K; }
     [[nodiscard]] Input::Keyboard::Key GetKey() const { return _key; }
     [[nodiscard]] bool IsPressed() const { return _state == Input::InputState::Press; }
     [[nodiscard]] bool IsRepeated() const { return _state == Input::InputState::Repeat; }

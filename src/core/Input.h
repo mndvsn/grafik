@@ -336,4 +336,8 @@ namespace Input
 
     bool IsButtonPressed(Mouse::Button button);
     bool IsKeyPressed(Keyboard::Key key);
+
+    [[nodiscard]] std::pair<int16_t, int16_t> GetMousePos();
+    [[nodiscard]] inline int16_t GetMouseX() { return GetMousePos().first; }
+    [[nodiscard]] inline int16_t GetMouseY() { return GetMousePos().second; }
 }
